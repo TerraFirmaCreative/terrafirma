@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "worker:dev": "cd worker && npm run dev",
+    "rest-api:dev": "cd rest-api && npm run dev"
+  },
+  "license": "ISC",
+  "workspaces": [
+    "packages/*"
+  ]
+}

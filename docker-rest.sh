@@ -1,0 +1,1 @@
+docker build $(for i in `cat ./packages/rest/.env.docker`; do out+="--build-arg $i "; done; echo $out;out="";) -t tipex360/terrafirma-rest:0.1 -f ./packages/rest/Dockerfile .
