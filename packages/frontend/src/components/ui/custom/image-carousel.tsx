@@ -17,7 +17,6 @@ import {
   Dispatch,
 } from "react"
 import { ProductUnion } from "./creation-context"
-import { GetProductsByIdQuery } from "../../../../types/storefront.generated"
 
 const GeneratedImageCarousel = ({
   items,

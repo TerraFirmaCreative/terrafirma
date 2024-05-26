@@ -2,7 +2,7 @@
 import { getStorefrontClient } from "@/config"
 
 /*
- *  Server actions for fetching CDN data
+ *  Server actions for fetching CMS data
  */
 
 export const getPages = async (): Promise<CMSPageData[]> => {

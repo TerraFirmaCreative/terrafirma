@@ -5,9 +5,8 @@ import { router as tasksRouter } from './api/tasks'
 import { mjClient } from "./config"
 import cookieParser from "cookie-parser"
 import { prisma } from "./config"
-import { sessions } from "./session/session"
-import { auth } from "./middleware"
 import { getProductsById } from "./tasks/shopify"
+import { MJMessage } from "midjourney"
 
 mjClient.init().then((client) => {
   console.log("Midjourney Client is Ready")
@@ -33,6 +32,12 @@ app.post('/products', async (req, res) => {
   const products = getProductsById(gids)
 
   res.json({ products: products })
+})
+
+app.post('/', async (req, res) => {
+  const Imagine: MJMessage | null = await mjClient.Imagine(req.body.prompt)
+
+  res.json(Imagine?.uri)
 })
 
 /*

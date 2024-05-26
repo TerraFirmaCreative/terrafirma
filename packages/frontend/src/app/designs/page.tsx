@@ -11,6 +11,7 @@ import * as yup from "yup"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { GenerateImageParams } from "@/lib/types/image.dto"
+import { formatTitle } from "@/lib/utils"
 
 
 const ViewCustomMats = () => {
@@ -54,7 +55,7 @@ const ViewCustomMats = () => {
             <GeneratedImageCarousel items={items} setSelected={setSelected} />
           </div>
           <div className="flex flex-col lg:w-1/2 py-16 bg-white px-16">
-            <h1 className="text-slate-800 font-semibold text-4xl">{items[selected]!.shopifyProduct?.title}</h1>
+            <h1 className="text-slate-800 font-semibold text-4xl">{formatTitle(items[selected]!.shopifyProduct?.title ?? "")}</h1>
             <div className="pt-4 text-lg"><i>$70.00</i></div>
             <div className="flex flex-col gap-2 py-4">
               <div className="flex flex-row flex-wrap gap-2">

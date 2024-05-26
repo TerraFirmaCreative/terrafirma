@@ -44,7 +44,6 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
           <div className="flex flex-row justify-between items-center w-full">
             <div>
               {menuItems.map((item, i) =>
-                // <NavigationMenuItem>
                 <Link key={i} href={item.href} className={cn("px-4 text-gray-700 hover:text-black hover:underline", pathname == item.href && "text-black font-semibold")}>
                   {item.text}
                 </Link>

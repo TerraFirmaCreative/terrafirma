@@ -1,5 +1,5 @@
 /* eslint-disable */
-import * as StorefrontTypes from './storefront.types.js'
+import * as StorefrontTypes from './storefront.types.d.ts'
 
 export type GetPagesQueryVariables = StorefrontTypes.Exact<{ [key: string]: never }>
 
@@ -68,6 +68,22 @@ export type PaginatedProductsQuery = {
   }
 }
 
+export type GetProductsByIdQueryVariables = StorefrontTypes.Exact<{
+  query?: StorefrontTypes.InputMaybe<StorefrontTypes.Scalars['String']['input']>
+}>
+
+
+export type GetProductsByIdQuery = {
+  products: {
+    edges: Array<{
+      node: (
+        Pick<StorefrontTypes.Product, 'id' | 'title' | 'description'>
+        & { featuredImage?: StorefrontTypes.Maybe<Pick<StorefrontTypes.Image, 'url'>>, images: { edges: Array<{ node: Pick<StorefrontTypes.Image, 'altText' | 'url'> }> }, priceRange: { maxVariantPrice: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, variants: { edges: Array<{ node: Pick<StorefrontTypes.ProductVariant, 'id'> }> } }
+      )
+    }>
+  }
+}
+
 export type GetProductQueryVariables = StorefrontTypes.Exact<{
   id: StorefrontTypes.Scalars['ID']['input']
 }>
@@ -76,7 +92,7 @@ export type GetProductQueryVariables = StorefrontTypes.Exact<{
 export type GetProductQuery = {
   product?: StorefrontTypes.Maybe<(
     Pick<StorefrontTypes.Product, 'id' | 'title' | 'description'>
-    & { featuredImage?: StorefrontTypes.Maybe<Pick<StorefrontTypes.Image, 'url'>>, priceRange: { maxVariantPrice: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, variants: { edges: Array<{ node: Pick<StorefrontTypes.ProductVariant, 'id'> }> } }
+    & { featuredImage?: StorefrontTypes.Maybe<Pick<StorefrontTypes.Image, 'url'>>, images: { edges: Array<{ node: Pick<StorefrontTypes.Image, 'url' | 'altText'> }> }, priceRange: { maxVariantPrice: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, variants: { edges: Array<{ node: Pick<StorefrontTypes.ProductVariant, 'id'> }> } }
   )>
 }
 
@@ -85,7 +101,8 @@ interface GeneratedQueryTypes {
   "#graphql\n    query getPage($handle: MetaobjectHandleInput) {\n      metaobject(handle: $handle) {\n        handle\n        fields {\n          key\n          value\n        }\n      }\n    }\n  ": { return: GetPageQuery, variables: GetPageQueryVariables },
   "#graphql\n    query customProducts($first: Int, $sortKey: ProductSortKeys, $query: String) {\n      products(first: $first, sortKey: $sortKey, query: $query) {\n        edges {\n          node {\n            id\n            title\n            featuredImage {\n              url\n            }\n            priceRange {\n              maxVariantPrice {\n                currencyCode\n                amount\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: CustomProductsQuery, variables: CustomProductsQueryVariables },
   "#graphql\n    query paginatedProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $reverse: Boolean, $after: String) {\n      products(first: $first, sortKey: $sortKey, query: $query, reverse: $reverse, after: $after) {\n        edges {\n          cursor\n          node {\n            id\n            title\n            featuredImage {\n              url\n            }\n            priceRange {\n              maxVariantPrice {\n                amount\n                currencyCode\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: PaginatedProductsQuery, variables: PaginatedProductsQueryVariables },
-  "#graphql\n    query getProduct($id: ID!) {\n      product(id: $id) {\n        id\n        title\n        description\n        featuredImage {\n          url\n        }\n        priceRange {\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 1) {\n          edges{\n            node {\n              id\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetProductQuery, variables: GetProductQueryVariables },
+  "#graphql\n    query getProductsById($query: String) {\n      products(first: 10, query: $query) {\n        edges {\n          node {\n            id\n            title\n            description\n            featuredImage {\n              url\n            }\n            images {\n              edges {\n                node {\n                  altText\n                  url\n                }\n              }\n            }\n            priceRange {\n              maxVariantPrice {\n                amount\n                currencyCode\n              }\n            }\n            variants(first: 1) {\n              edges{\n                node {\n                  id\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetProductsByIdQuery, variables: GetProductsByIdQueryVariables },
+  "#graphql\n    query getProduct($id: ID!) {\n      product(id: $id) {\n        id\n        title\n        description\n        featuredImage {\n          url\n        }\n        images(first: 10) {\n          edges {\n            node {\n              url\n              altText\n            }\n          }\n        }\n        priceRange {\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 1) {\n          edges{\n            node {\n              id\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetProductQuery, variables: GetProductQueryVariables },
 }
 
 interface GeneratedMutationTypes {

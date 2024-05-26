@@ -1,8 +1,7 @@
 "use server"
-import { GetProductQuery, ProductSortKeys } from "@/lib/types/graphql"
+import { GetProductQuery, ProductSortKeys, GetProductsByIdQuery } from "@/lib/types/graphql"
 import { getAdminClient, getStorefrontClient } from '@/config'
 import { shopifyIdToUrlId } from "@/lib/utils"
-import { GetProductsByIdQuery } from "../../../types/storefront.generated"
 
 export const getExistingCustomMats = async () => {
   const query = `#graphql
@@ -72,7 +71,7 @@ export const getPaginatedProducts = async (params: FilterParams) => {
     variables: {
       first: 20,
       sortKey: params.sortKey ?? ProductSortKeys.CreatedAt,
-      query: `tag:${params.productTag ?? 'Public'} variants.price:>=${params.priceRange?.at(0)?.toString() ?? '0'} variants.price:<=${params.priceRange?.at(1)?.toString() ?? '200'}`,
+      query: `variants.price:>=${params.priceRange?.at(0)?.toString() ?? '0'} variants.price:<=${params.priceRange?.at(1)?.toString() ?? '200'}`,
       reverse: params.reverse,
       after: params.cursor
     },
@@ -94,6 +93,14 @@ export const getProductsById = async (ids: string[]): Promise<GetProductsByIdQue
             description
             featuredImage {
               url
+            }
+            images {
+              edges {
+                node {
+                  altText
+                  url
+                }
+              }
             }
             priceRange {
               maxVariantPrice {
@@ -132,6 +139,14 @@ export const getProduct = async (productId: string): Promise<GetProductQuery['pr
         description
         featuredImage {
           url
+        }
+        images(first: 10) {
+          edges {
+            node {
+              url
+              altText
+            }
+          }
         }
         priceRange {
           maxVariantPrice {

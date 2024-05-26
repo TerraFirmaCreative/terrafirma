@@ -1,5 +1,6 @@
 "use server"
 
+import { auth } from "@/actions/auth"
 import { sessions } from "@/components/session/session-data"
 import { getPrisma } from "@/config"
 import { ImagineData, TaskStatus, TaskType } from "@prisma/client"
@@ -13,21 +14,25 @@ export type BeginTaskResult = {
 export type ImagineTaskInput = {
   prompt: string
 }
+
 export type ImagineVariantsTaskInput = ImagineTaskInput & {
   srcImagineData: ImagineData,
   index: number
 }
+
 type TaskInput = { type: TaskType } & (ImagineTaskInput | ImagineVariantsTaskInput)
 
 export const beginTask = async (task: TaskInput): Promise<BeginTaskResult> => {
-  console.log("here!")
   let result: BeginTaskResult = {
     id: null,
     status: TaskStatus.Failed
   }
 
+  if (!cookies().has('token')) {
+    await auth()
+  }
+
   const token = cookies().get('token')
-  console.log("token:", token)
   if (!token) return result
 
   switch (task.type) {
@@ -58,7 +63,6 @@ export const beginTask = async (task: TaskInput): Promise<BeginTaskResult> => {
       }
       break
     case TaskType.ImagineVariants:
-    case TaskType.Imagine:
       try {
         const response = await fetch(`${process.env.REST_API_URL}/tasks/imagine/variants`, {
           method: 'POST',
@@ -87,6 +91,7 @@ export const beginTask = async (task: TaskInput): Promise<BeginTaskResult> => {
     default:
       break
   }
+
   return result
 }
 
@@ -126,7 +131,7 @@ export const getUserProducts = async () => {
 
 export const updateUserEmail = async (email: string) => {
   const token = cookies().get('token')
-  console.log(token)
+
   if (!token) return
 
   const user = await getPrisma().user.update({
@@ -137,6 +142,6 @@ export const updateUserEmail = async (email: string) => {
       email: email
     }
   })
-  console.log(user)
+
   sessions.set(token.value, user)
 }

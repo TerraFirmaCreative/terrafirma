@@ -1,5 +1,7 @@
-import { gql } from "graphql-request"
 import { adminClient } from "../config"
+import { spawn } from "child_process"
+import sharp, { Sharp } from "sharp"
+import { uploadImage } from "./image"
 
 type CreateProductItem = {
   title: string,
@@ -8,56 +10,70 @@ type CreateProductItem = {
   prompt: string
 }
 
-// export async function watermarkMedia(url: string, uuid: string) {
-//   const originalBuffer = await fetch(url, {
-//     "method": "GET",
-//     "cache": "no-cache",
-//   }).then((res) => {
-//     return res.arrayBuffer()
-//   })
-
-//   const original = sharp(originalBuffer).resize({ width: 640, height: 1920 })
-
-//   // const watermarked = sharp(
-//   //   "./src/assets/image/yoga_mask.png"
-//   // )
-
-//   // await Promise.all([watermarked.metadata().then((metadata) => {
-//   //   console.log(`Metadata MASK:: W: ${metadata.width} H: ${metadata.height}`)
-//   // }),
-//   // sharp(original).metadata().then((metadata) => {
-//   //   console.log(`Metadata OG:: W: ${metadata.width} H: ${metadata.height}`)
-//   // })
-//   // ])
-
-//   const watermarked: Buffer = await original.composite([
-//     {
-//       input: "./src/assets/image/yoga_mask.png",
-//       tile: true,
-//       blend: "multiply"
-//     },
-//     {
-//       input: "./src/assets/image/yoga_top.png",
-//       tile: true,
-//       blend: "add"
-//     },
-
-//   ]).toFormat("png").toBuffer()
-//   console.log(process.env.S3_BUCKET_ID)
-//   s3Client.send(
-//     new PutObjectCommand({
-//       Bucket: process.env.S3_BUCKET_ID ?? "",
-//       Key: `${uuid}.png`,
-//       Body: watermarked
-//     })
-//   )
-
-//   return url
-// }
 export type CreatedProductVariant = {
   productId: string,
   imageUrl: string
 }
+
+async function createProjectionMaps(productId: string, imageUrl: string) {
+  console.log("Starting", productId, imageUrl)
+  const child = spawn('python', ['./project.py', productId, imageUrl], {
+    cwd: "./src/utils/python/projection_map/"
+  })
+
+  let buffer: string = ''
+  child.stdout.on('data', async (data: string) => {
+    buffer += data
+  })
+
+  child.stdout.on('end', async () => {
+    const images = JSON.parse(buffer) as string[]
+    console.log(`Received ${images.length} projection mapped images`)
+    const image_urls = await Promise.all(images.map((encoded: string, i) =>
+      uploadImage(sharp(Buffer.from(encoded, "base64")), crypto.randomUUID())
+    ))
+    console.log("Uploaded images to S3")
+
+    image_urls.forEach((url) => {
+      addProductMedia(productId, url)
+      console.log("Created product media")
+    })
+  })
+
+  child.stderr.on('data', (data: Buffer) => {
+    console.log("Child process error: ", data.toString('ascii'))
+  })
+
+  child.on('error', (err) => {
+    console.log("Child process error:", err)
+  })
+}
+
+export async function addProductMedia(id: string, url: string) {
+  const query = `#gqladmin
+    mutation addProductMedia($productId: ID!, $media: [CreateMediaInput!]!) {
+      productCreateMedia(productId: $productId, media: $media) {
+        media {
+          mediaErrors {
+            message
+          }
+        }
+      }
+    }
+  `
+
+  await adminClient.request(query, {
+    variables: {
+      productId: id,
+      media: {
+        alt: "Product Visualisation",
+        mediaContentType: "IMAGE",
+        originalSource: url
+      }
+    }
+  })
+}
+
 export async function createProduct(item: CreateProductItem): Promise<CreatedProductVariant> {
   const query = `#gqladmin
     mutation createProduct($input: ProductInput!, $media: [CreateMediaInput!]) {
@@ -126,6 +142,8 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
       }
     }
   })
+
+  createProjectionMaps(product.data?.productCreate.product.id, item.url)
 
   return {
     // productId: product.data?.productCreate.product.variants.edges[0].node.id,

@@ -48,7 +48,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   })
 
   const onSubmit: SubmitHandler<yup.InferType<typeof emailSchema>> = (data) => {
-    console.log("submitted", data)
     if (data.email) {
       updateUserEmail(data.email)
     }
@@ -60,7 +59,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
 
     const userProducts = (await getUserProducts())
     const shopifyProducts = await getProductsById(userProducts.map((product) => product.shopifyProductId))
-    console.log(userProducts.map((p) => p.shopifyProductId), shopifyProducts.map((p) => p.node.id))
     const productUnions: ProductUnion[] = userProducts.slice(0, Math.min(shopifyProducts.length, userProducts.length)).map((userProduct, i) => {
       // TODO: Check this! index needs to match when creating variants
       return {
@@ -68,8 +66,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         shopifyProduct: shopifyProducts[i].node
       }
     })
-
-    console.log(productUnions)
 
     setProducts(productUnions)
   }
@@ -113,7 +109,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   }
 
   const vary = async (index: number, prompt: string) => {
-    console.log("Here")
     beginTask({
       prompt: prompt,
       srcImagineData: products.at(index)?.imagineData!,
@@ -131,16 +126,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       }
     })
     setInProgress(true)
-
-    const newItems = products.map((item, i) => {
-
-
-      if (i == index) {
-        // item!.allowVariants = false
-      }
-      return item
-    })
-    setProducts(newItems)
   }
 
 

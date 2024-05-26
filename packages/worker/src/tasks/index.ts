@@ -2,11 +2,13 @@ import { ImagineTask, ImagineVariantsTask } from "../types/worker"
 import { sanitisePrompt } from "@terrafirma/rest/src/utils"
 import { createVariants, generateCustomText, imagineMats } from "./midjourney"
 import { createProduct } from "./shopify"
-import config, { prisma, sqsClient } from "../config"
+import config, { prisma, sqsClient, transporter } from "../config"
 import { TaskStatus } from "@prisma/client"
 import { remoteImage, splitQuadImage, uploadImage } from "./image"
 import sharp, { Sharp } from "sharp"
 import { DeleteMessageCommand } from "@aws-sdk/client-sqs"
+import taskDoneHtml from '../email/task-done'
+import Handlebars from "handlebars"
 
 export const imagineTask = async (task: ImagineTask) => {
   const prompt = sanitisePrompt(task.Body.prompt)
@@ -27,7 +29,7 @@ export const imagineTask = async (task: ImagineTask) => {
       )
     }
     const createdProducts = await Promise.all(createProductItems)
-    console.log("here")
+
     await prisma.$transaction([
       prisma.task.update({
         where: {
@@ -71,12 +73,11 @@ export const imagineTask = async (task: ImagineTask) => {
     })
 
     if (user?.email) {
-      // Email user
-      // await transporter.sendMail({
-      //   "to": user.email,
-      //   "subject": "Your designs are ready",
-      //   html: Handlebars.compile(taskDoneHtml)({ accessLink: "hello" }),
-      // })
+      await transporter.sendMail({
+        "to": user?.email,
+        "subject": "Your designs are ready",
+        html: Handlebars.compile(taskDoneHtml)({ accessLink: `https://terrafirmacreative.com/designs?auth=${user?.token}` }),
+      })
       console.log(`https://terrafirmacreative.com/designs?auth=${user?.token}`)
     }
   }
@@ -127,6 +128,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
       )
     }
     const createdProducts = await Promise.all(createProductItems)
+
     console.log("created shopify products")
     const { id: _, ...newImagineData } = task.Body.srcImagineData
     await prisma.$transaction([
@@ -138,24 +140,6 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
           status: TaskStatus.Complete,
         }
       }),
-      // prisma.imagineData.create({
-      //   data: {
-
-      //     ...task.Body.srcImagineData, // omit id here
-      //     Product: {
-      //       createMany: {
-      //         data: createdProducts.map((product) => {
-      //           return {
-      //             createdById: task.Body.userId,
-      //             "discordImageUrl": product.imageUrl,
-      //             "shopifyProductId": product.productId,
-      //             "allowVariants": false
-      //           }
-      //         })
-      //       }
-      //     }
-      //   }
-      // }),
       prisma.imagineData.upsert({
         where: {
           id: task.Body.srcImagineData.id!
@@ -204,12 +188,11 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
     })
 
     if (user?.email) {
-      // Email user
-      // await transporter.sendMail({
-      //   "to": user.email,
-      //   "subject": "Your designs are ready",
-      //   html: Handlebars.compile(taskDoneHtml)({ accessLink: "hello" }),
-      // })
+      await transporter.sendMail({
+        "to": user?.email,
+        "subject": "Your designs are ready",
+        html: Handlebars.compile(taskDoneHtml)({ accessLink: `https://terrafirmacreative.com/designs?auth=${user?.token}` }),
+      })
       console.log(`https://terrafirmacreative.com/designs?auth=${user?.token}`)
     }
   }

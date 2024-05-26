@@ -3,6 +3,9 @@ import { ReceiveMessageCommand } from "@aws-sdk/client-sqs"
 import { ImagineTask, ImagineVariantsTask, TaskMessage } from "./types/worker"
 import { TaskType } from '@prisma/client'
 import { imagineTask, imagineVariantsTask } from "./tasks"
+import Handlebars from "handlebars"
+import taskDoneHtml from './email/task-done'
+import { spawn } from "child_process"
 
 async function handleMessage(message: TaskMessage) {
   console.log("here", message)

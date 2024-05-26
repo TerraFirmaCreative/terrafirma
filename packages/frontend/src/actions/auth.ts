@@ -2,7 +2,6 @@
 import { sessions } from "@/components/session/session-data"
 import { getPrisma } from "@/config"
 import { cookies } from "next/headers"
-import { redirect } from "next/navigation"
 
 export async function auth(authParam?: string | null) {
   if (authParam) {
@@ -11,7 +10,7 @@ export async function auth(authParam?: string | null) {
         token: authParam
       }
     })
-    console.log(user)
+
     if (user) {
       sessions.set(authParam, user)
       cookies().set({
@@ -26,8 +25,6 @@ export async function auth(authParam?: string | null) {
   const token = cookies().get('token')
 
   if (!token || !sessions.has(token.value)) {
-    // Guest mode if something is wrong
-    console.log("New user", token && sessions.has(token.value))
     const newToken = crypto.randomUUID().replace("-", "")
 
     const user = await getPrisma().user.create({
@@ -45,7 +42,6 @@ export async function auth(authParam?: string | null) {
     })
   }
   else {
-    console.log("existing user")
     cookies().set({
       name: 'token',
       value: token.value,

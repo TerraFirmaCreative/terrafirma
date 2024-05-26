@@ -5,14 +5,9 @@ import { cn } from "@/lib/utils"
 import CartProvider from "@/components/ui/store/cart-context"
 import CreationProvider from "@/components/ui/custom/creation-context"
 import MainMenu from "@/components/ui/header"
-import { HomeIcon, PaintbrushIcon } from "lucide-react"
+import { HomeIcon, LayoutDashboardIcon, PaintbrushIcon } from "lucide-react"
 import { getPages } from "@/gateway/cms"
-// import { auth } from "@/actions/auth"
-import { cookies } from "next/headers"
-import { sessions } from "@/components/session/session-data"
-import { getPrisma } from "@/config"
 import SessionProvider from "@/components/session/session-provider"
-// import { io } from "@/config"
 
 export const metadata: Metadata = {
   title: "Terra Firma Creative",
@@ -36,15 +31,12 @@ export default async function RootLayout({
       text: "My Designs",
       icon: <PaintbrushIcon strokeWidth={2} size="1.2rem" />
     },
+    {
+      href: "/browse",
+      text: "Browse",
+      icon: <LayoutDashboardIcon strokeWidth={2} size="1.2rem" />
+    },
   ]
-
-  // if (!io) {
-  //   await fetch("http://localhost:3000/api/ws", {
-  //     headers: {
-  //       "Authorization": `Basic ${process.env.AUTH_KEY}`
-  //     }
-  //   })
-  // }
 
   const moreMenuItems = pages.map((page) => {
     return {
