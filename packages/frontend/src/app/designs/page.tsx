@@ -34,6 +34,7 @@ const ViewCustomMats = () => {
   }
 
   useEffect(() => {
+    console.log("here")
     refreshProducts()
   }, [])
   if (items.length < 1) return (

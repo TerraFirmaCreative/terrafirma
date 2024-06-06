@@ -120,7 +120,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
     <div className="mt-20 w-full">
       <Responsive
         desktop={
-          <section className="sticky float-left pt-20 px-8 top-0 w-60 min-h-screen overflow-y-scroll">
+          <section className="sticky float-left pt-20 px-8 top-0 w-60 min-h-screen">
             <FilterControls filterParams={filterParams} filterSubmit={filterSubmit} />
           </section >
         }
@@ -135,7 +135,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
             <DrawerContent>
               <DrawerHeader>
                 <DrawerTitle>Filters</DrawerTitle>
-                <DrawerDescription>Apply filters to help you find what's right for you.</DrawerDescription>
+                <DrawerDescription>{"Apply filters to help you find what's right for you."}</DrawerDescription>
               </DrawerHeader>
               <div className="px-8">
                 <FilterControls filterParams={filterParams} filterSubmit={filterSubmit} />
@@ -147,7 +147,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
 
       <section className="sm:ml-60 ">
         <h1 className="text-5xl font-extralight text-gray-700 px-8 pt-8">Browse</h1>
-        <div className="p-16 grid grid-cols-[repeat(auto-fill,250px)] justify-center sm:justify-start grid-flow-row-dense w-full gap-6 h-full overflow-scroll">
+        <div className="p-16 grid grid-cols-[repeat(auto-fill,250px)] justify-center sm:justify-start grid-flow-row-dense w-full gap-6 h-full">
           {products.map((product: PaginatedProductsQuery["products"]["edges"][0]) =>
             <Link key={product.node.id} href={`/browse/${shopifyIdToUrlId(product.node.id)}`} >
               <div key={product.cursor} className="bg-white rounded-lg overflow-clip relative border w-[250px] h-[750px]">

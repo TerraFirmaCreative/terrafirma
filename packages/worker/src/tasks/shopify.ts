@@ -15,10 +15,10 @@ export type CreatedProductVariant = {
   imageUrl: string
 }
 
-async function createProjectionMaps(productId: string, imageUrl: string) {
+export async function createProjectionMaps(productId: string, imageUrl: string) {
   console.log("Starting", productId, imageUrl)
-  const child = spawn('python', ['./project.py', productId, imageUrl], {
-    cwd: "./src/utils/python/projection_map/"
+  const child = spawn(process.env.PYTHON_CMD ?? "python3", ['./project.py', productId, imageUrl], {
+    cwd: process.env.PROJECTION_MAP_PATH
   })
 
   let buffer: string = ''
@@ -27,17 +27,23 @@ async function createProjectionMaps(productId: string, imageUrl: string) {
   })
 
   child.stdout.on('end', async () => {
-    const images = JSON.parse(buffer) as string[]
-    console.log(`Received ${images.length} projection mapped images`)
-    const image_urls = await Promise.all(images.map((encoded: string, i) =>
-      uploadImage(sharp(Buffer.from(encoded, "base64")), crypto.randomUUID())
-    ))
-    console.log("Uploaded images to S3")
+    try {
+      const images = JSON.parse(buffer) as string[]
 
-    image_urls.forEach((url) => {
-      addProductMedia(productId, url)
-      console.log("Created product media")
-    })
+      console.log(`Received ${images.length} projection mapped images`)
+      const image_urls = await Promise.all(images.map((encoded: string, i) =>
+        uploadImage(sharp(Buffer.from(encoded, "base64")), crypto.randomUUID())
+      ))
+      console.log("Uploaded images to S3")
+
+      image_urls.forEach((url) => {
+        addProductMedia(productId, url)
+        console.log("Created product media")
+      })
+    }
+    catch (e) {
+      console.log(e)
+    }
   })
 
   child.stderr.on('data', (data: Buffer) => {
@@ -142,8 +148,6 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
       }
     }
   })
-
-  createProjectionMaps(product.data?.productCreate.product.id, item.url)
 
   return {
     // productId: product.data?.productCreate.product.variants.edges[0].node.id,

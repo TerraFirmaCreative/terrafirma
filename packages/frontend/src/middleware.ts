@@ -2,8 +2,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies, headers } from "next/headers"
 
-const openRoutes: string[] = []
-const internalRoutes = ['/api/notify', '/api/ws']
+const openRoutes: string[] = ['/api/notify']
+const internalRoutes = ['/api/ws']
 
 export async function middleware(request: NextRequest) {
   if (openRoutes.includes(request.nextUrl.pathname)) {

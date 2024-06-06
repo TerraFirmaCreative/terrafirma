@@ -94,7 +94,7 @@ export const getProductsById = async (ids: string[]): Promise<GetProductsByIdQue
             featuredImage {
               url
             }
-            images {
+            images(first: 10) {
               edges {
                 node {
                   altText

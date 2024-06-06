@@ -59,6 +59,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
 
     const userProducts = (await getUserProducts())
     const shopifyProducts = await getProductsById(userProducts.map((product) => product.shopifyProductId))
+    console.log(userProducts.length, shopifyProducts.length)
     const productUnions: ProductUnion[] = userProducts.slice(0, Math.min(shopifyProducts.length, userProducts.length)).map((userProduct, i) => {
       // TODO: Check this! index needs to match when creating variants
       return {

@@ -1,7 +1,7 @@
 import { ImagineTask, ImagineVariantsTask } from "../types/worker"
 import { sanitisePrompt } from "@terrafirma/rest/src/utils"
 import { createVariants, generateCustomText, imagineMats } from "./midjourney"
-import { createProduct } from "./shopify"
+import { CreatedProductVariant, createProduct, createProjectionMaps } from "./shopify"
 import config, { prisma, sqsClient, transporter } from "../config"
 import { TaskStatus } from "@prisma/client"
 import { remoteImage, splitQuadImage, uploadImage } from "./image"
@@ -13,6 +13,7 @@ import Handlebars from "handlebars"
 export const imagineTask = async (task: ImagineTask) => {
   const prompt = sanitisePrompt(task.Body.prompt)
   console.log("imagineTask()")
+
   try {
     const [customText, imaginedImages] = await Promise.all([generateCustomText(prompt), imagineMats(prompt)])
 
@@ -95,6 +96,9 @@ export const imagineTask = async (task: ImagineTask) => {
 
     return
   }
+
+  // TODO: Isolate into its own service
+  // createdProducts.forEach((product) => createProjectionMaps(product.productId, product.imageUrl))
 
   console.log("Deleting task")
   await sqsClient.send(new DeleteMessageCommand({

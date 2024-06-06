@@ -23,4 +23,6 @@ EXPOSE 3000
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=builder /root/packages/frontend/.next/standalone ./standalone
+RUN mkdir .notifications
+RUN touch ./notifications/aggregate.txt
 CMD node ./standalone/packages/frontend/server.js

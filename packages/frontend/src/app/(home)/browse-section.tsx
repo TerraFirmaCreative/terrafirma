@@ -44,8 +44,8 @@ const BrowseProducts = ({ initialProducts }: { initialProducts?: PaginatedProduc
       <section id="browse-section">
         <div
           className="
-            lg:grid-cols-[repeat(4,1fr)]
-            md:grid-cols-[repeat(3,1fr)]
+            lg:grid-cols-[repeat(7,1fr)]
+            md:grid-cols-[repeat(5,1fr)]
             sm:grid-cols-[repeat(2,1fr)]
             grid-cols-[repeat(2,1fr)]
             grid justify-center grid-flow-row-dense w-full gap-2 h-full p-2
