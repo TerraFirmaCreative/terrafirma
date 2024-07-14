@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
   }
   catch (e) {
-    console.log("/notify Error reading request body")
+    console.log("/orders/update Error reading request body")
   }
 
   return NextResponse.json({}, { status: 200 })

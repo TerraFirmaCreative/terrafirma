@@ -2,8 +2,7 @@ import express from "express"
 import OpenAI from "openai"
 import config, { mjClient } from "../config"
 import { MJMessage } from "midjourney"
-import { GeneratedImageDto, ImagineData } from "@terrafirma/rest/src/types"
-import { ImagineTask } from "../types/worker"
+import { ImagineData } from "@terrafirma/rest/src/types"
 
 export const router = express.Router()
 

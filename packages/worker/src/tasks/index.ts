@@ -1,7 +1,7 @@
 import { ImagineTask, ImagineVariantsTask } from "../types/worker"
 import { sanitisePrompt } from "@terrafirma/rest/src/utils"
 import { createVariants, generateCustomText, imagineMats } from "./midjourney"
-import { CreatedProductVariant, createProduct, createProjectionMaps } from "./shopify"
+import { createProduct } from "./shopify"
 import config, { prisma, sqsClient, transporter } from "../config"
 import { TaskStatus } from "@prisma/client"
 import { remoteImage, splitQuadImage, uploadImage } from "./image"
@@ -13,6 +13,16 @@ import Handlebars from "handlebars"
 export const imagineTask = async (task: ImagineTask) => {
   const prompt = sanitisePrompt(task.Body.prompt)
   console.log("imagineTask()")
+
+  const user = await prisma.user.findUnique({
+    "where": {
+      id: task.Body.userId
+    },
+    "select": {
+      email: true,
+      token: true
+    }
+  })
 
   try {
     const [customText, imaginedImages] = await Promise.all([generateCustomText(prompt), imagineMats(prompt)])
@@ -63,16 +73,6 @@ export const imagineTask = async (task: ImagineTask) => {
     ])
     console.log("transaction complete")
 
-    const user = await prisma.user.findUnique({
-      "where": {
-        id: task.Body.userId
-      },
-      "select": {
-        email: true,
-        token: true
-      }
-    })
-
     if (user?.email) {
       await transporter.sendMail({
         "to": user?.email,
@@ -81,9 +81,14 @@ export const imagineTask = async (task: ImagineTask) => {
       })
       console.log(`https://terrafirmacreative.com/designs?auth=${user?.token}`)
     }
+
+    console.log("Task Successful, deleting...")
+    await sqsClient.send(new DeleteMessageCommand({
+      "QueueUrl": config.SQS_URL,
+      "ReceiptHandle": task.ReceiptHandle
+    }))
   }
   catch (e) {
-    // axois frontend something went wrong & update task in db
     console.error(task.Body.userId, "Error:", e)
     prisma.task.update({
       where: {
@@ -94,17 +99,19 @@ export const imagineTask = async (task: ImagineTask) => {
       }
     })
 
+    if (!user?.email) {
+      console.log("Task Failed, deleting...")
+      await sqsClient.send(new DeleteMessageCommand({
+        "QueueUrl": config.SQS_URL,
+        "ReceiptHandle": task.ReceiptHandle
+      }))
+    }
+
     return
   }
 
   // TODO: Isolate into its own service
   // createdProducts.forEach((product) => createProjectionMaps(product.productId, product.imageUrl))
-
-  console.log("Deleting task")
-  await sqsClient.send(new DeleteMessageCommand({
-    "QueueUrl": config.SQS_URL,
-    "ReceiptHandle": task.ReceiptHandle
-  })) // TODO: We should only do this in the event of success. if fail, notify frontend ws
 }
 
 export const imagineVariantsTask = async (task: ImagineVariantsTask) => {

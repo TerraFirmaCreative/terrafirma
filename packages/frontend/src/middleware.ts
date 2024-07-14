@@ -13,8 +13,8 @@ export async function middleware(request: NextRequest) {
   if (internalRoutes.includes(request.nextUrl.pathname)) {
     const auth = headers().get('Authorization')
 
-    if (auth == null || auth!.split('Basic ').at(1) !== process.env.TERRAFIRMA_AUTH_KEY) {
-      return NextResponse.redirect(new URL('/', request.url))
+    if (auth == null || auth!.split('Bearer ').at(1) !== process.env.AUTH_SECRET) {
+      return NextResponse.json("Forbidden", { status: 403 })
     }
   }
 

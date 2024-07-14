@@ -19,7 +19,6 @@ export const currencySymbol = (currencyCode: CurrencyCode): string => {
     [CurrencyCode.Aud, "$"]
   ])
 
-
   return map.get(currencyCode) ?? currencyCode as string
 }
 
@@ -34,3 +33,21 @@ export const formatPrice = (price: MoneyV2) => `
 
 export const formatTitle = (title: string) =>
   title.split("[").at(0)
+
+export const readStream = async (stream: ReadableStream<Uint8Array>) => {
+  const reader = stream.getReader()
+
+  let acc = ''
+  let finished = false
+  while (!finished) {
+    const { value, done } = await reader.read()
+
+    finished = done
+
+    if (value) {
+      acc += new TextDecoder().decode(value)
+    }
+  }
+
+  return acc
+}
