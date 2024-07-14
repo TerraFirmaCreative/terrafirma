@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies, headers } from "next/headers"
 
-const openRoutes: string[] = ['/api/notify']
+const openRoutes: string[] = ['/api/notify', '/api/orders/update']
 const internalRoutes = ['/api/ws']
 
 export async function middleware(request: NextRequest) {
