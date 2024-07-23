@@ -1,1 +1,1 @@
-docker build $(for i in `cat ./packages/worker/.env.docker`; do out+="--build-arg $i "; done; echo $out;out="";) -t tipex360/terrafirma-worker-slim:0.1 -f ./packages/worker/Dockerfile .
+docker build $(for i in `cat ./packages/worker/.env.docker`; do out+="--build-arg $i "; done; echo $out;out="";) -t tipex360/terrafirma-worker:0.1 -f ./packages/worker/Dockerfile .

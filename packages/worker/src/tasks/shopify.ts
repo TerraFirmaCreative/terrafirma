@@ -90,6 +90,9 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
             edges {
               node {
                 id
+                inventoryItem {
+                  id
+                }
               }
             }
           }
@@ -101,11 +104,11 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
   const input = {
     status: "ACTIVE",
     title: `${item.title} [${uuid.toUpperCase()}]`,
-    vendor: "Terrafirm Creative",
+    vendor: "Terra Firma Creative",
     descriptionHtml: item.description,
     customProductType: "Yoga Mat",
     variants: { // Might be deprecated
-      price: "70"
+      price: "70" // TODO: Configure default price via a metaobject
     },
     tags: `Custom`
     // TODO: Add hidden metafield
@@ -136,6 +139,38 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
       }
     }
   `
+
+  await adminClient.request(`#gqladmin
+    mutation setLocations($id: ID!, $updates: [InventoryBulkToggleActivationInput!]!) {
+      inventoryBulkToggleActivation(inventoryItemId: $id, inventoryItemUpdates: $updates) {
+        inventoryItem {
+          variant {
+            product {
+              id
+            }
+          }
+        }
+        userErrors {
+          message
+        }
+      }
+    }
+  `, {
+    variables: {
+      id: product.data?.productCreate.product.variants.edges[0].node.inventoryItem.id,
+      updates: [
+        {
+          activate: true,
+          locationId: "gid://shopify/Location/97568981300"
+        },
+        {
+          activate: false,
+          "locationId": "gid://shopify/Location/86717694260"
+        }
+      ]
+    }
+  })
+
   await adminClient.request(publicationQuery, {
     variables: {
       input: {

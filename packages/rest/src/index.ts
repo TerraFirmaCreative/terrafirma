@@ -8,10 +8,6 @@ import { prisma } from "./config"
 import { getProductsById } from "./tasks/shopify"
 import { MJMessage } from "midjourney"
 
-mjClient.init().then((client) => {
-  console.log("Midjourney Client is Ready")
-})
-
 const app = express()
 const port: number = Number.parseInt(process.env.PORT ?? "3000")
 

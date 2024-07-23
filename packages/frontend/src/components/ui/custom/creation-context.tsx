@@ -83,6 +83,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         break
       case TaskStatus.Failed:
         setInProgress(false)
+        setConfirmationOpen(false)
         setErrorOpen(true)
         break
       default:
