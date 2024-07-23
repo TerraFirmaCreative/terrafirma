@@ -10,7 +10,7 @@ export default async function HomePage() {
   const initialProducts = await getPaginatedProducts({})
 
   return (
-    <div className="flex w-full min-h-screen flex-col items-center justify-start pt-20 border-b">
+    <div className="bg-gradient-to-b from-red-400 to-zinc-50 to-[50vh] flex w-full min-h-screen flex-col items-center justify-start border-b pt-20">
       <PromptForm />
       <div className="flex flex-col justify-between w-full">
         <div className="text-gray-600 p-8">

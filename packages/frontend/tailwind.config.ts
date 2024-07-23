@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss"
-
+import { fontFamily } from "tailwindcss/defaultTheme"
 const config = {
-  darkMode: ["class"],
+  darkMode: ["selector"],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -11,9 +11,6 @@ const config = {
   ],
   prefix: "",
   theme: {
-    backgroundImage: {
-      "hero": "url('/images/background-full.png')"
-    },
     container: {
       center: true,
       padding: "2rem",
@@ -22,6 +19,14 @@ const config = {
       },
     },
     extend: {
+      backgroundImage: {
+        "hero": "url('/images/background-full.png')"
+      },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", ...fontFamily.sans],
+        mono: ["var(--font-geist-mono)", ...fontFamily.mono],
+        serif: ["var(--font-playfair-display)", ...fontFamily.serif]
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -56,6 +61,20 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        'brick': {
+          100: '#fffcfb',
+          200: '#fff7f4',
+          300: '#ffeae1',
+          400: '#ffdacd',
+          500: '#ffcab7',
+          600: '#ffb89f',
+          700: '#ffa081',
+          800: '#fe835d',
+          900: '#ff845e',
+          1000: '#f27953',
+          1100: '#c34e28',
+          1200: '#63220c',
+        }
       },
       borderRadius: {
         lg: "var(--radius)",

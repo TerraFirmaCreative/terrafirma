@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
+
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import CartProvider from "@/components/ui/store/cart-context"
@@ -8,6 +8,7 @@ import MainMenu from "@/components/ui/header"
 import { HomeIcon, LayoutDashboardIcon, PaintbrushIcon } from "lucide-react"
 import { getPages } from "@/gateway/cms"
 import SessionProvider from "@/components/session/session-provider"
+import { geistSans, playfairDisplay, robotoSerif } from "@/lib/fonts"
 
 export const metadata: Metadata = {
   title: "Terra Firma Creative",
@@ -48,7 +49,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={cn(GeistSans.className, "bg-slate-50")}>
+      <body className={cn(geistSans.variable, playfairDisplay.variable, "bg-zinc-50 font-sans")}>
         <main className="w-full h-min-screen">
           <SessionProvider>
             <CartProvider>

@@ -5,8 +5,8 @@ import { readStream } from "@/lib/utils"
 export async function POST(req: NextRequest) {
   try {
     const body = await readStream(req.body!)
-
-    fs.appendFile(`${process.env.LOG_DIR}/shipping-notifications.log`, `${body}\n`, {
+    console.log(`POST /api/orders/update :: ${body}`)
+    fs.appendFile(`${process.env.LOG_DIR}/fulfillment-notifications.log`, `${body}\n`, {
       flag: 'a+'
     }, (err) => {
       if (err) {
@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(body)
-
   }
   catch (e) {
     console.log("/orders/update Error reading request body")

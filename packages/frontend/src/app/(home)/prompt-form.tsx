@@ -28,11 +28,11 @@ const PromptForm = () => {
     <>
       <section id="prompt-section">
         <div className="w-full flex flex-col sm:gap-16 gap-6 pt-10">
-          <div className="px-8">
-            <span className="font-bold lg:text-9xl text-7xl">
+          <div className="font-serif font-medium px-8">
+            <span className=" lg:text-9xl text-7xl">
               Unique Yoga Mats <br />
             </span>
-            <span className="font-bold sm:text-5xl text-xl">Designed by you.</span>
+            <span className="sm:text-5xl text-xl italic font-normal pl-5">Designed by you.</span>
           </div>
           {!inProgress && (
             <form onSubmit={form.handleSubmit(onSubmit)}>

@@ -4,10 +4,9 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import Responsive from "./util/responsive"
 import { AlignLeftIcon, ChevronDown, ShoppingCartIcon } from "lucide-react"
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./sheet"
-import { ReactNode, useContext, useState } from "react"
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./sheet"
+import { ReactNode, useContext, useEffect, useState } from "react"
 import { CartContext } from "./store/cart-context"
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "./navigation-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "./popover"
 
 type MenuItem = {
@@ -16,41 +15,56 @@ type MenuItem = {
   icon?: React.ReactNode
 }
 
-const DropDownMenu = ({ children, text }: { children: ReactNode, text: string }) => {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <Popover open={open}>
-      <PopoverTrigger onMouseEnter={() => setOpen(true)} onClick={() => setOpen(!open)}>
-        <div className="flex flex-row items-center gap-1 px-4 text-gray-700 hover:text-black hover:underline">{text}<ChevronDown size="16" className={cn("transition-transform", open && "rotate-180")} /></div>
-      </PopoverTrigger>
-      <PopoverContent onMouseLeave={() => setOpen(false)}>
-        <div className="flex flex-col gap-2" onClick={() => setOpen(false)}>
-          {children}
-        </div>
-      </PopoverContent>
-    </Popover>
-  )
-}
 
 const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMenuItems?: MenuItem[] }) => {
   const pathname = usePathname()!
   const { setCartOpen } = useContext(CartContext)
+  const [opaque, setOpaque] = useState<boolean>(false)
+
+  const updateScrolled = async () => {
+    setOpaque(pathname != "/" || window.scrollY > 50)
+  }
+
+  useEffect(() => {
+    updateScrolled()
+    window.addEventListener('scroll', updateScrolled)
+
+    return () => {
+      window.removeEventListener('scroll', updateScrolled)
+    }
+  }, [pathname])
+
+  const DropDownMenu = ({ children, text }: { children: ReactNode, text: string }) => {
+    const [open, setOpen] = useState(false)
+
+    return (
+      <Popover open={open}>
+        <PopoverTrigger onMouseEnter={() => setOpen(true)} onClick={() => setOpen(!open)}>
+          <div className={cn(opaque ? "text-gray-700" : "text-zinc-50", "flex flex-row items-center gap-1 px-4 hover:text-black hover:underline")}>{text}<ChevronDown size="16" className={cn("transition-transform", open && "rotate-180")} /></div>
+        </PopoverTrigger>
+        <PopoverContent onMouseLeave={() => setOpen(false)}>
+          <div className="flex flex-col gap-2" onClick={() => setOpen(false)}>
+            {children}
+          </div>
+        </PopoverContent>
+      </Popover>
+    )
+  }
 
   return (
-    <header className="w-full fixed top-0 border-b border-gray-200 h-20 flex flex-row items-center bg-slate-100 bg-opacity-70 backdrop-blur-md px-8 z-50">
+    <header id="header-bar" className={cn(pathname != "/" && "border-b", opaque && "bg-zinc-100", "transition-colors duration-700 w-full fixed top-0 border-zinc-200 h-20 flex flex-row items-center bg-opacity-70 backdrop-blur-md px-8 z-50")}>
       <Responsive
         desktop={
-          <div className="flex flex-row justify-between items-center w-full">
+          <div className="flex flex-row justify-between items-center w-full" >
             <div>
               {menuItems.map((item, i) =>
-                <Link key={i} href={item.href} className={cn("px-4 text-gray-700 hover:text-black hover:underline", pathname == item.href && "text-black font-semibold")}>
+                <Link key={i} href={item.href} className={cn(opaque ? "text-gray-700 " : "text-zinc-50", "px-4 hover:text-black hover:underline", pathname == item.href && "text-black font-semibold")}>
                   {item.text}
                 </Link>
               )}
               {moreMenuItems && <DropDownMenu text="More">
                 {moreMenuItems.map((item, i) =>
-                  <Link key={i} href={item.href} className={cn("p-4 hover:bg-slate-100 rounded-md text-gray-700 hover:text-black transition-colors", pathname == item.href && "text - black font - semibold")}>
+                  <Link key={i} href={item.href} className={cn("p-4 hover:bg-slate-100 rounded-md text-gray-700 hover:text-black transition-colors", pathname == item.href && "text-black font-semibold")}>
                     {item.text}
                   </Link>)}
               </DropDownMenu>}
@@ -58,7 +72,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
             <div>
               <ShoppingCartIcon className="cursor-pointer" strokeWidth={1} onClick={() => setCartOpen(true)} />
             </div>
-          </div>
+          </div >
         }
         mobile={
           < Sheet >
@@ -84,7 +98,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
                 )}
                 {moreMenuItems &&
                   <div className="flex flex-col gap-2 mt-8 items-start">
-                    <h2 className="font-bold">More</h2>
+                    <h2 className={cn("font-bold")}>More</h2>
                     {
                       moreMenuItems.map((item, i) =>
                         <SheetClose key={i} asChild>
