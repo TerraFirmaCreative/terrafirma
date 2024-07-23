@@ -90,7 +90,7 @@ export const imagineTask = async (task: ImagineTask) => {
   }
   catch (e) {
     console.error(task.Body.userId, "Error:", e)
-    prisma.task.update({
+    await prisma.task.update({
       where: {
         id: task.Body.taskId
       },
