@@ -53,7 +53,7 @@ const BrowseProducts = ({ initialProducts }: { initialProducts?: PaginatedProduc
         >
           {products.map((product: PaginatedProductsQuery["products"]["edges"][0]) =>
             <Link key={product.node.id} href={`/browse/${shopifyIdToUrlId(product.node.id)}`} >
-              <div key={product.cursor} className="rounded-lg overflow-clip relative border">
+              <div key={product.cursor} className="overflow-clip relative border">
                 <AspectRatio ratio={1 / 3}>
                   <Image
                     src={product.node.featuredImage?.url}
@@ -61,12 +61,14 @@ const BrowseProducts = ({ initialProducts }: { initialProducts?: PaginatedProduc
                     fill
                     sizes="20vw"
                   />
-                  <div className="relative bg-slate-800 text-center p-4 w-full h-full bg-opacity-0 hover:bg-opacity-50 cursor-pointer transition-all">
-                    <div className="flex flex-col h-full justify-center my-auto text-white opacity-0 hover:opacity-100 transition-all mix-blend-difference">
-                      <div className="flex flex-col justify-center text-4xl font-bold h-3/5">
-                        {product.node.title.toUpperCase().split("[")[0].split("").filter((char: string) => char != '"').join("")}
+                  <div className="relative text-center w-full h-full bottom-0 opacity-0 hover:opacity-100 cursor-pointer transition-all">
+                    <div className="flex flex-col h-full  justify-end my-auto text-white transition-all">
+                      <div className="bg-slate-900 py-6 flex flex-col justify-center">
+                        <div className="flex font-serif flex-col justify-center text-wrap text-2xl font-bold">
+                          {product.node.title.toUpperCase().split("[")[0].split("").filter((char: string) => char != '"').join("")}
+                        </div>
+                        <div className="text-xl h-1/5">{formatPrice(product.node.priceRange.maxVariantPrice)}</div>
                       </div>
-                      <div className="text-xl h-1/5">{formatPrice(product.node.priceRange.maxVariantPrice)}</div>
                     </div>
                   </div>
                 </AspectRatio>
