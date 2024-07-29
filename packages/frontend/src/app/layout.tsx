@@ -8,7 +8,7 @@ import MainMenu from "@/components/ui/header"
 import { HomeIcon, LayoutDashboardIcon, PaintbrushIcon } from "lucide-react"
 import { getPages } from "@/gateway/cms"
 import SessionProvider from "@/components/session/session-provider"
-import { geistSans, playfairDisplay, robotoSerif } from "@/lib/fonts"
+import { geistSans, lato, playfairDisplay, robotoSerif } from "@/lib/fonts"
 
 export const metadata: Metadata = {
   title: "Terra Firma Creative",
@@ -49,7 +49,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={cn(geistSans.variable, playfairDisplay.variable, "bg-zinc-50 font-sans")}>
+      <body className={cn(geistSans.variable, playfairDisplay.variable, lato.variable, "bg-zinc-50 font-sans")}>
         <main className="w-full h-min-screen">
           <SessionProvider>
             <CartProvider>

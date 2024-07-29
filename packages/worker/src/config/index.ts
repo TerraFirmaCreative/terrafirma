@@ -6,10 +6,11 @@ import { Midjourney } from "midjourney"
 import { PrismaClient } from "@prisma/client"
 import * as dotenv from 'dotenv'
 import * as nodemailer from 'nodemailer'
+import path from 'path'
 
 dotenv.config()
 
-export const prisma = new PrismaClient()
+export const prisma = new PrismaClient({ "datasourceUrl": process.env.DATABASE_URL! })
 
 const Config = {
   SQS_URL: process.env.SQS_URL!,
@@ -33,7 +34,7 @@ export const sqsClient = new SQSClient({
 
 export const adminClient = createAdminApiClient({
   storeDomain: Config.SHOPIFY_STORE_DOMAIN,
-  apiVersion: "2024-01",
+  apiVersion: "2024-07",
   accessToken: Config.SHOPIFY_ADMIN_ACCESS_TOKEN
 })
 

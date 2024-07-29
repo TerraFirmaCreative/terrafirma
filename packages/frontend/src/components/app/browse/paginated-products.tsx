@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { FilterParams, getPaginatedProducts } from "@/gateway/store"
 import { PaginatedProductsQuery, ProductSortKeys } from "@/lib/types/graphql"
-import { currencySymbol, shopifyIdToUrlId } from "@/lib/utils"
+import { currencySymbol, formatPrice, shopifyIdToUrlId } from "@/lib/utils"
 import Link from "next/link"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
@@ -13,6 +13,7 @@ import { ArrowDownWideNarrowIcon, ArrowUpNarrowWideIcon } from "lucide-react"
 import { TooltipContent, Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Responsive from "@/components/ui/util/responsive"
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { AspectRatio } from "@/components/ui/aspect-ratio"
 
 const FilterControls = ({ filterParams, filterSubmit }: { filterParams: FilterParams, filterSubmit: (kv: any) => void }) => {
   return (
@@ -117,7 +118,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
   }, [filterParams])
 
   return (
-    <div className="mt-20 w-full">
+    <div className="pt-20 w-full bg-zinc-50">
       <Responsive
         desktop={
           <section className="sticky float-left pt-20 px-8 top-0 w-60 min-h-screen">
@@ -128,13 +129,13 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
         mobile={
           <Drawer>
             <DrawerTrigger>
-              <div className="fixed z-50 bottom-0 w-full bg-opacity-80 backdrop-blur-md border-b h-10 bg-slate-100 py-2">
+              <div className="fixed z-50 bottom-0 w-full border-t bg-slate-50 py-4">
                 Filter
               </div>
             </DrawerTrigger>
             <DrawerContent>
               <DrawerHeader>
-                <DrawerTitle>Filters</DrawerTitle>
+                <DrawerTitle>Filter</DrawerTitle>
                 <DrawerDescription>{"Apply filters to help you find what's right for you."}</DrawerDescription>
               </DrawerHeader>
               <div className="px-8">
@@ -146,27 +147,41 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
       />
 
       <section className="sm:ml-60 ">
-        <h1 className="text-5xl font-extralight text-gray-700 px-8 pt-8">Browse</h1>
-        <div className="p-16 grid grid-cols-[repeat(auto-fill,250px)] justify-center sm:justify-start grid-flow-row-dense w-full gap-6 h-full">
-          {products.map((product: PaginatedProductsQuery["products"]["edges"][0]) =>
-            <Link key={product.node.id} href={`/browse/${shopifyIdToUrlId(product.node.id)}`} >
-              <div key={product.cursor} className="bg-white rounded-lg overflow-clip relative border w-[250px] h-[750px]">
-                <Image
-                  src={product.node.featuredImage?.url}
-                  alt={product.node.title}
-                  fill
-                  sizes="(max-width: 640px) 80vw, (max-width: 800px) 40vw, 20vw"
-                />
-                <div className="relative bg-slate-800 text-center p-4 w-full h-full bg-opacity-0 hover:bg-opacity-50 cursor-pointer transition-all">
-                  <div className="flex flex-col h-full justify-center my-auto text-white opacity-0 hover:opacity-100 transition-all mix-blend-difference">
-                    <div className="flex flex-col justify-center text-4xl font-bold h-3/5">
-                      {product.node.title.toUpperCase().split("[")[0].split("").filter((char: string) => char != '"').join("")}
+        <h1 className="text-5xl font-light text-gray-700 px-8 pt-8">Browse</h1>
+        {/* <div className="p-16 grid grid-cols-[repeat(auto-fill,250px)] justify-center sm:justify-start grid-flow-row-dense w-full gap-6 h-full"> */}
+        <div
+          className="
+            xl:grid-cols-[repeat(7,1fr)]
+            lg:grid-cols-[repeat(5,1fr)]
+            md:grid-cols-[repeat(3,1fr)]
+            sm:grid-cols-[repeat(2,1fr)]
+            grid-cols-[repeat(2,1fr)]
+            grid justify-center grid-flow-row-dense w-full gap-2 h-full p-8
+          "
+        >
+          {products.map((product: PaginatedProductsQuery["products"]["edges"][0]) => {
+            return <Link key={product.node.id} href={`/browse/${shopifyIdToUrlId(product.node.id)}`}>
+              <div key={product.cursor} className="bg-white overflow-clip relative border">
+                <AspectRatio ratio={1 / 3}>
+                  <Image
+                    src={product.node.featuredImage?.url}
+                    alt={product.node.title}
+                    fill
+                    sizes="(max-width: 640px) 80vw, (max-width: 800px) 40vw, 20vw" />
+                  <div className="relative text-center w-full h-full bottom-0 opacity-0 hover:opacity-100 cursor-pointer transition-all">
+                    <div className="flex flex-col h-full  justify-end my-auto text-white transition-all">
+                      <div className="bg-slate-900 py-6 flex flex-col justify-center">
+                        <div className="flex font-serif flex-col justify-center text-wrap text-2xl font-bold">
+                          {product.node.title.toUpperCase().split("[")[0].split("").filter((char: string) => char != '"').join("")}
+                        </div>
+                        <div className="text-xl h-1/5">{formatPrice(product.node.priceRange.maxVariantPrice)}</div>
+                      </div>
                     </div>
-                    <div className="text-xl h-1/5">{currencySymbol(product.node.priceRange.maxVariantPrice.currencyCode)}{product.node.priceRange.maxVariantPrice.amount}</div>
                   </div>
-                </div>
+                </AspectRatio>
               </div>
             </Link>
+          }
           )
           }
         </div >

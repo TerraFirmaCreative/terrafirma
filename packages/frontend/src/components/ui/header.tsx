@@ -52,7 +52,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
   }
 
   return (
-    <header id="header-bar" className={cn(pathname != "/" && "border-b", opaque && "bg-zinc-100", "transition-colors duration-700 w-full fixed top-0 border-zinc-200 h-20 flex flex-row items-center bg-opacity-70 backdrop-blur-md px-8 z-50")}>
+    <header id="header-bar" className={cn(pathname != "/" && "border-b", opaque && "bg-zinc-50", "transition-colors duration-700 w-full fixed top-0 h-20 flex flex-row items-center bg-opacity-70 backdrop-blur-md px-8 z-50")}>
       <Responsive
         desktop={
           <div className="flex flex-row justify-between items-center w-full" >
@@ -81,7 +81,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
                 <SheetTrigger asChild>
                   <AlignLeftIcon strokeWidth="1" className="my-auto" />
                 </SheetTrigger>
-                <span className="text-lg font-extralight">Terra Firma Creative</span>
+                <span className="text-lg font-light">Terra Firma Creative</span>
               </div>
               <div>
                 <ShoppingCartIcon className="cursor-pointer" strokeWidth={1} onClick={() => setCartOpen(true)} />

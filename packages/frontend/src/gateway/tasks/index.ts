@@ -98,11 +98,11 @@ export const beginTask = async (task: TaskInput): Promise<BeginTaskResult> => {
 export const pollTask = async (taskId: string) => {
   const res = await getPrisma().task.findUnique({
     where: {
-      id: taskId
+      id: taskId,
     },
   })
 
-  return res?.status ?? TaskStatus.InProgress
+  return res
 }
 
 export const getUserProducts = async () => {

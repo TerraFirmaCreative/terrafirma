@@ -28,11 +28,11 @@ const ProductPage = async ({ params }: { params: { productId: string } }) => {
         <section className={"flex lg:flex-row flex-col"}>
           <Preview product={product} />
           <div className="p-16 lg:w-1/2 border-l bg-white min-h-[calc(100vh-5rem)]">
-            <h1 className={cn("font-serif text-slate-800 italic font-medium text-4xl")}>{formatTitle(product.title)}</h1>
+            <h1 className={cn("text-slate-800 font-medium text-4xl")}>{formatTitle(product.title)}</h1>
             <div className="pt-4 text-lg"><i>{formatPrice(product.priceRange.maxVariantPrice)}</i></div>
             <div className="flex flex-col gap-2 py-4">
               <CartControls variantId={product.variants.edges[0].node.id} />
-              <p className=" font-light leading-relaxed py-4">
+              <p className="font-light leading-relaxed py-4">
                 {product.description}
               </p>
             </div>

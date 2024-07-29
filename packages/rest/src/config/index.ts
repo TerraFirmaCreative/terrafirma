@@ -9,7 +9,7 @@ import { SQSClient } from '@aws-sdk/client-sqs'
 
 dotenv.config()
 
-export const prisma = new PrismaClient()
+export const prisma = new PrismaClient({ "datasourceUrl": process.env.DATABASE_URL! })
 
 const Config = {
   OPENAI_KEY: process.env.OPENAI_KEY ?? "",

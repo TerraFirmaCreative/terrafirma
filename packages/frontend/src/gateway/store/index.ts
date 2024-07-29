@@ -78,6 +78,7 @@ export const getPaginatedProducts = async (params: FilterParams) => {
   })).data?.products.edges
 }
 
+// TODO: This should be possible without admin client somehow. Perhaps querying for variants instead?
 export const getProductsById = async (ids: string[]): Promise<GetProductsByIdQuery['products']['edges']> => {
   if (ids.length == 0) return []
 

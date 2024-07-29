@@ -23,7 +23,7 @@ const config = {
         "hero": "url('/images/background-full.png')"
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", ...fontFamily.sans],
+        sans: ["var(--font-lato)", ...fontFamily.sans],
         mono: ["var(--font-geist-mono)", ...fontFamily.mono],
         serif: ["var(--font-playfair-display)", ...fontFamily.serif]
       },

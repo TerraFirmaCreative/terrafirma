@@ -81,7 +81,24 @@ export async function addProductMedia(id: string, url: string) {
 }
 
 export async function createProduct(item: CreateProductItem): Promise<CreatedProductVariant> {
-  const query = `#gqladmin
+  const uuid = crypto.randomUUID()
+  const input = {
+    status: "ACTIVE",
+    title: `${item.title} [${uuid.toUpperCase()}]`,
+    vendor: "Terra Firma Creative",
+    descriptionHtml: item.description,
+    customProductType: "Yoga Mat",
+    tags: `Custom`
+  }
+
+  const media = [
+    {
+      mediaContentType: "IMAGE",
+      originalSource: item.url
+    }
+  ]
+
+  const product = await adminClient.request(`#gqladmin
     mutation createProduct($input: ProductInput!, $media: [CreateMediaInput!]) {
       productCreate(input: $input, media: $media) {
         product {
@@ -99,46 +116,44 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
         }
       }
     }
-  `
-  const uuid = crypto.randomUUID()
-  const input = {
-    status: "ACTIVE",
-    title: `${item.title} [${uuid.toUpperCase()}]`,
-    vendor: "Terra Firma Creative",
-    descriptionHtml: item.description,
-    customProductType: "Yoga Mat",
-    variants: { // Might be deprecated
-      price: "70" // TODO: Configure default price via a metaobject
-    },
-    tags: `Custom`
-    // TODO: Add hidden metafield
-  }
-
-  const media = [
-    {
-      mediaContentType: "IMAGE",
-      originalSource: item.url
-    }
-  ]
-
-  const product = await adminClient.request(query, {
+  `, {
     variables: {
       input: input,
       media: media
     }
   })
-
-  const publicationQuery = `#gqladmin
-    mutation productPublish($input: ProductPublishInput!) {
-      productPublish(input: $input) {
-        productPublications {
-          channel {
-            name
-          }
+  console.log(product.data?.productCreate.product.variants.edges[0].node.id)
+  const variantUpdate = await adminClient.request(`#gqladmin
+    mutation productVariantUpdate($input: ProductVariantInput!) {
+      productVariantUpdate(input: $input) {
+        product {
+          id
+        }
+        userErrors {
+          message
         }
       }
     }
-  `
+  `, {
+    "variables": {
+      "input": {
+        id: product.data?.productCreate.product.variants.edges[0].node.id,
+        price: "70.00",
+        inventoryItem: {
+          measurement: {
+            weight: {
+              unit: "OUNCES",
+              value: 64
+            }
+          },
+          sku: "MATGEN"
+        },
+        inventoryPolicy: "CONTINUE",
+      }
+    }
+  })
+
+  console.log(variantUpdate.errors?.message, require('util').inspect(variantUpdate, { depth: null }))
 
   await adminClient.request(`#gqladmin
     mutation setLocations($id: ID!, $updates: [InventoryBulkToggleActivationInput!]!) {
@@ -171,6 +186,18 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
     }
   })
 
+
+  const publicationQuery = `#gqladmin
+    mutation productPublish($input: ProductPublishInput!) {
+      productPublish(input: $input) {
+        productPublications {
+          channel {
+            name
+          }
+        }
+      }
+    }
+  `
   await adminClient.request(publicationQuery, {
     variables: {
       input: {
@@ -185,7 +212,6 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
   })
 
   return {
-    // productId: product.data?.productCreate.product.variants.edges[0].node.id,
     productId: product.data?.productCreate.product.id,
     imageUrl: item.url // TODO: Upload image to S3, optimize and serve. OR find a way to wait for shopify image to be READY status
   }

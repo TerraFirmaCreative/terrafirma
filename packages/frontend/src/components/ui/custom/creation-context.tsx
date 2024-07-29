@@ -19,14 +19,17 @@ export const CreationContext = createContext<{
   vary: (index: number, prompt: string) => Promise<void>,
   refreshProducts: () => Promise<void>
   inProgress: boolean,
-  items: ProductUnion[]
+  items: ProductUnion[],
+  progress: string,
+  progressUri?: string | null
 }
 >({
   create: async (prompt: string) => { },
   vary: async (index: number, prompt: string) => { },
   refreshProducts: async () => { },
   inProgress: false,
-  items: []
+  items: [],
+  progress: "0%"
 }
 )
 
@@ -42,6 +45,8 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false)
   const [finishedOpen, setFinishedOpen] = useState<boolean>(false)
   const [errorOpen, setErrorOpen] = useState<boolean>(false)
+  const [progress, setProgress] = useState<string>("0%")
+  const [progressUri, setProgressUri] = useState<string | null | undefined>()
 
   const form = useForm<yup.InferType<typeof emailSchema>>({
     resolver: yupResolver(emailSchema)
@@ -72,9 +77,9 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   }
 
   const poll = async (taskId: string) => {
-    const taskStatus = await pollTask(taskId)
+    const task = await pollTask(taskId)
 
-    switch (taskStatus) {
+    switch (task?.status) {
       case TaskStatus.Complete:
         await refreshProducts()
         setInProgress(false)
@@ -82,11 +87,14 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         setFinishedOpen(true)
         break
       case TaskStatus.Failed:
+      case undefined:
         setInProgress(false)
         setConfirmationOpen(false)
         setErrorOpen(true)
         break
       default:
+        setProgress(task?.progress ?? "0%")
+        setProgressUri(task?.progressUri)
         setTimeout(poll, 5000, taskId)
         break
     }
@@ -138,7 +146,9 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         vary: vary,
         refreshProducts: refreshProducts,
         inProgress: inProgress,
-        items: products
+        items: products,
+        progress: progress,
+        progressUri: progressUri
       }}>
         {children}
       </CreationContext.Provider>

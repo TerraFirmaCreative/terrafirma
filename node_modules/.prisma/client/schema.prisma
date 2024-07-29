@@ -51,10 +51,14 @@ model ImagineData {
   updatedAt DateTime @updatedAt
 }
 
+// Should records like this be ephermeral in redis instead>
 model Task {
   id     String     @id @default(uuid())
   type   TaskType
   status TaskStatus
+
+  progress    String?
+  progressUri String?
 
   user   User   @relation(fields: [userId], references: [id])
   userId String

@@ -1,4 +1,5 @@
 "use server"
+import { getPrisma } from "@/config"
 import { GeneratedItemDto, ImagineData } from "@/lib/types/image.dto"
 import { CartDto, CartLineDto } from "@/lib/types/store.dto"
 
@@ -6,6 +7,17 @@ import { CartDto, CartLineDto } from "@/lib/types/store.dto"
 *  Store actions here are all within the context of generating custom mats.
 * Consider separating genric store actions into /store route in the future.
 */
+
+export const getPrompts = async () => {
+  const prompts = await getPrisma().imagineData.findMany({
+    "take": 50,
+    "select": {
+      "imaginePrompt": true
+    }
+  })
+
+  return prompts.map((prompt) => prompt.imaginePrompt.split(" ").slice(0, 10).join(" "))
+}
 
 export const generateItems = async (prompt: string): Promise<GeneratedItemDto[]> => {
   // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"

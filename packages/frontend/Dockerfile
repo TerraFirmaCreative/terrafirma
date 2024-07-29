@@ -14,6 +14,7 @@ COPY ./packages/rest ./packages/rest
 COPY ./packages/frontend ./packages/frontend
 # RUN yarn install --immutable --non-interactive --cache-folder ./ycache; rm -rf ./ycache
 RUN yarn workspace @terrafirma/frontend install --immutable --ignore-engines --all --non-interactive --cache-folder ./ycache; rm -rf ./ycache
+RUN yarn workspace @terrafirma/frontend prisma generate
 RUN yarn workspace @terrafirma/frontend build
 RUN cp -r ./packages/frontend/.next/static ./packages/frontend/.next/standalone/packages/frontend/.next/static
 RUN cp -r ./packages/frontend/public ./packages/frontend/.next/standalone/packages/frontend/public
