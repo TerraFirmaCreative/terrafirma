@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 import { beginTask, getUserProducts, pollTask, updateUserEmail } from "@/gateway/tasks"
 import { TaskStatus, Product, ImagineData, TaskType } from "@prisma/client"
 import { getProductsById } from "@/gateway/store"
-// import { GetProductQuery } from "@/lib/types/graphql"
+import { GetProductQuery, GetProductsByIdQuery } from "@/lib/types/graphql"
 import { Form, FormDescription } from "../form"
 import { SubmitHandler, useForm } from "react-hook-form"
 import * as yup from "yup"
@@ -33,7 +33,7 @@ export const CreationContext = createContext<{
 }
 )
 
-export type ProductUnion = ({ imagineData: ImagineData | null, shopifyProduct: any | undefined } & Product | null)
+export type ProductUnion = ({ imagineData: ImagineData | null, shopifyProduct: GetProductsByIdQuery["nodes"][0] | undefined } & Product | null)
 
 const emailSchema = yup.object({
   email: yup.string().email().optional()

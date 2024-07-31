@@ -1,6 +1,5 @@
 "use server"
 import { GetProductQuery, ProductSortKeys, GetProductsByIdQuery } from "@/lib/types/graphql"
-// import { ProductSortKeys } from "@/lib/types/graphql"
 import { getStorefrontClient } from '@/config'
 import { shopifyIdToUrlId } from "@/lib/utils"
 import { ClientResponse } from "@shopify/storefront-api-client"
@@ -29,6 +28,7 @@ export const getExistingCustomMats = async () => {
           }
         }
       }
+    }
   `
   return (await getStorefrontClient().request(query, {
     variables: {
@@ -102,11 +102,7 @@ export const getProductsById = async (ids: string[]) => {
           edges {
             node {
               url
-                altText
-                altText
-                url
               altText
-                url
             }
           }
         }
@@ -142,11 +138,7 @@ export const getProductsById = async (ids: string[]) => {
             edges {
               node {
                 url
-                  altText
-                  altText
-                  url
                 altText
-                  url
               }
             }
           }

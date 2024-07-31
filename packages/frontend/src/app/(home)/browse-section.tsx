@@ -2,16 +2,16 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { FilterParams, getPaginatedProducts } from "@/gateway/store"
-import { PaginatedProductsQuery } from "@/lib/types/graphql"
+import { GetCollectionsQuery, PaginatedProductsQuery } from "@/lib/types/graphql"
 import { currencySymbol, formatPrice, shopifyIdToUrlId } from "@/lib/utils"
 import Link from "next/link"
 import { AspectRatio } from "@radix-ui/react-aspect-ratio"
 
 const BrowseProducts = ({ initialProducts, collections }: {
-  initialProducts?: any,
-  collections?: any
+  initialProducts?: PaginatedProductsQuery["products"]["edges"],
+  collections?: GetCollectionsQuery["collections"]["nodes"]
 }) => {
-  const [products, setProducts] = useState<any>(initialProducts ?? [])
+  const [products, setProducts] = useState<PaginatedProductsQuery["products"]["edges"]>(initialProducts ?? [])
   const [filterParams, setFilterParams] = useState<FilterParams>({})
 
 
@@ -54,7 +54,7 @@ const BrowseProducts = ({ initialProducts, collections }: {
             grid justify-center grid-flow-row-dense w-full gap-2 h-full p-2
           "
         >
-          {collections?.at(0)?.products.nodes.map((product: any) =>
+          {collections?.at(0)?.products.nodes.map((product) =>
             <Link key={product.id} href={`/browse/${shopifyIdToUrlId(product.id)}`}>
               <div key={product.id} className="overflow-clip relative border">
                 <AspectRatio ratio={1 / 3}>
@@ -79,7 +79,7 @@ const BrowseProducts = ({ initialProducts, collections }: {
             </Link>
           )}
 
-          {products.map((product: any) =>
+          {products.map((product) =>
             <Link key={product.node.id} href={`/browse/${shopifyIdToUrlId(product.node.id)}`}>
               <div key={product.cursor} className="overflow-clip relative border">
                 <AspectRatio ratio={1 / 3}>
