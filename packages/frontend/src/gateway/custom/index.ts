@@ -5,7 +5,7 @@ import { CartDto, CartLineDto } from "@/lib/types/store.dto"
 
 /*
 *  Store actions here are all within the context of generating custom mats.
-* Consider separating genric store actions into /store route in the future.
+* Consider separating generic store actions into /store route in the future.
 */
 
 export const getPrompts = async () => {

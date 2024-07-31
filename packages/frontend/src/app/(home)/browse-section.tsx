@@ -7,8 +7,11 @@ import { currencySymbol, formatPrice, shopifyIdToUrlId } from "@/lib/utils"
 import Link from "next/link"
 import { AspectRatio } from "@radix-ui/react-aspect-ratio"
 
-const BrowseProducts = ({ initialProducts }: { initialProducts?: PaginatedProductsQuery["products"]["edges"] }) => {
-  const [products, setProducts] = useState<PaginatedProductsQuery["products"]["edges"]>(initialProducts ?? [])
+const BrowseProducts = ({ initialProducts, collections }: {
+  initialProducts?: any,
+  collections?: any
+}) => {
+  const [products, setProducts] = useState<any>(initialProducts ?? [])
   const [filterParams, setFilterParams] = useState<FilterParams>({})
 
 
@@ -51,8 +54,33 @@ const BrowseProducts = ({ initialProducts }: { initialProducts?: PaginatedProduc
             grid justify-center grid-flow-row-dense w-full gap-2 h-full p-2
           "
         >
-          {products.map((product: PaginatedProductsQuery["products"]["edges"][0]) =>
-            <Link key={product.node.id} href={`/browse/${shopifyIdToUrlId(product.node.id)}`} >
+          {collections?.at(0)?.products.nodes.map((product: any) =>
+            <Link key={product.id} href={`/browse/${shopifyIdToUrlId(product.id)}`}>
+              <div key={product.id} className="overflow-clip relative border">
+                <AspectRatio ratio={1 / 3}>
+                  <Image
+                    src={product.featuredImage?.url}
+                    alt={product.title}
+                    fill
+                    sizes="20vw"
+                  />
+                  <div className="relative text-center w-full h-full bottom-0 opacity-0 hover:opacity-100 cursor-pointer transition-all">
+                    <div className="flex flex-col h-full justify-end my-auto text-white transition-all">
+                      <div className="bg-slate-900 py-6 flex flex-col justify-center">
+                        <div className="flex font-serif flex-col justify-center text-wrap text-2xl font-bold">
+                          {product.title.toUpperCase().split("[")[0].split("").filter((char: string) => char != '"').join("")}
+                        </div>
+                        <div className="text-xl h-1/5">{formatPrice(product.priceRange.maxVariantPrice)}</div>
+                      </div>
+                    </div>
+                  </div>
+                </AspectRatio>
+              </div>
+            </Link>
+          )}
+
+          {products.map((product: any) =>
+            <Link key={product.node.id} href={`/browse/${shopifyIdToUrlId(product.node.id)}`}>
               <div key={product.cursor} className="overflow-clip relative border">
                 <AspectRatio ratio={1 / 3}>
                   <Image
@@ -62,7 +90,7 @@ const BrowseProducts = ({ initialProducts }: { initialProducts?: PaginatedProduc
                     sizes="20vw"
                   />
                   <div className="relative text-center w-full h-full bottom-0 opacity-0 hover:opacity-100 cursor-pointer transition-all">
-                    <div className="flex flex-col h-full  justify-end my-auto text-white transition-all">
+                    <div className="flex flex-col h-full justify-end my-auto text-white transition-all">
                       <div className="bg-slate-900 py-6 flex flex-col justify-center">
                         <div className="flex font-serif flex-col justify-center text-wrap text-2xl font-bold">
                           {product.node.title.toUpperCase().split("[")[0].split("").filter((char: string) => char != '"').join("")}

@@ -22,18 +22,6 @@ export function getPrisma() {
   return prisma
 }
 
-export function getAdminClient() {
-  if (!adminClient) {
-    adminClient = createAdminApiClient({
-      storeDomain: process.env.SHOPIFY_STORE_DOMAIN!,
-      apiVersion: "2024-01",
-      accessToken: process.env.SHOPIFY_ADMIN_ACCESS_TOKEN!
-    })
-  }
-
-  return adminClient
-}
-
 export function getStorefrontClient() {
   if (!client) {
     client = createStorefrontApiClient({

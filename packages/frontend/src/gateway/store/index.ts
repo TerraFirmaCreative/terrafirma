@@ -1,7 +1,13 @@
 "use server"
 import { GetProductQuery, ProductSortKeys, GetProductsByIdQuery } from "@/lib/types/graphql"
-import { getAdminClient, getStorefrontClient } from '@/config'
+// import { ProductSortKeys } from "@/lib/types/graphql"
+import { getStorefrontClient } from '@/config'
 import { shopifyIdToUrlId } from "@/lib/utils"
+import { ClientResponse } from "@shopify/storefront-api-client"
+
+/*
+*  Store actions here are all related to fetching products for the common storefront functionality
+*/
 
 export const getExistingCustomMats = async () => {
   const query = `#graphql
@@ -23,7 +29,6 @@ export const getExistingCustomMats = async () => {
           }
         }
       }
-    }
   `
   return (await getStorefrontClient().request(query, {
     variables: {
@@ -43,7 +48,6 @@ export type FilterParams = {
   priceRange?: number[],
   productTag?: string
 }
-
 export const getPaginatedProducts = async (params: FilterParams) => {
   const query = `#graphql
     query paginatedProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $reverse: Boolean, $after: String) {
@@ -78,57 +82,97 @@ export const getPaginatedProducts = async (params: FilterParams) => {
   })).data?.products.edges
 }
 
-// TODO: This should be possible without admin client somehow. Perhaps querying for variants instead?
-export const getProductsById = async (ids: string[]): Promise<GetProductsByIdQuery['products']['edges']> => {
+export const getProductsById = async (ids: string[]) => {
   if (ids.length == 0) return []
 
   const joined = ids.map(id => `id:${shopifyIdToUrlId(id)}`).join(" OR ")
   console.log(joined)
+
   const query = `#graphql
-    query getProductsById($query: String) {
-      products(first: 10, query: $query) {
-        edges {
-          node {
-            id
-            title
-            description
-            featuredImage {
+  query getProductsById($ids: [ID!]!) {
+    nodes(ids: $ids) {
+      ... on Product {
+        id
+        title
+        description
+        featuredImage {
+          url
+        }
+        images(first: 10) {
+          edges {
+            node {
               url
+                altText
+                altText
+                url
+              altText
+                url
             }
-            images(first: 10) {
-              edges {
-                node {
+          }
+        }
+        priceRange {
+          maxVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        variants(first: 1) {
+          edges{
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+  const productsQuery = await getStorefrontClient().request(`#graphql
+    query getProductsById($ids: [ID!]!) {
+      nodes(ids: $ids) {
+        ... on Product {
+          id
+          title
+          description
+          featuredImage {
+            url
+          }
+          images(first: 10) {
+            edges {
+              node {
+                url
+                  altText
                   altText
                   url
-                }
+                altText
+                  url
               }
             }
-            priceRange {
-              maxVariantPrice {
-                amount
-                currencyCode
-              }
+          }
+          priceRange {
+            maxVariantPrice {
+              amount
+              currencyCode
             }
-            variants(first: 1) {
-              edges{
-                node {
-                  id
-                }
+          }
+          variants(first: 1) {
+            edges{
+              node {
+                id
               }
             }
           }
         }
       }
     }
-  `
-
-  const products = await getAdminClient().request(query, {
-    variables: {
-      query: `(${joined})`,
+  `, {
+    "variables": {
+      "ids": ids
     }
   })
 
-  return products.data?.products.edges ?? []
+  return productsQuery.data?.nodes ?? []
 }
 
 export const getProduct = async (productId: string): Promise<GetProductQuery['product']> => {
@@ -173,3 +217,35 @@ export const getProduct = async (productId: string): Promise<GetProductQuery['pr
   })).data?.product
 }
 
+export const getCollections = async (query: string) => {
+  const collectionsQuery = await getStorefrontClient().request(`#graphql
+    query getCollections($query: String) {
+      collections(first:20, query: $query) {
+        nodes {
+          title
+          products(first:100) {
+            nodes {
+              id
+              title
+              featuredImage {
+                url
+              }
+              priceRange {
+                maxVariantPrice {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `, {
+    variables: {
+      query: query
+    }
+  })
+
+  return collectionsQuery.data?.collections.nodes ?? []
+} 

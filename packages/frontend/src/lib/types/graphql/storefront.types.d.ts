@@ -670,6 +670,7 @@ export type CartBuyerIdentity = {
    * A set of wallet preferences tied to the buyer that is interacting with the cart.
    * Preferences can be used to populate relevant payment fields in the checkout flow.
    *
+   * @deprecated Use `preferences` instead.
    */
   walletPreferences: Array<Scalars['String']['output']>;
 };
@@ -698,14 +699,6 @@ export type CartBuyerIdentityInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   /** The phone number of the buyer that is interacting with the cart. */
   phone?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * A set of wallet preferences tied to the buyer that is interacting with the cart.
-   * Preferences can be used to populate relevant payment fields in the checkout flow.
-   *   Accepted value: `["shop_pay"]`.
-   *
-   * The input must not contain more than `250` values.
-   */
-  walletPreferences?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 /** Return type for `cartBuyerIdentityUpdate` mutation. */
@@ -4824,7 +4817,7 @@ export type MenuItem = Node & {
  * The list of possible resources a `MenuItem` can reference.
  *
  */
-export type MenuItemResource = Article | Blog | Collection | Page | Product | ShopPolicy;
+export type MenuItemResource = Article | Blog | Collection | Metaobject | Page | Product | ShopPolicy;
 
 /** A menu item type. */
 export enum MenuItemType {
@@ -4842,6 +4835,8 @@ export enum MenuItemType {
   Frontpage = 'FRONTPAGE',
   /** An http link. */
   Http = 'HTTP',
+  /** A metaobject page link. */
+  Metaobject = 'METAOBJECT',
   /** A page link. */
   Page = 'PAGE',
   /** A product link. */
@@ -6449,6 +6444,8 @@ export type ProductSellingPlanGroupsArgs = {
  *
  */
 export type ProductVariantBySelectedOptionsArgs = {
+  caseInsensitiveMatch?: InputMaybe<Scalars['Boolean']['input']>;
+  ignoreUnknownOptions?: InputMaybe<Scalars['Boolean']['input']>;
   selectedOptions: Array<SelectedOptionInput>;
 };
 
@@ -6588,7 +6585,10 @@ export type ProductOption = Node & {
   id: Scalars['ID']['output'];
   /** The product option’s name. */
   name: Scalars['String']['output'];
-  /** The corresponding value to the product option name. */
+  /**
+   * The corresponding value to the product option name.
+   * @deprecated Use `optionValues` instead.
+   */
   values: Array<Scalars['String']['output']>;
 };
 
@@ -6687,6 +6687,8 @@ export type ProductVariant = HasMetafields & Node & {
   sku?: Maybe<Scalars['String']['output']>;
   /** The in-store pickup availability of this variant by location. */
   storeAvailability: StoreAvailabilityConnection;
+  /** Whether tax is charged when the product variant is sold. */
+  taxable: Scalars['Boolean']['output'];
   /** The product variant’s title. */
   title: Scalars['String']['output'];
   /** The unit price value for the variant based on the variant's measurement. */
