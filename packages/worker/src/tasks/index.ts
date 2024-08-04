@@ -53,17 +53,18 @@ export const imagineTask = async (task: ImagineTask) => {
       prisma.imagineData.create({
         data: {
           imagineFlags: imaginedImages[0]!.flags,
-          imaginePrompt: task.Body.prompt,
+          imaginePrompt: imaginedImages[0]!.content,
           imagineHash: imaginedImages[0]!.hash!,
           imagineId: imaginedImages[0]!.id!,
           Product: {
             createMany: {
-              data: createdProducts.map((product) => {
+              data: createdProducts.map((product, i) => {
                 return {
                   createdById: task.Body.userId,
                   discordImageUrl: product.imageUrl,
                   shopifyProductId: product.productId,
-                  allowVariants: true
+                  allowVariants: true,
+                  imagineIndex: i + 1
                 }
               })
             }
@@ -120,7 +121,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
   try {
     const [customText, variantQuad] = await Promise.all([
       generateCustomText(prompt),
-      createVariants(task.Body.taskId, task.Body.prompt, task.Body.srcImagineData, task.Body.index)
+      createVariants(task.Body.taskId, prompt, task.Body.srcImagineData, task.Body.index)
     ])
 
     const variants: Sharp[] = await splitQuadImage(sharp(await remoteImage(variantQuad!.uri)))
@@ -134,7 +135,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
           description: customText[i].description,
           title: customText[i].title,
           url: variantUrls[i],
-          prompt: task.Body.srcImagineData.imaginePrompt
+          prompt: prompt
         })
       )
     }
@@ -151,40 +152,26 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
           status: TaskStatus.Complete,
         }
       }),
-      prisma.imagineData.upsert({
-        where: {
-          id: task.Body.srcImagineData.id!
-        },
-        "update": {
-          ...task.Body.srcImagineData,
+      prisma.imagineData.create({
+        "data": {
+          imagineId: variantQuad!.id!,
+          imagineFlags: variantQuad!.flags,
+          imagineHash: variantQuad!.hash!,
+          imaginePrompt: variantQuad!.content,
           Product: {
             createMany: {
-              data: createdProducts.map((product) => {
+              data: createdProducts.map((product, i) => {
                 return {
                   createdById: task.Body.userId,
                   "discordImageUrl": product.imageUrl,
                   "shopifyProductId": product.productId,
-                  "allowVariants": false
+                  "allowVariants": false,
+                  imagineIndex: i + 1
                 }
               })
             }
           }
         },
-        "create": {
-          ...newImagineData,
-          Product: {
-            createMany: {
-              data: createdProducts.map((product) => {
-                return {
-                  createdById: task.Body.userId,
-                  "discordImageUrl": product.imageUrl,
-                  "shopifyProductId": product.productId,
-                  "allowVariants": false
-                }
-              })
-            }
-          }
-        }
       })
     ])
 

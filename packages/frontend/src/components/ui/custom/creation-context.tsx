@@ -19,7 +19,7 @@ export const CreationContext = createContext<{
   vary: (index: number, prompt: string) => Promise<void>,
   refreshProducts: () => Promise<void>
   inProgress: boolean,
-  items: ProductUnion[],
+  products: ProductWithImagineData[],
   progress: string,
   progressUri?: string | null
 }
@@ -28,12 +28,12 @@ export const CreationContext = createContext<{
   vary: async (index: number, prompt: string) => { },
   refreshProducts: async () => { },
   inProgress: false,
-  items: [],
+  products: [],
   progress: "0%"
 }
 )
 
-export type ProductUnion = ({ imagineData: ImagineData | null, shopifyProduct: GetProductsByIdQuery["nodes"][0] | undefined } & Product | null)
+export type ProductWithImagineData = ({ imagineData: ImagineData | null, shopifyProduct: GetProductsByIdQuery["nodes"][0] | undefined } & Product | null)
 
 const emailSchema = yup.object({
   email: yup.string().email().optional()
@@ -41,7 +41,7 @@ const emailSchema = yup.object({
 
 function CreationProvider({ children }: { children: React.ReactNode }) {
   const [inProgress, setInProgress] = useState<boolean>(false)
-  const [products, setProducts] = useState<ProductUnion[]>([])
+  const [products, setProducts] = useState<ProductWithImagineData[]>([])
   const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false)
   const [finishedOpen, setFinishedOpen] = useState<boolean>(false)
   const [errorOpen, setErrorOpen] = useState<boolean>(false)
@@ -61,19 +61,22 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   const refreshProducts = async () => {
-
     const userProducts = (await getUserProducts())
-    const shopifyProducts = await getProductsById(userProducts.map((product) => product.shopifyProductId))
-    console.log(userProducts.length, shopifyProducts.length)
-    const productUnions: ProductUnion[] = userProducts.slice(0, Math.min(shopifyProducts.length, userProducts.length)).map((userProduct, i) => {
+    const shopifyProducts = await (await getProductsById(userProducts.map((product) => product.shopifyProductId)))
+    let shopifyProductsMap: Map<string, GetProductsByIdQuery["nodes"][0]> = new Map<string, GetProductsByIdQuery["nodes"][0]>
+    for (const shopifyProduct of shopifyProducts) {
+      shopifyProductsMap.set(shopifyProduct?.id!, shopifyProduct)
+    }
+
+    const productsWithImagineData: ProductWithImagineData[] = userProducts.slice(0, Math.min(shopifyProducts.length, userProducts.length)).map((userProduct, i) => {
       // TODO: Check this! index needs to match when creating variants
       return {
         ...userProduct,
-        shopifyProduct: shopifyProducts[i]
+        shopifyProduct: shopifyProductsMap.get(userProduct.shopifyProductId)
       }
     })
 
-    setProducts(productUnions)
+    setProducts(productsWithImagineData)
   }
 
   const poll = async (taskId: string) => {
@@ -122,7 +125,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     beginTask({
       prompt: prompt,
       srcImagineData: products.at(index)?.imagineData!,
-      index: index + 1,
+      index: products.at(index)?.imagineIndex,
       type: TaskType.ImagineVariants
     }).then((res) => {
       if (res.status !== TaskStatus.Failed) {
@@ -146,7 +149,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         vary: vary,
         refreshProducts: refreshProducts,
         inProgress: inProgress,
-        items: products,
+        products: products,
         progress: progress,
         progressUri: progressUri
       }}>

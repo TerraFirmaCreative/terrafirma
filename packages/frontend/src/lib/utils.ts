@@ -14,6 +14,8 @@ export const createUrl = (pathname: string, params: URLSearchParams | ReadonlyUR
   return `${pathname}${queryString}`
 }
 
+export const trimPrompt = (prompt: string) => prompt.split(" - ").at(0)?.slice(2, -2).split("--").at(0) ?? ""
+
 export const currencySymbol = (currencyCode: CurrencyCode): string => {
   const map = new Map<CurrencyCode, string>([
     [CurrencyCode.Aud, "$"]

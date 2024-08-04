@@ -20,13 +20,13 @@ const promptSchema = yup.object({
 })
 
 const PromptResults = () => {
-  const { inProgress, items, progress, progressUri } = useContext(CreationContext)
+  const { inProgress, products, progress, progressUri } = useContext(CreationContext)
 
   const imageCrops = ["origin-top-left", "origin-top-right", "origin-bottom-left", "origin-bottom-right"]
   const [quadUrl, setQuadUrl] = useState<string | null | undefined>(progressUri)
 
   useEffect(() => {
-    if (!inProgress && progress != "0%") setQuadUrl(items.at(-1)?.discordImageUrl)
+    if (!inProgress && progress != "0%") setQuadUrl(products.at(-1)?.discordImageUrl)
     else setQuadUrl(progressUri)
   }, [inProgress])
 
@@ -61,7 +61,7 @@ const PromptResults = () => {
 }
 
 const PromptForm = ({ prompts }: { prompts: string[] }) => {
-  const { create, inProgress, items } = useContext(CreationContext)
+  const { create, inProgress, products } = useContext(CreationContext)
   const form = useForm<yup.InferType<typeof promptSchema>>({
     resolver: yupResolver(promptSchema),
   })

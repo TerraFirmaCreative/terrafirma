@@ -32,6 +32,7 @@ model Product {
   createdBy        User         @relation(fields: [createdById], references: [id])
   createdById      String
   imagineData      ImagineData? @relation(fields: [imagineDataId], references: [id])
+  imagineIndex     Int
   imagineDataId    String?
   allowVariants    Boolean
 

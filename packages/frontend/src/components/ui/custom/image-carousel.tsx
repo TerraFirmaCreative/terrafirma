@@ -8,7 +8,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../carousel"
-import { GeneratedItemDto } from "@/lib/types/image.dto"
 import Image from "next/image"
 import {
   useState,
@@ -16,17 +15,17 @@ import {
   SetStateAction,
   Dispatch,
 } from "react"
-import { ProductUnion } from "./creation-context"
+import { ProductWithImagineData } from "./creation-context"
 
 const GeneratedImageCarousel = ({
-  items,
+  products,
   setSelected,
 }: {
-  items: ProductUnion[]
+  products: ProductWithImagineData[]
   setSelected: Dispatch<SetStateAction<number>>
 }) => {
   const [api, setApi] = useState<CarouselApi>()
-  const [selectedIndexm, setSelectedIndex] = useState(0)
+  const [selectedIndex, setSelectedIndex] = useState(0)
 
   useEffect(() => {
     if (!api) return
@@ -40,8 +39,8 @@ const GeneratedImageCarousel = ({
   }, [api])
 
   useEffect(() => {
-    selectImage(items.length - 1)
-  }, [items])
+    selectImage(products.length - 1)
+  }, [products])
 
   const selectImage = (index: number) => {
     if (api) {
@@ -59,7 +58,7 @@ const GeneratedImageCarousel = ({
         }}
       >
         <CarouselContent className="-ml-10 lg:py-16 md:py-32 sm:py-20 py-2 ">
-          {items.map((item, index) => {
+          {products.map((item, index) => {
             return (
               <CarouselItem
                 key={index}
@@ -87,7 +86,7 @@ const GeneratedImageCarousel = ({
         <CarouselPrevious />
         <CarouselNext />
         <div className="flex justify-center flex-row gap-4 h-6 w-full">
-          {items.map((item, index) => (
+          {products.map((item, index) => (
             <div
               key={index}
               className={cn(

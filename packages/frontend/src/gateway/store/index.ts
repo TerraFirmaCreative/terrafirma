@@ -85,51 +85,13 @@ export const getPaginatedProducts = async (params: FilterParams) => {
 export const getProductsById = async (ids: string[]) => {
   if (ids.length == 0) return []
 
-  const joined = ids.map(id => `id:${shopifyIdToUrlId(id)}`).join(" OR ")
-  console.log(joined)
-
-  const query = `#graphql
-  query getProductsById($ids: [ID!]!) {
-    nodes(ids: $ids) {
-      ... on Product {
-        id
-        title
-        description
-        featuredImage {
-          url
-        }
-        images(first: 10) {
-          edges {
-            node {
-              url
-              altText
-            }
-          }
-        }
-        priceRange {
-          maxVariantPrice {
-            amount
-            currencyCode
-          }
-        }
-        variants(first: 1) {
-          edges{
-            node {
-              id
-            }
-          }
-        }
-      }
-    }
-  }
-`
-
   const productsQuery = await getStorefrontClient().request(`#graphql
     query getProductsById($ids: [ID!]!) {
       nodes(ids: $ids) {
         ... on Product {
           id
           title
+          createdAt
           description
           featuredImage {
             url
@@ -173,6 +135,7 @@ export const getProduct = async (productId: string): Promise<GetProductQuery['pr
       product(id: $id) {
         id
         title
+        createdAt
         description
         featuredImage {
           url
@@ -214,7 +177,12 @@ export const getCollections = async (query: string) => {
     query getCollections($query: String) {
       collections(first:20, query: $query) {
         nodes {
+          id
           title
+          description
+          image {
+            url
+          }
           products(first:100) {
             nodes {
               id

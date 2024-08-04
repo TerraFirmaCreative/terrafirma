@@ -75,7 +75,7 @@ export type GetProductsByIdQueryVariables = StorefrontTypes.Exact<{
 
 export type GetProductsByIdQuery = {
   nodes: Array<StorefrontTypes.Maybe<(
-    Pick<StorefrontTypes.Product, 'id' | 'title' | 'description'>
+    Pick<StorefrontTypes.Product, 'id' | 'title' | 'createdAt' | 'description'>
     & { featuredImage?: StorefrontTypes.Maybe<Pick<StorefrontTypes.Image, 'url'>>, images: { edges: Array<{ node: Pick<StorefrontTypes.Image, 'url' | 'altText'> }> }, priceRange: { maxVariantPrice: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, variants: { edges: Array<{ node: Pick<StorefrontTypes.ProductVariant, 'id'> }> } }
   )>>
 }
@@ -87,7 +87,7 @@ export type GetProductQueryVariables = StorefrontTypes.Exact<{
 
 export type GetProductQuery = {
   product?: StorefrontTypes.Maybe<(
-    Pick<StorefrontTypes.Product, 'id' | 'title' | 'description'>
+    Pick<StorefrontTypes.Product, 'id' | 'title' | 'createdAt' | 'description'>
     & { featuredImage?: StorefrontTypes.Maybe<Pick<StorefrontTypes.Image, 'url'>>, images: { edges: Array<{ node: Pick<StorefrontTypes.Image, 'url' | 'altText'> }> }, priceRange: { maxVariantPrice: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, variants: { edges: Array<{ node: Pick<StorefrontTypes.ProductVariant, 'id'> }> } }
   )>
 }
@@ -100,9 +100,9 @@ export type GetCollectionsQueryVariables = StorefrontTypes.Exact<{
 export type GetCollectionsQuery = {
   collections: {
     nodes: Array<(
-      Pick<StorefrontTypes.Collection, 'title'>
+      Pick<StorefrontTypes.Collection, 'id' | 'title' | 'description'>
       & {
-        products: {
+        image?: StorefrontTypes.Maybe<Pick<StorefrontTypes.Image, 'url'>>, products: {
           nodes: Array<(
             Pick<StorefrontTypes.Product, 'id' | 'title'>
             & { featuredImage?: StorefrontTypes.Maybe<Pick<StorefrontTypes.Image, 'url'>>, priceRange: { maxVariantPrice: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> } }
@@ -118,10 +118,9 @@ interface GeneratedQueryTypes {
   "#graphql\n    query getPage($handle: MetaobjectHandleInput) {\n      metaobject(handle: $handle) {\n        handle\n        fields {\n          key\n          value\n        }\n      }\n    }\n  ": { return: GetPageQuery, variables: GetPageQueryVariables },
   "#graphql\n    query customProducts($first: Int, $sortKey: ProductSortKeys, $query: String) {\n      products(first: $first, sortKey: $sortKey, query: $query) {\n        edges {\n          node {\n            id\n            title\n            featuredImage {\n              url\n            }\n            priceRange {\n              maxVariantPrice {\n                currencyCode\n                amount\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: CustomProductsQuery, variables: CustomProductsQueryVariables },
   "#graphql\n    query paginatedProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $reverse: Boolean, $after: String) {\n      products(first: $first, sortKey: $sortKey, query: $query, reverse: $reverse, after: $after) {\n        edges {\n          cursor\n          node {\n            id\n            title\n            featuredImage {\n              url\n            }\n            priceRange {\n              maxVariantPrice {\n                amount\n                currencyCode\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: PaginatedProductsQuery, variables: PaginatedProductsQueryVariables },
-  "#graphql\n  query getProductsById($ids: [ID!]!) {\n    nodes(ids: $ids) {\n      ... on Product {\n        id\n        title\n        description\n        featuredImage {\n          url\n        }\n        images(first: 10) {\n          edges {\n            node {\n              url\n              altText\n            }\n          }\n        }\n        priceRange {\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 1) {\n          edges{\n            node {\n              id\n            }\n          }\n        }\n      }\n    }\n  }\n": { return: GetProductsByIdQuery, variables: GetProductsByIdQueryVariables },
-  "#graphql\n    query getProductsById($ids: [ID!]!) {\n      nodes(ids: $ids) {\n        ... on Product {\n          id\n          title\n          description\n          featuredImage {\n            url\n          }\n          images(first: 10) {\n            edges {\n              node {\n                url\n                altText\n              }\n            }\n          }\n          priceRange {\n            maxVariantPrice {\n              amount\n              currencyCode\n            }\n          }\n          variants(first: 1) {\n            edges{\n              node {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetProductsByIdQuery, variables: GetProductsByIdQueryVariables },
-  "#graphql\n    query getProduct($id: ID!) {\n      product(id: $id) {\n        id\n        title\n        description\n        featuredImage {\n          url\n        }\n        images(first: 10) {\n          edges {\n            node {\n              url\n              altText\n            }\n          }\n        }\n        priceRange {\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 1) {\n          edges{\n            node {\n              id\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetProductQuery, variables: GetProductQueryVariables },
-  "#graphql\n    query getCollections($query: String) {\n      collections(first:20, query: $query) {\n        nodes {\n          title\n          products(first:100) {\n            nodes {\n              id\n              title\n              featuredImage {\n                url\n              }\n              priceRange {\n                maxVariantPrice {\n                  amount\n                  currencyCode\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetCollectionsQuery, variables: GetCollectionsQueryVariables },
+  "#graphql\n    query getProductsById($ids: [ID!]!) {\n      nodes(ids: $ids) {\n        ... on Product {\n          id\n          title\n          createdAt\n          description\n          featuredImage {\n            url\n          }\n          images(first: 10) {\n            edges {\n              node {\n                url\n                altText\n              }\n            }\n          }\n          priceRange {\n            maxVariantPrice {\n              amount\n              currencyCode\n            }\n          }\n          variants(first: 1) {\n            edges{\n              node {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetProductsByIdQuery, variables: GetProductsByIdQueryVariables },
+  "#graphql\n    query getProduct($id: ID!) {\n      product(id: $id) {\n        id\n        title\n        createdAt\n        description\n        featuredImage {\n          url\n        }\n        images(first: 10) {\n          edges {\n            node {\n              url\n              altText\n            }\n          }\n        }\n        priceRange {\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 1) {\n          edges{\n            node {\n              id\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetProductQuery, variables: GetProductQueryVariables },
+  "#graphql\n    query getCollections($query: String) {\n      collections(first:20, query: $query) {\n        nodes {\n          id\n          title\n          description\n          image {\n            url\n          }\n          products(first:100) {\n            nodes {\n              id\n              title\n              featuredImage {\n                url\n              }\n              priceRange {\n                maxVariantPrice {\n                  amount\n                  currencyCode\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetCollectionsQuery, variables: GetCollectionsQueryVariables },
 }
 
 interface GeneratedMutationTypes {

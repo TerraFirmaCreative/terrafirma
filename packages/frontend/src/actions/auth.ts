@@ -3,6 +3,26 @@ import { sessions } from "@/components/session/session-data"
 import { getPrisma } from "@/config"
 import { cookies } from "next/headers"
 
+async function retrieveUser(userId: string) {
+  const user = await getPrisma().user.findUnique({
+    where: {
+      id: userId
+    }
+  })
+
+  if (user) {
+    sessions.set(userId, user)
+    cookies().set({
+      name: 'token',
+      value: userId,
+      expires: 1200000,
+      maxAge: 1200,
+    })
+  }
+
+  return user
+}
+
 export async function auth(authParam?: string | null) {
   if (authParam) {
     const user = await getPrisma().user.findUnique({
@@ -23,8 +43,8 @@ export async function auth(authParam?: string | null) {
   }
 
   const token = cookies().get('token')
-
-  if (!token || !sessions.has(token.value)) {
+  // TODO: Check DB after checking session just in case?
+  if (!token || !(sessions.has(token.value) || retrieveUser(token.value))) {
     const newToken = crypto.randomUUID().replace("-", "")
 
     const user = await getPrisma().user.create({

@@ -31,7 +31,7 @@ export const generateCustomText = async (prompt: string) => {
   const descriptions: string[] = (await openai.chat.completions.create({
     "model": "gpt-3.5-turbo-0125",
     "messages": [
-      { role: "user", content: `Imagine an image using the following promp: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat.` },
+      { role: "user", content: `Imagine an image using the following promp: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat. Include only the caption in your response, without any quotation or speech marks. Use only commas and full stops in your punctuation` },
     ],
     "n": 4,
   })).choices.map((choice) => choice.message.content ?? "Failed to generate description")
@@ -43,7 +43,7 @@ export const generateCustomText = async (prompt: string) => {
         "messages": [
           { role: "user", content: `Imagine an image using the following promp: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat.` },
           { role: "system", content: desc },
-          { role: "user", content: `Create an meaningful-sounding title for this image in 3 words` }
+          { role: "user", content: `Create an meaningful-sounding title for this image less than 5 words` }
         ]
       }).then((title) => {
         return title.choices[0].message.content?.split("").filter((char) => char != '"').join("") ?? `Design #${i}`
@@ -87,7 +87,7 @@ export const createVariants = async (taskId: string, prompt: string, imagineData
     msgId: imagineData.imagineId,
     hash: imagineData.imagineHash,
     flags: 0,
-    content: `${prompt}::2 --ar 1:3`,
+    content: `${prompt} --ar 1:3`,
     loading: (uri, progress) => {
       updateTaskProgress(taskId, progress, uri)
     }

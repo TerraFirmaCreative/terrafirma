@@ -2,6 +2,7 @@
 import { getPrisma } from "@/config"
 import { GeneratedItemDto, ImagineData } from "@/lib/types/image.dto"
 import { CartDto, CartLineDto } from "@/lib/types/store.dto"
+import { trimPrompt } from "@/lib/utils"
 
 /*
 *  Store actions here are all within the context of generating custom mats.
@@ -16,7 +17,7 @@ export const getPrompts = async () => {
     }
   })
 
-  return prompts.map((prompt) => prompt.imaginePrompt.split(" ").slice(0, 10).join(" "))
+  return prompts.map((prompt) => trimPrompt(prompt.imaginePrompt).split(" ").slice(0, 10))
 }
 
 export const generateItems = async (prompt: string): Promise<GeneratedItemDto[]> => {

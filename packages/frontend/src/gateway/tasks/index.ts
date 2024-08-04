@@ -112,7 +112,6 @@ export const getUserProducts = async () => {
   }
 
   const products = await getPrisma().product.findMany({
-    "take": 20,
     "where": {
       createdBy: {
         "token": token.value
@@ -120,9 +119,6 @@ export const getUserProducts = async () => {
     },
     "include": {
       imagineData: true
-    },
-    "orderBy": {
-      "shopifyProductId": "asc"
     }
   })
 
