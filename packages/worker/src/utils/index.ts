@@ -1,0 +1,1 @@
+export const trimPrompt = (prompt: string) => prompt.split(" - ").at(0)?.slice(2, -2).split("--").at(0) ?? ""

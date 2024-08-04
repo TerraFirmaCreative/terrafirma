@@ -40,7 +40,7 @@ const ViewCustomMats = () => {
   }, [])
 
   useEffect(() => {
-    form.setValue("prompt", trimPrompt(products.at(selected)?.imagineData?.imaginePrompt ?? ""))
+    // form.setValue("prompt", trimPrompt(products.at(selected)?.imagineData?.imaginePrompt ?? ""))
   }, [selected, products])
 
   if (fetching) return (

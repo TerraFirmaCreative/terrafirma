@@ -3,6 +3,7 @@ import OpenAI from "openai"
 import config, { mjClient, prisma } from "../config"
 import { MJMessage } from "midjourney"
 import { ImagineData } from "@terrafirma/rest/src/types"
+import { trimPrompt } from "../utils"
 
 export const router = express.Router()
 
@@ -87,7 +88,7 @@ export const createVariants = async (taskId: string, prompt: string, imagineData
     msgId: imagineData.imagineId,
     hash: imagineData.imagineHash,
     flags: 0,
-    content: `${prompt} --ar 1:3`,
+    content: `${trimPrompt(imagineData.imaginePrompt)} ${prompt} --ar 1:3`,
     loading: (uri, progress) => {
       updateTaskProgress(taskId, progress, uri)
     }
