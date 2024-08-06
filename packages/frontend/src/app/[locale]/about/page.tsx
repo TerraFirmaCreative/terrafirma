@@ -6,9 +6,9 @@ import { getPaginatedProducts } from "@/gateway/store"
 import { Label } from "@radix-ui/react-select"
 import { cookies } from "next/headers"
 
-const BrowsePage = async () => {
+const BrowsePage = async ({ params }: { params: { locale: string } }) => {
   const _cookies = cookies() // Disable SSG
-  const initialProducts = await getPaginatedProducts({})
+  const initialProducts = await getPaginatedProducts({}, params.locale)
 
   return (
     <>

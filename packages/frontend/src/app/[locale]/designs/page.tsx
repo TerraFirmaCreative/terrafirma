@@ -14,7 +14,7 @@ import { GenerateImageParams } from "@/lib/types/image.dto"
 import { formatTitle, trimPrompt } from "@/lib/utils"
 
 
-const ViewCustomMats = () => {
+const ViewCustomMats = ({ params }: { params: { locale: string } }) => {
   const [selected, setSelected] = useState(1)
   const [promptOpen, setPromptOpen] = useState(false)
   const { products, vary, inProgress, refreshProducts } = useContext(CreationContext)

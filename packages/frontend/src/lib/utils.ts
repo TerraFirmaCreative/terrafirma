@@ -53,3 +53,5 @@ export const readStream = async (stream: ReadableStream<Uint8Array>) => {
 
   return acc
 }
+
+export const parseLocale = (locale: string) => locale.split('-')

@@ -8,6 +8,10 @@ type CreateProductItem = {
   prompt: string
 }
 
+/*
+* Code for watermarking images before adding them on shopify. Keeping here for future need.
+*/
+
 // export async function watermarkMedia(url: string, uuid: string) {
 //   const originalBuffer = await fetch(url, {
 //     "method": "GET",
@@ -54,84 +58,6 @@ type CreateProductItem = {
 
 //   return url
 // }
-export type CreatedProductVariant = {
-  variantId: string,
-  imageUrl: string
-}
-export async function createProduct(item: CreateProductItem): Promise<CreatedProductVariant> {
-  const query = `#gqladmin
-    mutation createProduct($input: ProductInput!, $media: [CreateMediaInput!]) {
-      productCreate(input: $input, media: $media) {
-        product {
-          id
-          variants(first: 1) {
-            edges {
-              node {
-                id
-              }
-            }
-          }
-        }
-      }
-    }
-  `
-  const uuid = crypto.randomUUID()
-  const input = {
-    status: "ACTIVE",
-    title: `${item.title} [${uuid.toUpperCase()}]`,
-    vendor: "Terrafirm Creative",
-    descriptionHtml: item.description,
-    customProductType: "Yoga Mat",
-    variants: { // Might be deprecated
-      price: "70"
-    },
-    tags: `Custom`
-    // TODO: Add hidden metafield
-  }
-
-  const media = [
-    {
-      mediaContentType: "IMAGE",
-      originalSource: item.url
-    }
-  ]
-
-  const product = await adminGqlClient.request(query, {
-    variables: {
-      input: input,
-      media: media
-    }
-  })
-
-  const publicationQuery = `#gqladmin
-    mutation productPublish($input: ProductPublishInput!) {
-      productPublish(input: $input) {
-        productPublications {
-          channel {
-            name
-          }
-        }
-      }
-    }
-  `
-  await adminGqlClient.request(publicationQuery, {
-    variables: {
-      input: {
-        id: product.data?.productCreate.product.id,
-        productPublications: [
-          {
-            publicationId: process.env.SHOPIFY_APP_PUBLICATION_ID
-          }
-        ]
-      }
-    }
-  })
-
-  return {
-    variantId: product.data?.productCreate.product.variants.edges[0].node.id,
-    imageUrl: item.url // TODO: Upload image to S3, optimize and serve. OR find a way to wait for shopify image to be READY status
-  }
-}
 
 export async function getProductsById(ids: string[]) {
   if (ids.length == 0) return []

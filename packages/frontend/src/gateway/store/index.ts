@@ -1,16 +1,19 @@
 "use server"
-import { GetProductQuery, ProductSortKeys, GetProductsByIdQuery } from "@/lib/types/graphql"
+import { CountryCode, GetProductQuery, ProductSortKeys } from "@/lib/types/graphql"
 import { getStorefrontClient } from '@/config'
-import { shopifyIdToUrlId } from "@/lib/utils"
-import { ClientResponse } from "@shopify/storefront-api-client"
+import { parseLocale } from "@/lib/utils"
+import { CartLineDto } from "@/lib/types/store.dto"
+import { useParams } from "next/navigation"
 
 /*
 *  Store actions here are all related to fetching products for the common storefront functionality
 */
 
-export const getExistingCustomMats = async () => {
+
+export const getExistingCustomMats = async (locale: string) => {
+  const [_, countryCode] = parseLocale(locale)
   const query = `#graphql
-    query customProducts($first: Int, $sortKey: ProductSortKeys, $query: String) {
+    query customProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $countryCode: CountryCode) @inContext(country: $countryCode) {
       products(first: $first, sortKey: $sortKey, query: $query) {
         edges {
           node {
@@ -34,7 +37,8 @@ export const getExistingCustomMats = async () => {
     variables: {
       first: 20,
       sortKey: ProductSortKeys.BestSelling,
-      query: "tag:Custom"
+      query: "tag:Custom",
+      countryCode: countryCode as CountryCode
     }
   })).data?.products.edges.map((edge: any) =>
     edge.node
@@ -48,9 +52,10 @@ export type FilterParams = {
   priceRange?: number[],
   productTag?: string
 }
-export const getPaginatedProducts = async (params: FilterParams) => {
+export const getPaginatedProducts = async (params: FilterParams, locale: string) => {
+  const [_, countryCode] = parseLocale(locale)
   const query = `#graphql
-    query paginatedProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $reverse: Boolean, $after: String) {
+    query paginatedProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $reverse: Boolean, $after: String, $countryCode: CountryCode) @inContext(country: $countryCode) {
       products(first: $first, sortKey: $sortKey, query: $query, reverse: $reverse, after: $after) {
         edges {
           cursor
@@ -77,16 +82,18 @@ export const getPaginatedProducts = async (params: FilterParams) => {
       sortKey: params.sortKey ?? ProductSortKeys.CreatedAt,
       query: `variants.price:>=${params.priceRange?.at(0)?.toString() ?? '0'} variants.price:<=${params.priceRange?.at(1)?.toString() ?? '200'}`,
       reverse: params.reverse,
-      after: params.cursor
+      after: params.cursor,
+      countryCode: countryCode as CountryCode
     },
   })).data?.products.edges
 }
 
-export const getProductsById = async (ids: string[]) => {
+export const getProductsById = async (ids: string[], locale: string) => {
   if (ids.length == 0) return []
+  const [_, countryCode] = parseLocale(locale)
 
   const productsQuery = await getStorefrontClient().request(`#graphql
-    query getProductsById($ids: [ID!]!) {
+    query getProductsById($ids: [ID!]!, $countryCode: CountryCode) @inContext(country: $countryCode) {
       nodes(ids: $ids) {
         ... on Product {
           id
@@ -122,16 +129,19 @@ export const getProductsById = async (ids: string[]) => {
     }
   `, {
     "variables": {
-      "ids": ids
+      "ids": ids,
+      countryCode: countryCode as CountryCode
     }
   })
 
   return productsQuery.data?.nodes ?? []
 }
 
-export const getProduct = async (productId: string): Promise<GetProductQuery['product']> => {
+export const getProduct = async (productId: string, locale: string): Promise<GetProductQuery['product']> => {
+  const [_, countryCode] = parseLocale(locale)
+
   const query = `#graphql
-    query getProduct($id: ID!) {
+    query getProduct($id: ID!, $countryCode: CountryCode) @inContext(country: $countryCode) {
       product(id: $id) {
         id
         title
@@ -167,14 +177,16 @@ export const getProduct = async (productId: string): Promise<GetProductQuery['pr
 
   return (await getStorefrontClient().request(query, {
     variables: {
-      id: productId
+      id: productId,
+      countryCode: countryCode as CountryCode
     }
   })).data?.product
 }
 
-export const getCollections = async (query: string) => {
+export const getCollections = async (query: string, locale: string) => {
+  const [_, countryCode] = parseLocale(locale)
   const collectionsQuery = await getStorefrontClient().request(`#graphql
-    query getCollections($query: String) {
+    query getCollections($query: String, $countryCode: CountryCode) @inContext(country: $countryCode) {
       collections(first:20, query: $query) {
         nodes {
           id
@@ -203,9 +215,147 @@ export const getCollections = async (query: string) => {
     }
   `, {
     variables: {
-      query: query
+      query: query,
+      countryCode: countryCode as CountryCode
     }
   })
 
   return collectionsQuery.data?.collections.nodes ?? []
-} 
+}
+
+export const createCart = async (locale: string) => {
+  const [languageCode, countryCode] = parseLocale(locale)
+  const cartCreate = await getStorefrontClient().request(`#graphql 
+    mutation createCart($input: CartInput) {
+      cartCreate {
+        cart {
+          id
+          checkoutUrl
+          lines(first: 100) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ...on ProductVariant {
+                    id
+                    product {
+                      title
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `, {
+    variables: {
+      input: {
+        buyerIdentity: {
+          countryCode: countryCode as CountryCode
+        }
+      }
+    }
+  })
+
+  return cartCreate.data?.cartCreate?.cart
+}
+
+export const addToCart = async (cartId: string, variantId: string, quantity: number) => {
+  const addCart = await getStorefrontClient().request(`#graphql
+    mutation addCart($cartId: ID!, $lines: [CartLineInput!]!) {
+      cartLinesAdd(cartId: $cartId, lines: $lines) {
+        cart {
+          id
+          checkoutUrl
+          lines(first: 100) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ...on ProductVariant {
+                    id
+                    product {
+                      title
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `, {
+    variables: {
+      cartId: cartId,
+      lines: [
+        {
+          quantity: quantity,
+          merchandiseId: variantId
+        }
+      ],
+    },
+  })
+
+  return addCart.data?.cartLinesAdd?.cart
+}
+
+export const mutateCart = async (cartId: string, cartLines: CartLineDto[]) => {
+  const updateCart = await getStorefrontClient().request(`#graphql
+    mutation updateCart($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+      cartLinesUpdate(cartId: $cartId, lines: $lines) {
+        cart {
+          id
+          checkoutUrl
+          lines(first: 100) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ...on ProductVariant {
+                    id
+                    product {
+                      title
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `, {
+    variables: {
+      cartId: cartId,
+      lines: cartLines,
+    },
+  })
+
+  return updateCart.data?.cartLinesUpdate?.cart
+}
+
+export const getAvailableLocalization = async () => {
+  const localization = await getStorefrontClient().request(`#graphql
+    query GetLocalization {
+      localization {
+        availableCountries {
+          isoCode
+          name
+          currency {
+            symbol
+            isoCode
+            name
+          }
+        }
+      }
+    }
+  `)
+
+  return localization.data?.localization
+}

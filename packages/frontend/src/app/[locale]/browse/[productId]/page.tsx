@@ -8,10 +8,10 @@ import Preview from "./preview"
 import { robotoSerif } from "@/lib/fonts"
 
 export async function generateMetadata(
-  { params }: { params: { productId: string } },
+  { params }: { params: { productId: string, locale: string } },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const product = await getProduct(urlIdToShopifyId(params.productId))
+  const product = await getProduct(urlIdToShopifyId(params.productId), params.locale)
 
   return {
     title: (await parent).title,
@@ -19,8 +19,8 @@ export async function generateMetadata(
   }
 }
 
-const ProductPage = async ({ params }: { params: { productId: string } }) => {
-  const product = await getProduct(urlIdToShopifyId(params.productId))
+const ProductPage = async ({ params }: { params: { productId: string, locale: string } }) => {
+  const product = await getProduct(urlIdToShopifyId(params.productId), params.locale)
 
   if (product) {
     return (

@@ -3,9 +3,9 @@ import HeroCarousel from "@/components/ui/custom/hero-carousel"
 import { getPaginatedProducts } from "@/gateway/store"
 import { cookies } from "next/headers"
 
-const BrowsePage = async () => {
+const BrowsePage = async ({ params }: { params: { locale: string } }) => {
   const _cookies = cookies() // Disable SSG
-  const initialProducts = await getPaginatedProducts({})
+  const initialProducts = await getPaginatedProducts({}, params.locale)
 
   return (
     <PaginatedProducts initialProducts={initialProducts} />

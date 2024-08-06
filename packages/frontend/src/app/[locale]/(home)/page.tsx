@@ -8,13 +8,13 @@ import { cookies } from "next/headers"
 import FeaturedCollections from "./featured-collections"
 import Link from 'next/link'
 
-export default async function HomePage() {
+export default async function HomePage({ params }: { params: { locale: string } }) {
   const _cookies = cookies() // Disable SSG
   const [initialProducts, prompts, browseCollections, featuredCollections] = await Promise.all([
-    getPaginatedProducts({}),
+    getPaginatedProducts({}, params.locale),
     getPrompts(),
-    getCollections("title:='Home'"),
-    getCollections("title:='FEATURED*'")
+    getCollections("title:='Home'", params.locale),
+    getCollections("title:='FEATURED*'", params.locale)
   ])
 
   return (

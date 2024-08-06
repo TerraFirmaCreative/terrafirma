@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { CheckCircle } from "lucide-react"
 import { Button } from "../button"
 import { AlertDialogCancel, AlertDialog, AlertDialogFooter, AlertDialogContent, AlertDialogAction, AlertDialogTitle } from "../alert-dialog"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { beginTask, getUserProducts, pollTask, updateUserEmail } from "@/gateway/tasks"
 import { TaskStatus, Product, ImagineData, TaskType } from "@prisma/client"
 import { getProductsById } from "@/gateway/store"
@@ -48,6 +48,8 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [progress, setProgress] = useState<string>("0%")
   const [progressUri, setProgressUri] = useState<string | null | undefined>()
 
+  const params: { locale: string } | null = useParams()
+
   const form = useForm<yup.InferType<typeof emailSchema>>({
     resolver: yupResolver(emailSchema)
   })
@@ -62,7 +64,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProducts = async () => {
     const userProducts = (await getUserProducts())
-    const shopifyProducts = await (await getProductsById(userProducts.map((product) => product.shopifyProductId)))
+    const shopifyProducts = await (await getProductsById(userProducts.map((product) => product.shopifyProductId), params?.locale ?? "AU"))
     let shopifyProductsMap: Map<string, GetProductsByIdQuery["nodes"][0]> = new Map<string, GetProductsByIdQuery["nodes"][0]>
     for (const shopifyProduct of shopifyProducts) {
       shopifyProductsMap.set(shopifyProduct?.id!, shopifyProduct)

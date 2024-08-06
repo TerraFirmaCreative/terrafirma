@@ -6,10 +6,13 @@ import Autoplay, { } from "embla-carousel-autoplay"
 import { getExistingCustomMats } from "@/gateway/store"
 import Image from "next/image"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
 const PreviouslyMadeCarousel = () => {
   const [api, setApi] = useState<CarouselApi>()
   const [products, setProducts] = useState<any[] | undefined>([])
+
+  const params: { locale: string } | null = useParams()
 
   useEffect(() => {
     if (!api) return
@@ -18,7 +21,7 @@ const PreviouslyMadeCarousel = () => {
   }, [api])
 
   const fetchMats = async () => {
-    setProducts(await getExistingCustomMats())
+    setProducts(await getExistingCustomMats(params?.locale ?? "AU"))
   }
 
   useEffect(() => {

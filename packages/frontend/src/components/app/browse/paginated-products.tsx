@@ -14,6 +14,7 @@ import { TooltipContent, Tooltip, TooltipProvider, TooltipTrigger } from "@/comp
 import Responsive from "@/components/ui/util/responsive"
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { useParams } from "next/navigation"
 
 const FilterControls = ({ filterParams, filterSubmit }: { filterParams: FilterParams, filterSubmit: (kv: any) => void }) => {
   return (
@@ -82,6 +83,8 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
   const [products, setProducts] = useState<PaginatedProductsQuery["products"]["edges"]>(initialProducts ?? [])
   const [filterParams, setFilterParams] = useState<FilterParams>({})
 
+  const params: { locale: string } | null = useParams()
+
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)
     return () => {
@@ -101,7 +104,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
       getPaginatedProducts({
         cursor: products.at(-1)?.cursor,
         ...filterParams
-      }).then(
+      }, params?.locale ?? "AU").then(
         (ps) => {
           setProducts([...products, ...ps ?? []])
         }
@@ -114,7 +117,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
   }
 
   useEffect(() => {
-    getPaginatedProducts({ ...filterParams }).then(products => { setProducts(products ?? []) })
+    getPaginatedProducts({ ...filterParams }, params?.locale ?? "AU").then(products => { setProducts(products ?? []) })
   }, [filterParams])
 
   return (

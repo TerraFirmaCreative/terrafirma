@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }) ?? []
 
-  const productSitemaps: MetadataRoute.Sitemap = (await getPaginatedProducts({}))?.map((product) => {
+  const productSitemaps: MetadataRoute.Sitemap = (await getPaginatedProducts({}, "AU"))?.map((product) => {
     return {
       url: `https://terrafirmacreative.com/browse/${shopifyIdToUrlId(product.node.id)}`,
       lastModified: new Date(),

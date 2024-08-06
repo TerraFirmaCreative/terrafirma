@@ -1,26 +1,26 @@
 "use client"
-import { addToCart, createCart, mutateCart } from "@/gateway/custom"
-import { CartDto, CartLineDto } from "@/lib/types/store.dto"
+import { addToCart, createCart, mutateCart } from "@/gateway/store"
+import { Cart, CartLineDto } from "@/lib/types/store.dto"
 import { Dispatch, SetStateAction, createContext, useContext, useEffect, useState } from "react"
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../sheet"
-import { MinusIcon, PlusIcon, ShoppingCartIcon } from "lucide-react"
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "../sheet"
+import { MinusIcon, PlusIcon } from "lucide-react"
 import { Button } from "../button"
 import Link from "next/link"
 
 export const CartContext = createContext<{
-  cart: CartDto | undefined,
-  setCart: Dispatch<SetStateAction<CartDto | undefined>>,
+  cart: Cart | undefined,
+  setCart: Dispatch<SetStateAction<Cart | undefined>>,
   cartOpen: boolean,
   setCartOpen: Dispatch<SetStateAction<boolean>>
 }>({ cart: undefined, setCart: () => { }, cartOpen: false, setCartOpen: () => { } })
 
-const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cart, setCart] = useState<CartDto | undefined>()
+const CartProvider = ({ children, locale }: { children: React.ReactNode, locale: string }) => {
+  const [cart, setCart] = useState<Cart | undefined>()
   const [cartOpen, setCartOpen] = useState<boolean>(false)
 
   useEffect(() => {
     if (!cart) {
-      createCart().then((cart) => setCart(cart))
+      createCart(locale).then((cart) => setCart(cart))
     }
   }, [])
 
@@ -162,3 +162,7 @@ export const CartControls = ({ variantId }: { variantId: string }) => {
 }
 
 export default CartProvider
+
+function getAvailableLocalization(): any {
+  throw new Error("Function not implemented.")
+}

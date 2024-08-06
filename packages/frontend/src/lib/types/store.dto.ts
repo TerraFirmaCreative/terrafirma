@@ -1,3 +1,5 @@
+import { CreateCartMutation } from "@/lib/types/graphql"
+
 export type CreateStoreItemDto = {
   title: string,
   quantity: number,
@@ -11,22 +13,7 @@ export type CartItemDto = {
   quantity: number
 }
 
-export type CartDto = {
-  id: string,
-  checkoutUrl: string,
-  lines: {
-    edges: {
-      node: {
-        id: string,
-        quantity: number
-        merchandise: {
-          id: string
-          product?: any
-        }
-      }
-    }[]
-  }
-}
+export type Cart = NonNullable<CreateCartMutation["cartCreate"]>["cart"]
 
 export type CartLineDto = {
   id: string,

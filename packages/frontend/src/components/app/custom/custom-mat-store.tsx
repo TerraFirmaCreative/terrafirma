@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react"
 import GeneratedImageCarousel from "../../ui/custom/image-carousel"
 import { CartContext, CartControls } from "@/components/ui/store/cart-context"
 
-const CustomMatStore = ({ items }: { items: GeneratedItemDto[] }) => {
+const CustomMatStore = ({ items, params }: { items: GeneratedItemDto[], params: { locale: string } }) => {
   const [selected, setSelected] = useState(0)
 
   useEffect(() => {

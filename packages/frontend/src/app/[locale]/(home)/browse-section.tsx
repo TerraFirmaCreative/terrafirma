@@ -6,6 +6,7 @@ import { GetCollectionsQuery, PaginatedProductsQuery } from "@/lib/types/graphql
 import { currencySymbol, formatPrice, shopifyIdToUrlId } from "@/lib/utils"
 import Link from "next/link"
 import { AspectRatio } from "@radix-ui/react-aspect-ratio"
+import { useParams } from "next/navigation"
 
 const BrowseProducts = ({ initialProducts, collections }: {
   initialProducts?: PaginatedProductsQuery["products"]["edges"],
@@ -14,6 +15,7 @@ const BrowseProducts = ({ initialProducts, collections }: {
   const [products, setProducts] = useState<PaginatedProductsQuery["products"]["edges"]>(initialProducts ?? [])
   const [filterParams, setFilterParams] = useState<FilterParams>({})
 
+  const params: { locale: string } | null = useParams()
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)
@@ -34,7 +36,7 @@ const BrowseProducts = ({ initialProducts, collections }: {
       getPaginatedProducts({
         cursor: products.at(-1)?.cursor,
         ...filterParams
-      }).then(
+      }, params?.locale ?? "AU").then(
         (ps) => {
           setProducts([...products, ...ps ?? []])
         }

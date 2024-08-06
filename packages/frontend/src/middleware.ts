@@ -1,16 +1,31 @@
 "use server"
 import { NextRequest, NextResponse } from "next/server"
 import { cookies, headers } from "next/headers"
+import { match } from "@formatjs/intl-localematcher"
+import Negotiator from "negotiator"
 
-const openRoutes: string[] = ['/api/notify', '/api/orders/update']
 const internalRoutes: string[] = []
 
+const locales = ["en-US", "en-UK", "en-CA", "en-AU"]
+
 export async function middleware(request: NextRequest) {
-  if (openRoutes.includes(request.nextUrl.pathname)) {
-    return NextResponse.next()
+  // Redirect to locale if not present
+
+  const acceptLanguage = { 'accept-language': request.headers.get('accept-language') ?? undefined }
+  const locale = match(new Negotiator({ headers: acceptLanguage }).languages(), locales, "en-AU")
+  const { pathname } = request.nextUrl
+
+  const hasPathname = locales.some((l) => pathname.startsWith(`/${l}`) || pathname == `/${l}`)
+
+  if (!hasPathname) {
+    request.nextUrl.pathname = `/${locale}/${pathname}`
+    return NextResponse.redirect(request.nextUrl)
   }
 
-  if (internalRoutes.includes(request.nextUrl.pathname)) {
+
+  // Require auth for certain routes
+
+  if (internalRoutes.includes(pathname)) {
     const auth = headers().get('Authorization')
 
     if (auth == null || auth!.split('Bearer ').at(1) !== process.env.AUTH_SECRET) {
@@ -19,4 +34,13 @@ export async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next()
+}
+
+export const config = {
+  matcher: [
+    // Skip all internal paths (_next)
+    '/((?!_next).*)',
+    // Optional: only run on root (/) URL
+    // '/'
+  ],
 }
