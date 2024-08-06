@@ -6,6 +6,7 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTi
 import { MinusIcon, PlusIcon } from "lucide-react"
 import { Button } from "../button"
 import Link from "next/link"
+import { CartLineInput, CartLineUpdateInput } from "@/lib/types/graphql"
 
 export const CartContext = createContext<{
   cart: Cart | undefined,
@@ -26,8 +27,8 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
 
   const cartMutate = async (quantity: number, cartLine: CartLineDto) => {
     if (cart) {
-      const newCartLines: CartLineDto[] = cart.lines.edges.map((edge) => {
-        const newLine: CartLineDto = {
+      const newCartLines: CartLineUpdateInput[] = cart.lines.edges.map((edge) => {
+        const newLine: CartLineUpdateInput = {
           id: edge.node.id,
           merchandiseId: edge.node.merchandise.id,
           quantity: edge.node.id == cartLine.id ? quantity : edge.node.quantity
@@ -36,7 +37,24 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
         return newLine
       })
 
-      setCart(await mutateCart(cart.id, newCartLines))
+      setCart({
+        ...cart,
+        lines: {
+          edges: cart.lines.edges.filter((edge) =>
+            !(edge.node.id == cartLine.id && quantity == 0)
+          ).map((edge) => {
+            return {
+              node: {
+                id: edge.node.id,
+                merchandise: edge.node.merchandise,
+                quantity: edge.node.id == cartLine.id ? quantity : edge.node.quantity
+              }
+            }
+          })
+        }
+      })
+
+      mutateCart(cart.id, newCartLines)
     }
   }
 
@@ -133,9 +151,9 @@ export const CartControls = ({ variantId }: { variantId: string }) => {
 
   const cartAdd = async () => {
     if (cart) {
-      setCart(await addToCart(cart.id, variantId, quantity))
-      setCartOpen(true)
       setQuantity(1)
+      setCartOpen(true)
+      setCart(await addToCart(cart.id, variantId, quantity))
     }
   }
 
