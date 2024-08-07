@@ -1,5 +1,5 @@
 "use client"
-import { cn, currencySymbol, formatPrice, shopifyIdToUrlId } from "@/lib/utils"
+import { cn, formatPrice, shopifyIdToUrlId } from "@/lib/utils"
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../carousel"
 import { useState, useEffect } from "react"
 import Autoplay, { } from "embla-carousel-autoplay"

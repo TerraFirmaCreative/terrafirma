@@ -8,9 +8,8 @@ import MainMenu from "@/components/ui/header"
 import { HomeIcon, LayoutDashboardIcon, PaintbrushIcon } from "lucide-react"
 import { getPages } from "@/gateway/cms"
 import SessionProvider from "@/components/session/session-provider"
-import { geistSans, lato, playfairDisplay, robotoSerif } from "@/lib/fonts"
+import { geistSans, lato, playfairDisplay } from "@/lib/fonts"
 import { getAvailableLocalization } from "@/gateway/store"
-import { permanentRedirect, redirect, usePathname } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Terra Firma Creative",
@@ -27,17 +26,17 @@ export default async function RootLayout({
 
   const [pages, localization] = await Promise.all([
     getPages(),
-    getAvailableLocalization().then((localization) => {
-      const [languageCode, countryCode] = parseLocale(params.locale)
-
-      if (!localization?.availableCountries.some(
-        (availableCountry) => (availableCountry.isoCode == countryCode)
-      )) {
-        // TODO: How do we handle this?
-      }
-    })
+    getAvailableLocalization()
   ])
 
+  // Check current locale is available in store
+  const [languageCode, countryCode] = parseLocale(params.locale)
+
+  if (!localization?.availableCountries.some(
+    (availableCountry) => (availableCountry.isoCode == countryCode)
+  )) {
+    // TODO: How do we handle this?
+  }
 
   const menuItems = [
     {
