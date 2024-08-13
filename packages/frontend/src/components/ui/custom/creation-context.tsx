@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useState } from "react"
+import { createContext, useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../dialog"
 import { CheckCircle } from "lucide-react"
 import { Button } from "../button"
@@ -8,11 +8,12 @@ import { useParams, useRouter } from "next/navigation"
 import { beginTask, getUserProducts, pollTask, updateUserEmail } from "@/gateway/tasks"
 import { TaskStatus, Product, ImagineData, TaskType } from "@prisma/client"
 import { getProductsById } from "@/gateway/store"
-import { GetProductQuery, GetProductsByIdQuery } from "@/lib/types/graphql"
+import { GetProductsByIdQuery } from "@/lib/types/graphql"
 import { Form, FormDescription } from "../form"
 import { SubmitHandler, useForm } from "react-hook-form"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
+import { Progress } from "../progress"
 
 export const CreationContext = createContext<{
   create: (prompt: string) => Promise<void>,
@@ -20,7 +21,7 @@ export const CreationContext = createContext<{
   refreshProducts: () => Promise<void>
   inProgress: boolean,
   products: ProductWithImagineData[],
-  progress: string,
+  progress: number,
   progressUri?: string | null
 }
 >({
@@ -29,7 +30,7 @@ export const CreationContext = createContext<{
   refreshProducts: async () => { },
   inProgress: false,
   products: [],
-  progress: "0%"
+  progress: 0
 }
 )
 
@@ -45,7 +46,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false)
   const [finishedOpen, setFinishedOpen] = useState<boolean>(false)
   const [errorOpen, setErrorOpen] = useState<boolean>(false)
-  const [progress, setProgress] = useState<string>("0%")
+  const [progress, setProgress] = useState<number>(0)
   const [progressUri, setProgressUri] = useState<string | null | undefined>()
 
   const params: { locale: string } | null = useParams()
@@ -71,7 +72,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }
 
     const productsWithImagineData: ProductWithImagineData[] = userProducts.slice(0, Math.min(shopifyProducts.length, userProducts.length)).map((userProduct, i) => {
-      // TODO: Check this! index needs to match when creating variants
       return {
         ...userProduct,
         shopifyProduct: shopifyProductsMap.get(userProduct.shopifyProductId)
@@ -80,6 +80,23 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
 
     setProducts(productsWithImagineData)
   }
+
+  const updateProgress = () => {
+    setProgress(Math.max(20, Math.min(progress + (100 / 30) + Math.random() * (100 / 60), 90)))
+  }
+
+  useEffect(() => {
+    inProgress && setTimeout(updateProgress, 2000)
+  }, [progress])
+
+  useEffect(() => {
+    if (inProgress) {
+      updateProgress()
+    }
+    else {
+      setProgress(0)
+    }
+  }, [inProgress])
 
   const poll = async (taskId: string) => {
     const task = await pollTask(taskId)
@@ -98,7 +115,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         setErrorOpen(true)
         break
       default:
-        setProgress(task?.progress ?? "0%")
         setProgressUri(task?.progressUri)
         setTimeout(poll, 5000, taskId)
         break
@@ -163,7 +179,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <DialogHeader>
-                <DialogTitle>{"We're working on your design"}</DialogTitle>
+                <DialogTitle>{""}</DialogTitle>
               </DialogHeader>
               <div className="flex flex-col items-center py-8 text-center gap-2">
                 <CheckCircle
@@ -171,10 +187,12 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
                   strokeWidth={0.5}
                   className=" stroke-green-500"
                 />
-                <h1 className="text-xl">Thank you</h1>
-                <p className="text-gray-500">
-                  {"We'll let you know when it's ready. In the meantime, feel free to explore our gallery."}
-                </p>
+                <div className="py-4">
+                  <h1 className="text-xl">We're working on your design</h1>
+                  <p className="text-gray-500">
+                    {"Feel free to explore our gallery while you wait"}<br />{"(Usually takes up to a minute)"}
+                  </p>
+                </div>
                 <h2 className="text-lg pt-2">{"Don't want to wait?"}</h2>
                 <input {...form.register('email')} className="w-full border-gray-400 border rounded-md p-2" placeholder="Email"></input>
                 <FormDescription className="text-left">{"Enter your email and we'll notify you when it's done."}</FormDescription>
@@ -231,9 +249,12 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
 
       {inProgress &&
         <div className="fixed z-10 bottom-5 left-5 right-5">
-          <div className="flex flex-row items-center w-fit mx-auto justify-start gap-4 p-4 bg-white border border-gray-300 rounded-md shadow-gray-600 drop-shadow-lg">
-            <div>{"We're working on your design..."}</div>
-            <div className="animate-spin border-r-2 border-t-2 h-6 min-w-6 border-black rounded-[50%]" />
+          <div className="flex flex-col items-center w-fit mx-auto justify-start gap-4 p-4 bg-white border border-gray-300 rounded-md shadow-gray-600 drop-shadow-lg">
+            <div className="flex flex-row gap-4">
+              <div>{"We're working on your design..."}</div>
+              <div className="animate-spin border-r-2 border-t-2 h-6 min-w-6 border-black rounded-[50%]" />
+            </div>
+            <Progress value={progress} />
           </div>
         </div>
       }

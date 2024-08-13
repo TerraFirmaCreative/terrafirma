@@ -12,6 +12,7 @@ const openai = new OpenAI({
 })
 
 export async function updateTaskProgress(taskId: string, progress: string, progressUri: string) {
+  console.log("PROGRESS", progress, progressUri)
   try {
     await prisma.task.update({
       where: {

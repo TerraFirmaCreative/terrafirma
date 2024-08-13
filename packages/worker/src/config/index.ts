@@ -48,6 +48,7 @@ export const mjClient = new Midjourney({
   ServerId: process.env.MJ_SERVER_ID,
   ChannelId: process.env.MJ_CHANNEL_ID,
   SalaiToken: process.env.MJ_SALAI_TOKEN ?? "",
+  Debug: false
 })
 
 export const s3Client = new S3Client({

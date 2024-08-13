@@ -1,9 +1,10 @@
 "use server"
 import { CartLineInput, CartLineUpdateInput, CountryCode, GetProductQuery, ProductSortKeys } from "@/lib/types/graphql"
 import { getStorefrontClient } from '@/config'
-import { parseLocale } from "@/lib/utils"
+import { parseLocale, shuffle } from "@/lib/utils"
 import { CartLineDto } from "@/lib/types/store.dto"
 import { useParams } from "next/navigation"
+import { RandomProductsQuery } from "../../../types/storefront.generated"
 
 /*
 *  Store actions here are all related to fetching products for the common storefront functionality
@@ -43,6 +44,34 @@ export const getExistingCustomMats = async (locale: string) => {
   })).data?.products.edges.map((edge: any) =>
     edge.node
   )
+}
+
+export const getRandomProducts = async (): Promise<RandomProductsQuery["products"]["edges"]> => {
+  const query = `#graphql
+  query randomProducts {
+    products(first: 70, sortKey: ID) {
+      edges {
+        cursor
+        node {
+          id
+          title
+          featuredImage {
+            url
+          }
+          priceRange {
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+`
+  const edges = shuffle((await getStorefrontClient().request(query)).data?.products.edges ?? [])
+
+  return edges
 }
 
 export type FilterParams = {

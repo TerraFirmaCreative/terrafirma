@@ -6,7 +6,7 @@ import Negotiator from "negotiator"
 
 const internalRoutes: string[] = [""]
 
-const locales = ["en-US", "en-UK", "en-CA", "en-AU"]
+const locales = ["en-US", "en-GB", "en-CA", "en-AU"]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl

@@ -36,6 +36,12 @@ app.post('/', async (req, res) => {
   res.json(Imagine?.uri)
 })
 
+app.post('/mj/hook', async (req, res) => {
+  console.log(require("util").inspect(req.body, true, null))
+
+  res.status(200).send()
+})
+
 /*
 * LOCAL SSL START
 */
