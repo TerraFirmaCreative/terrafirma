@@ -1,5 +1,5 @@
 "use client"
-import { usePathname } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { cn, formatTitle } from "@/lib/utils"
 import Responsive from "./util/responsive"
@@ -8,8 +8,8 @@ import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./sheet"
 import { ReactNode, useContext, useEffect, useRef, useState } from "react"
 import { CartContext } from "./providers/cart-context"
 import { Popover, PopoverContent, PopoverTrigger } from "./popover"
-import { Command, CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "./command"
-import { CommandGroup, CommandSeparator } from "cmdk"
+import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList, CommandSeparator } from "./command"
+import { CommandGroup } from "cmdk"
 import { getSearchPredictions } from "@/gateway/store"
 import { SearchPredictionsQuery } from "../../../types/storefront.generated"
 import Image from "next/image"
@@ -27,6 +27,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
   const [searchOpen, setSearchOpen] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [commandQuery, setCommandQuery] = useState<string>("")
+  const params: { locale: string } | null = useParams()
 
 
   const [searchPredictions, setSearchPredictions] = useState<SearchPredictionsQuery["predictiveSearch"] | null>(null)
@@ -38,7 +39,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
 
   const sendQuery = async () => {
     console.log("  setSearchPredictions(await getSearchPredictions(searchQuery))")
-    setSearchPredictions(await getSearchPredictions(searchQuery))
+    setSearchPredictions(await getSearchPredictions(searchQuery, params?.locale ?? "AU"))
   }
 
   useEffect(() => {
@@ -160,27 +161,32 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
         <CommandInput placeholder="Search anything..." value={commandQuery} visibleValue={searchQuery} onVisibleValueChange={(e) => { setSearchQuery(e.target.value) }} />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
+          {/* <CommandGroup heading="Suggestions">
             {searchPredictions?.queries.map((query) =>
               <CommandItem key={query.text}><span>{query.styledText}</span></CommandItem>
             )}
-          </CommandGroup>
-          <CommandSeparator />
+          </CommandGroup> */}
+          {/* <CommandSeparator /> */}
           <CommandGroup heading="Products">
             {searchPredictions?.products.map((product) =>
-              <CommandItem key={product.id}>
-                <span className="hidden">{product.id}</span>
-                {product?.featuredImage?.url &&
-                  <Image
-                    className="m-2"
-                    alt="Thumbnail"
-                    width="20"
-                    height="90"
-                    src={product?.featuredImage?.url}
-                    sizes="20px"
-                  />
-                }
-                <span>{formatTitle(product.title)}</span>
+              <CommandItem key={product.id} className="p-0 m-0">
+                <div className="flex flex-row gap-4 h-[80px] w-full items-center justify-between overflow-clip">
+                  <span className="hidden">{product.id}</span>
+                  <span>{formatTitle(product.title)}</span>
+                  <div className="relative h-[240px] w-[80px] -translate-x-3/4 rotate-90 overflow-clip rounded-md">
+                    <Image
+                      className="w-full h-auto object-cover"
+
+                      alt="Thumbnail"
+                      width="80"
+                      height="240"
+                      // fill
+                      objectFit="cover"
+                      src={product?.featuredImage?.url}
+                      sizes="20vw"
+                    />
+                  </div>
+                </div>
               </CommandItem>
             )}
           </CommandGroup>

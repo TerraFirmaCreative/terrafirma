@@ -46,9 +46,10 @@ export const getExistingCustomMats = async (locale: string) => {
   )
 }
 
-export const getSearchPredictions = async (query: string): Promise<SearchPredictionsQuery["predictiveSearch"]> => {
+export const getSearchPredictions = async (query: string, locale: string): Promise<SearchPredictionsQuery["predictiveSearch"]> => {
+  const [_, countryCode] = parseLocale(locale)
   const predictionsQuery = await getStorefrontClient().request(`#graphql
-    query searchPredictions($query: String!) {
+    query searchPredictions($query: String!, $countryCode: CountryCode) @inContext(country: $countryCode) {
       predictiveSearch(query: $query) {
         queries {
           text
@@ -65,7 +66,8 @@ export const getSearchPredictions = async (query: string): Promise<SearchPredict
     }
   `, {
     variables: {
-      query: query
+      query: query,
+      countryCode: countryCode as CountryCode
     }
   })
 
