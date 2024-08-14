@@ -8,7 +8,8 @@ import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./sheet"
 import { ReactNode, useContext, useEffect, useRef, useState } from "react"
 import { CartContext } from "./providers/cart-context"
 import { Popover, PopoverContent, PopoverTrigger } from "./popover"
-import { Command, CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList, CommandGroup, CommandSeparator } from "./command"
+import { Command, CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "./command"
+import { CommandGroup, CommandSeparator } from "cmdk"
 import { getSearchPredictions } from "@/gateway/store"
 import { SearchPredictionsQuery } from "../../../types/storefront.generated"
 import Image from "next/image"
@@ -168,7 +169,8 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
           <CommandGroup heading="Products">
             {searchPredictions?.products.map((product) =>
               <CommandItem key={product.id}>
-                {product?.featuredImage?.url && <>
+                <span className="hidden">{product.id}</span>
+                {product?.featuredImage?.url &&
                   <Image
                     className="m-2"
                     alt="Thumbnail"
@@ -177,7 +179,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
                     src={product?.featuredImage?.url}
                     sizes="20px"
                   />
-                </>}
+                }
                 <span>{formatTitle(product.title)}</span>
               </CommandItem>
             )}
