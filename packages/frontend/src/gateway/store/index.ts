@@ -1,10 +1,10 @@
 "use server"
-import { CartLineInput, CartLineUpdateInput, CountryCode, GetProductQuery, ProductSortKeys } from "@/lib/types/graphql"
+import { CartLineInput, CartLineUpdateInput, CountryCode, GetProductQuery, ProductSortKeys, SearchSortKeys } from "@/lib/types/graphql"
 import { getStorefrontClient } from '@/config'
 import { parseLocale, shuffle } from "@/lib/utils"
 import { CartLineDto } from "@/lib/types/store.dto"
 import { useParams } from "next/navigation"
-import { RandomProductsQuery } from "../../../types/storefront.generated"
+import { RandomProductsQuery, SearchPredictionsQuery } from "../../../types/storefront.generated"
 
 /*
 *  Store actions here are all related to fetching products for the common storefront functionality
@@ -44,6 +44,86 @@ export const getExistingCustomMats = async (locale: string) => {
   })).data?.products.edges.map((edge: any) =>
     edge.node
   )
+}
+
+export const getSearchPredictions = async (query: string): Promise<SearchPredictionsQuery["predictiveSearch"]> => {
+  const predictionsQuery = await getStorefrontClient().request(`#graphql
+    query searchPredictions($query: String!) {
+      predictiveSearch(query: $query) {
+        queries {
+          text
+          styledText
+        }
+        products {
+          id
+          title
+          featuredImage {
+            url
+          }
+        }
+      }
+    }
+  `, {
+    variables: {
+      query: query
+    }
+  })
+
+  return predictionsQuery.data?.predictiveSearch
+}
+
+export type SearchParams = {
+  cursor?: string,
+  sortKey?: SearchSortKeys,
+  reverse?: boolean
+  priceRange?: number[],
+  productTag?: string
+}
+export const searchProducts = async (query: string, params: SearchParams, locale: string) => {
+  const [_, countryCode] = parseLocale(locale)
+  const searchQuery = await getStorefrontClient().request(`#graphql
+    query searchPaginatedProducts($first: Int, $sortKey: SearchSortKeys, $query: String!, $reverse: Boolean, $after: String, $productFilters: [ProductFilter!] $countryCode: CountryCode) @inContext(country: $countryCode) {
+      search(first: $first, sortKey: $sortKey, query: $query, reverse: $reverse, after: $after, productFilters: $productFilters, prefix: LAST) {
+        edges {
+          cursor
+          node {
+            ...on Product {
+              id
+              title
+              featuredImage {
+                url
+              }
+              priceRange {
+                maxVariantPrice {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+`, {
+    variables: {
+      first: 20,
+      sortKey: params.sortKey ?? SearchSortKeys.Relevance,
+      query: query,
+      reverse: params.reverse,
+      after: params.cursor,
+      productFilters: [
+        {
+          price: {
+            min: params?.priceRange?.at(0) ?? 0,
+            max: params?.priceRange?.at(1) ?? 200
+          }
+        }
+      ],
+      countryCode: countryCode as CountryCode
+    }
+  })
+
+  return searchQuery.data?.search.edges
 }
 
 export const getRandomProducts = async (): Promise<RandomProductsQuery["products"]["edges"]> => {

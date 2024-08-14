@@ -1,19 +1,13 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { CreationContext } from "@/components/ui/custom/creation-context"
-import GeneratedImageCarousel from "@/components/ui/custom/image-carousel"
-import { FormDescription } from "@/components/ui/form"
+import { CreationContext } from "@/components/ui/providers/creation-context"
 import { GenerateImageParams } from "@/lib/types/image.dto"
 import { yupResolver } from "@hookform/resolvers/yup"
-import { AspectRatio } from "@radix-ui/react-aspect-ratio"
 import { ArrowRightIcon } from "lucide-react"
 import { useContext, useEffect, useRef, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import Image from "next/image"
 import * as yup from "yup"
-import { cn } from "@/lib/utils"
-import { randomInt } from "crypto"
 import { getRandomProducts } from "@/gateway/store"
 
 const promptSchema = yup.object({
@@ -46,7 +40,7 @@ const PromptResults = () => {
     <div className="w-full flex flex-row justify-center">
       {inProgress &&
         previewImages.length >= 4 ? (previewImages.slice(counter, counter + 4).map((url, i) =>
-          <div className="w-[200px] h-[600px] overflow-clip">
+          <div key={url} className="w-[200px] h-[600px] overflow-clip">
             <Image
               className="blur-sm fade-in-10 fade-out-10"
               alt="Progress Image"

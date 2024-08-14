@@ -133,3 +133,5 @@ dist
 .venv
 
 node_modules
+
+*.sql

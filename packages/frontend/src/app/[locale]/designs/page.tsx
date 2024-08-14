@@ -1,8 +1,8 @@
 "use client"
 import { useContext, useEffect, useState } from "react"
-import { CartControls } from "@/components/ui/store/cart-context"
-import GeneratedImageCarousel from "@/components/ui/custom/image-carousel"
-import { CreationContext } from "@/components/ui/custom/creation-context"
+import { CartControls } from "@/components/ui/providers/cart-context"
+import GeneratedImageCarousel from "./image-carousel"
+import { CreationContext } from "@/components/ui/providers/creation-context"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { WandSparkles } from "lucide-react"
@@ -39,10 +39,6 @@ const ViewCustomMats = ({ params }: { params: { locale: string } }) => {
     })
   }, [])
 
-  useEffect(() => {
-    // form.setValue("prompt", trimPrompt(products.at(selected)?.imagineData?.imaginePrompt ?? ""))
-  }, [selected, products])
-
   if (fetching) return (
     <div className="flex lg:flex-row mt-20 flex-col justify-between align-center min-h-[100vh-5rem] h-screen w-full">
       <div className="lg:w-1/2 px-20 py-10 gap-10 align-center h-full flex flex-row justify-center items-center">
@@ -69,7 +65,7 @@ const ViewCustomMats = ({ params }: { params: { locale: string } }) => {
   return (
     <>
       <div className="flex lg:flex-row mt-20 flex-col justify-between align-center min-h-[calc(100vh-5rem)] h-full">
-        <div className="lg:w-1/2 px-20 gap-10 align-center h-full flex flex-col justify-center items-center">
+        <div className="lg:w-1/2 px-20 gap-10 align-center h-full flex flex-col justify-center items-center max-w-full">
           <GeneratedImageCarousel products={products} setSelected={setSelected} />
         </div>
         <div className="flex flex-col lg:w-1/2 py-16 bg-white px-16">
@@ -86,7 +82,6 @@ const ViewCustomMats = ({ params }: { params: { locale: string } }) => {
           </div>
         </div>
       </div>
-
 
       <Dialog open={promptOpen} onOpenChange={setPromptOpen}>
         <DialogContent className="py-3 px-5">

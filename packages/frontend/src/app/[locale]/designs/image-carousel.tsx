@@ -7,7 +7,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "../carousel"
+} from "../../../components/ui/carousel"
 import Image from "next/image"
 import {
   useState,
@@ -15,7 +15,7 @@ import {
   SetStateAction,
   Dispatch,
 } from "react"
-import { ProductWithImagineData } from "./creation-context"
+import { ProductWithImagineData } from "../../../components/ui/providers/creation-context"
 
 const GeneratedImageCarousel = ({
   products,
@@ -57,7 +57,7 @@ const GeneratedImageCarousel = ({
           loop: true,
         }}
       >
-        <CarouselContent className="-ml-10 lg:py-16 md:py-32 sm:py-20 py-2 ">
+        <CarouselContent className="-ml-10 lg:py-16 md:py-32 sm:py-20 py-2">
           {products.map((item, index) => {
             return (
               <CarouselItem
@@ -68,7 +68,7 @@ const GeneratedImageCarousel = ({
               >
                 <Image
                   className={cn(
-                    "mx-auto rounded-2xl object-cover cursor-pointer transition-transform",
+                    "mx-auto object-cover cursor-pointer transition-transform",
                     { "sm:scale-110": index == api?.selectedScrollSnap() },
                   )}
                   width="640"
@@ -85,7 +85,7 @@ const GeneratedImageCarousel = ({
         </CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
-        <div className="flex justify-center flex-row gap-4 h-6 w-full">
+        <div className="flex justify-center flex-row gap-4 h-6 overflow-hidden">
           {products.map((item, index) => (
             <div
               key={index}

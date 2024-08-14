@@ -188,7 +188,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
                   className=" stroke-green-500"
                 />
                 <div className="py-4">
-                  <h1 className="text-xl">We're working on your design</h1>
+                  <h1 className="text-xl">{"We're working on your design"}</h1>
                   <p className="text-gray-500">
                     {"Feel free to explore our gallery while you wait"}<br />{"(Usually takes up to a minute)"}
                   </p>
