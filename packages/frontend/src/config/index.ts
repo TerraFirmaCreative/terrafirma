@@ -1,19 +1,12 @@
 import { StorefrontApiClient, createStorefrontApiClient } from "@shopify/storefront-api-client"
 import { AdminApiClient, createAdminApiClient } from "@shopify/admin-api-client"
-// import { Server } from "socket.io"
 import { Prisma, PrismaClient } from '@prisma/client'
 
-// export let io: Server
-
-// export function initIo(server: any) {
-//   console.log("Initialising socket.io")
-//   io = new Server(server)
-//   return io
-// }
-
 let client: StorefrontApiClient
-let adminClient: AdminApiClient
 let prisma: PrismaClient
+
+export const locales = ["en-US", "en-GB", "en-CA", "en-AU"]
+export const defaultLocale = "en-AU"
 
 export function getPrisma() {
   if (!prisma) {

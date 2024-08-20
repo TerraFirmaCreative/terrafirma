@@ -8,11 +8,11 @@ import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./sheet"
 import { ReactNode, useContext, useEffect, useRef, useState } from "react"
 import { CartContext } from "./providers/cart-context"
 import { Popover, PopoverContent, PopoverTrigger } from "./popover"
-import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList, CommandSeparator } from "./command"
-import { CommandGroup } from "cmdk"
+import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "./command"
 import { getSearchPredictions } from "@/gateway/store"
 import { SearchPredictionsQuery } from "../../../types/storefront.generated"
 import Image from "next/image"
+import SearchDialog from "./search-dialog"
 
 type MenuItem = {
   href: string,
@@ -24,9 +24,6 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
   const pathname = usePathname()!
   const { setCartOpen } = useContext(CartContext)
   const [opaque, setOpaque] = useState<boolean>(false)
-  const [searchOpen, setSearchOpen] = useState<boolean>(false)
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  const [commandQuery, setCommandQuery] = useState<string>("")
   const params: { locale: string } | null = useParams()
 
 
@@ -37,32 +34,32 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
     setOpaque(pathname.split("/").length > 2 || window.scrollY > 50)
   }
 
-  const sendQuery = async () => {
-    console.log("  setSearchPredictions(await getSearchPredictions(searchQuery))")
-    setSearchPredictions(await getSearchPredictions(searchQuery, params?.locale ?? "AU"))
-  }
+  // const sendQuery = async () => {
+  //   console.log("  setSearchPredictions(await getSearchPredictions(searchQuery))")
+  //   setSearchPredictions(await getSearchPredictions(searchQuery, params?.locale ?? "AU"))
+  // }
 
-  useEffect(() => {
-    clearTimeout(searchTimeout.current)
-    searchTimeout.current = setTimeout(sendQuery, 500)
-  }, [searchQuery])
+  // useEffect(() => {
+  //   clearTimeout(searchTimeout.current)
+  //   searchTimeout.current = setTimeout(sendQuery, 500)
+  // }, [searchQuery])
 
-  useEffect(() => {
-    console.log("setCommandQuery(searchQuery)")
-    setCommandQuery(searchQuery)
-  }, [searchPredictions])
+  // useEffect(() => {
+  //   console.log("setCommandQuery(searchQuery)")
+  //   setCommandQuery(searchQuery)
+  // }, [searchPredictions])
 
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        setSearchOpen((open) => !open)
-      }
-    }
+  // useEffect(() => {
+  //   const down = (e: KeyboardEvent) => {
+  //     if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
+  //       e.preventDefault()
+  //       setSearchOpen((open) => !open)
+  //     }
+  //   }
 
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
-  }, [])
+  //   document.addEventListener("keydown", down)
+  //   return () => document.removeEventListener("keydown", down)
+  // }, [])
 
   useEffect(() => {
     updateScrolled()
@@ -109,7 +106,8 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
                     </Link>)}
                 </DropDownMenu>}
               </div>
-              <div>
+              <div className="flex flex-row gap-2 items-center">
+                {/* <SearchDialog /> */}
                 <ShoppingCartIcon className="cursor-pointer" strokeWidth={1} onClick={() => setCartOpen(true)} />
               </div>
             </div >
@@ -157,41 +155,32 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
         />
       </header >
 
-      <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
+      {/* <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
         <CommandInput placeholder="Search anything..." value={commandQuery} visibleValue={searchQuery} onVisibleValueChange={(e) => { setSearchQuery(e.target.value) }} />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          {/* <CommandGroup heading="Suggestions">
-            {searchPredictions?.queries.map((query) =>
-              <CommandItem key={query.text}><span>{query.styledText}</span></CommandItem>
-            )}
-          </CommandGroup> */}
-          {/* <CommandSeparator /> */}
-          <CommandGroup heading="Products">
-            {searchPredictions?.products.map((product) =>
-              <CommandItem key={product.id} className="p-0 m-0">
-                <div className="flex flex-row gap-4 h-[80px] w-full items-center justify-between overflow-clip">
-                  <span className="hidden">{product.id}</span>
-                  <span>{formatTitle(product.title)}</span>
-                  <div className="relative h-[240px] w-[80px] -translate-x-3/4 rotate-90 overflow-clip rounded-md">
-                    <Image
-                      className="w-full h-auto object-cover"
-
-                      alt="Thumbnail"
-                      width="80"
-                      height="240"
-                      // fill
-                      objectFit="cover"
-                      src={product?.featuredImage?.url}
-                      sizes="20vw"
-                    />
-                  </div>
+          {searchPredictions?.products.map((product) =>
+            <CommandItem key={product.id} className="p-0 m-0" value={`${product.title} ${product.description} ${}`}>
+              <div className="flex flex-row gap-4 h-[calc(478px/3)] w-full items-center justify-center overflow-clip">
+                <span className="hidden">{product.id}</span>
+                <div className="relative h-[478px] w-[calc(478px/3)]  rotate-90 overflow-clip rounded-md">
+                  <Image
+                    className="w-full h-auto object-cover"
+                    alt="Thumbnail"
+                    // width="80"
+                    // height="240"
+                    fill
+                    objectFit="cover"
+                    src={product?.featuredImage?.url}
+                    sizes="478px"
+                  />
+                  <div className="w-full h-full b-gray-300 animate-pulse"></div>
                 </div>
-              </CommandItem>
-            )}
-          </CommandGroup>
+              </div>
+            </CommandItem>
+          )}
         </CommandList>
-      </CommandDialog>
+      </CommandDialog> */}
     </>
   )
 }

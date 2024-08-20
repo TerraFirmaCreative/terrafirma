@@ -14,6 +14,14 @@ import { getAvailableLocalization } from "@/gateway/store"
 export const metadata: Metadata = {
   title: "Terra Firma Creative",
   description: "Custom made yoga mat designs",
+  alternates: {
+    "canonical": "terrafirmacreative.com/en-AU",
+    "languages": {
+      "en-CA": "terrafirmacreative.com/en-CA",
+      "en-US": "terrafirmacreative.com/en-US",
+      "en-GB": "terrafirmacreative.com/en-GB"
+    }
+  }
 }
 
 export default async function RootLayout({

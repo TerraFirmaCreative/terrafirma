@@ -80,6 +80,58 @@ export async function addProductMedia(id: string, url: string) {
   })
 }
 
+export async function uploadShopify(images: Sharp[]): Promise<string[]> {
+  const filenames = images.map(_ => `${crypto.randomUUID()}.png`)
+  const stagedUploads = await adminClient.request(`#gqladmin
+    mutation stageUpload($input: [StagedUploadInput!]!) {
+      stagedUploadsCreate(input: $input) {
+        stagedTargets {
+          parameters {
+            name
+            value
+          }
+          resourceUrl
+          url
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `, {
+    variables: {
+      input: filenames.map(filename => {
+        return {
+          "filename": filename,
+          "httpMethod": "PUT",
+          "mimeType": "image/png",
+          "resource": "PRODUCT_IMAGE"
+        }
+      })
+    }
+  })
+
+  // TODO: dynamically take headers from response
+  let i = 0
+  for (const stagedTarget of stagedUploads.data?.stagedUploadsCreate.stagedTargets) {
+    console.log(i, stagedTarget)
+    const buffer = await images[i].toBuffer()
+    const uploadResponse = await fetch(stagedTarget.resourceUrl, {
+      "method": "PUT",
+      "body": buffer,
+      "headers": {
+        "content_type": "image/png",
+        "acl": "private"
+      }
+    })
+    console.log("uploadResponse:", uploadResponse)
+    i++
+  }
+
+  return stagedUploads.data?.stagedUploadsCreate.stagedTargets.map((target: any) => target.url as string)
+}
+
 export async function createProduct(item: CreateProductItem): Promise<CreatedProductVariant> {
   const uuid = crypto.randomUUID()
   const input = {

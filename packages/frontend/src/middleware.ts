@@ -3,23 +3,21 @@ import { NextRequest, NextResponse } from "next/server"
 import { cookies, headers } from "next/headers"
 import { match } from "@formatjs/intl-localematcher"
 import Negotiator from "negotiator"
+import { defaultLocale, locales } from "./config"
 
 const internalRoutes: string[] = [""]
-
-const locales = ["en-US", "en-GB", "en-CA", "en-AU"]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Skip for /api routes
   if (!pathname.startsWith('/api/')) {
     // Redirect to locale if not present
-    const acceptLanguage = { 'accept-language': request.headers.get('accept-language') ?? undefined }
-    const locale = match(new Negotiator({ headers: acceptLanguage }).languages(), locales, "en-AU")
+    const acceptLanguage = { 'accept-language': request.headers.get('accept-language') ?? defaultLocale }
+    const locale = match(new Negotiator({ headers: acceptLanguage }).languages(), locales, defaultLocale)
 
-    const hasPathname = locales.some((l) => pathname.startsWith(`/${l}`) || pathname == `/${l}`)
+    const hasLocale = locales.some((l) => pathname.startsWith(`/${l}`) || pathname == `/${l}`)
 
-    if (!hasPathname) {
+    if (!hasLocale) {
       request.nextUrl.pathname = `/${locale}/${pathname}`
       return NextResponse.redirect(request.nextUrl)
     }
@@ -40,7 +38,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Skip all internal paths (_next)
-    '/((?!_next).*)',
+    '/((?!_next|favicon.ico|robots.txt|sitemap.xml).*)',
     // Optional: only run on root (/) URL
     // '/'
   ],
