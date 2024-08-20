@@ -1,7 +1,7 @@
 import { ImagineTask, ImagineVariantsTask } from "../types/worker"
 import { sanitisePrompt } from "@terrafirma/rest/src/utils"
 import { createVariants, generateCustomText, imagineMats, updateTaskProgress } from "./midjourney"
-import { createProduct } from "./shopify"
+import { createProduct, uploadShopify } from "./shopify"
 import config, { prisma, sqsClient, transporter } from "../config"
 import { TaskStatus } from "@prisma/client"
 import { remoteImage, splitQuadImage, uploadImage } from "./image"
@@ -126,7 +126,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
 
     const variants: Sharp[] = await splitQuadImage(sharp(await remoteImage(variantQuad!.uri)))
     console.log("variants split")
-    const variantUrls: string[] = await Promise.all(variants.map((variant, i) => { return uploadImage(variant, `${variantQuad!.hash}_V${i}`) }))
+    const variantUrls = await uploadShopify(variants)
     console.log("images uploaded")
     const createProductItems = []
     for (let i = 0; i < 4; i++) {
