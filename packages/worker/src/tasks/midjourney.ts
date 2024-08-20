@@ -89,7 +89,7 @@ export const createVariants = async (taskId: string, prompt: string, imagineData
     msgId: imagineData.imagineId,
     hash: imagineData.imagineHash,
     flags: 0,
-    content: `${trimPrompt(imagineData.imaginePrompt)} ${prompt} --ar 1:3`,
+    content: `${trimPrompt(imagineData.imaginePrompt)}. ${prompt} --ar 1:3`,
     loading: (uri, progress) => {
       updateTaskProgress(taskId, progress, uri)
     }
