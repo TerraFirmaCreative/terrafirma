@@ -4,14 +4,19 @@ import { cookies, headers } from "next/headers"
 import { match } from "@formatjs/intl-localematcher"
 import Negotiator from "negotiator"
 import { defaultLocale, locales } from "./config"
+import rateLimit from 'express-rate-limit'
 
 const internalRoutes: string[] = [""]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Server action (use fir rate-limiting)
+  // if (request.method == "POST") {
+  // }
+
+  // Redirect to locale if not present (ignore locale for /api routes)
   if (!pathname.startsWith('/api/')) {
-    // Redirect to locale if not present
     const acceptLanguage = { 'accept-language': request.headers.get('accept-language') ?? defaultLocale }
     const locale = match(new Negotiator({ headers: acceptLanguage }).languages(), locales, defaultLocale)
 

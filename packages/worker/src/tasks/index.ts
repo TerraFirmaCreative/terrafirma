@@ -1,28 +1,17 @@
 import { ImagineTask, ImagineVariantsTask } from "../types/worker"
 import { sanitisePrompt } from "@terrafirma/rest/src/utils"
-import { createVariants, generateCustomText, imagineMats, updateTaskProgress } from "./midjourney"
+import { createVariants, generateCustomText, imagineMats } from "./midjourney"
 import { createProduct, uploadShopify } from "./shopify"
 import config, { prisma, sqsClient, transporter } from "../config"
 import { TaskStatus } from "@prisma/client"
-import { remoteImage, splitQuadImage, uploadImage } from "./image"
+import { remoteImage, splitQuadImage } from "./image"
 import sharp, { Sharp } from "sharp"
 import { DeleteMessageCommand } from "@aws-sdk/client-sqs"
-import taskDoneHtml from '../email/task-done'
-import Handlebars from "handlebars"
+import { taskDoneTemplate } from "../email"
 
 export const imagineTask = async (task: ImagineTask) => {
   const prompt = sanitisePrompt(task.Body.prompt)
   console.log("imagineTask()")
-
-  const user = await prisma.user.findUnique({
-    "where": {
-      id: task.Body.userId
-    },
-    "select": {
-      email: true,
-      token: true
-    }
-  })
 
   try {
     const [customText, imaginedImages] = await Promise.all([generateCustomText(prompt), imagineMats(task.Body.taskId, prompt)])
@@ -74,11 +63,21 @@ export const imagineTask = async (task: ImagineTask) => {
     ])
     console.log("transaction complete")
 
+    const user = await prisma.user.findUnique({
+      "where": {
+        id: task.Body.userId
+      },
+      "select": {
+        email: true,
+        token: true
+      }
+    })
+
     if (user?.email) {
       await transporter.sendMail({
         "to": user?.email,
         "subject": "Your designs are ready",
-        html: Handlebars.compile(taskDoneHtml)({ accessLink: `https://terrafirmacreative.com/designs?auth=${user?.token}` }),
+        html: taskDoneTemplate({ accessLink: `https://terrafirmacreative.com/designs?auth=${user?.token}` }),
       })
       console.log(`https://terrafirmacreative.com/designs?auth=${user?.token}`)
     }
@@ -100,13 +99,11 @@ export const imagineTask = async (task: ImagineTask) => {
       }
     })
 
-    if (!user?.email) {
-      console.log("Task Failed, deleting...")
-      await sqsClient.send(new DeleteMessageCommand({
-        "QueueUrl": config.SQS_URL,
-        "ReceiptHandle": task.ReceiptHandle
-      }))
-    }
+    console.log("Task Failed, deleting...")
+    await sqsClient.send(new DeleteMessageCommand({
+      "QueueUrl": config.SQS_URL,
+      "ReceiptHandle": task.ReceiptHandle
+    }))
 
     return
   }
@@ -189,7 +186,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
       await transporter.sendMail({
         "to": user?.email,
         "subject": "Your designs are ready",
-        html: Handlebars.compile(taskDoneHtml)({ accessLink: `https://terrafirmacreative.com/designs?auth=${user?.token}` }),
+        html: taskDoneTemplate({ accessLink: `https://terrafirmacreative.com/designs?auth=${user?.token}` }),
       })
       console.log(`https://terrafirmacreative.com/designs?auth=${user?.token}`)
     }

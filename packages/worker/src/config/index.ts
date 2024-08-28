@@ -65,7 +65,7 @@ export const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     type: "OAuth2",
-    user: "tym@terrafirmacreative.com",
+    user: "no-reply@terrafirmacreative.com",
     serviceClient: process.env.GOOGLE_SERVICE_CLIENT ?? "",
     privateKey: process.env.GOOGLE_SERVICE_PRIV_KEY ?? ""
   }

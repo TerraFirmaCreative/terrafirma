@@ -49,7 +49,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [progress, setProgress] = useState<number>(0)
   const [progressUri, setProgressUri] = useState<string | null | undefined>()
 
-  const params: { locale: string } | null = useParams()
+  const { locale }: { locale?: string } = useParams()
 
   const form = useForm<yup.InferType<typeof emailSchema>>({
     resolver: yupResolver(emailSchema)
@@ -65,7 +65,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProducts = async () => {
     const userProducts = (await getUserProducts())
-    const shopifyProducts = await (await getProductsById(userProducts.map((product) => product.shopifyProductId), params?.locale ?? "AU"))
+    const shopifyProducts = await (await getProductsById(userProducts.map((product) => product.shopifyProductId), locale ?? "AU"))
     let shopifyProductsMap: Map<string, GetProductsByIdQuery["nodes"][0]> = new Map<string, GetProductsByIdQuery["nodes"][0]>
     for (const shopifyProduct of shopifyProducts) {
       shopifyProductsMap.set(shopifyProduct?.id!, shopifyProduct)
@@ -174,7 +174,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         {children}
       </CreationContext.Provider>
 
-      <Dialog open={confirmationOpen}>
+      <Dialog open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -208,7 +208,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={finishedOpen}>
+      <AlertDialog open={finishedOpen} onOpenChange={setFinishedOpen}>
         <AlertDialogContent className="sm:max-w-[425px]">
           <div className="text-center flex flex-col gap-4">
             <h1 className="text-4xl">🥳</h1>
