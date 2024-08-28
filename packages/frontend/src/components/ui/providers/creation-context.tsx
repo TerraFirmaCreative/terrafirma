@@ -49,7 +49,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [progress, setProgress] = useState<number>(0)
   const [progressUri, setProgressUri] = useState<string | null | undefined>()
 
-  const { locale }: { locale?: string } = useParams()
+  const { locale }: { locale: string } = useParams()
 
   const form = useForm<yup.InferType<typeof emailSchema>>({
     resolver: yupResolver(emailSchema)

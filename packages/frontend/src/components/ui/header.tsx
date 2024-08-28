@@ -24,7 +24,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
   const pathname = usePathname()!
   const { setCartOpen } = useContext(CartContext)
   const [opaque, setOpaque] = useState<boolean>(false)
-  const params: { locale: string } | null = useParams()
+  const params: { locale: string } = useParams()
 
 
   const [searchPredictions, setSearchPredictions] = useState<SearchPredictionsQuery["predictiveSearch"] | null>(null)

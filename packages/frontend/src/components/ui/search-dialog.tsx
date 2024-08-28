@@ -14,7 +14,7 @@ const SearchDialog = () => {
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [searchPredictions, setSearchPredictions] = useState<SearchPredictionsQuery["predictiveSearch"] | null>(null)
   const searchTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
-  const params: { locale: string } | null = useParams()
+  const params: { locale: string } = useParams()
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0)
 

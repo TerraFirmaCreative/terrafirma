@@ -83,7 +83,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
   const [products, setProducts] = useState<PaginatedProductsQuery["products"]["edges"]>(initialProducts ?? [])
   const [filterParams, setFilterParams] = useState<FilterParams>({})
 
-  const params: { locale: string } | null = useParams()
+  const params: { locale: string } = useParams()
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)
