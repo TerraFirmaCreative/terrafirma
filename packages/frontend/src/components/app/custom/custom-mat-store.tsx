@@ -1,7 +1,7 @@
 "use client"
 import { GeneratedItemDto } from "@/lib/types/image.dto"
 import { useContext, useEffect, useState } from "react"
-import GeneratedImageCarousel from "../../../app/[locale]/designs/image-carousel"
+import GeneratedImageCarousel from "../../../app/[locale]/designs_bak/image-carousel"
 import { CartContext, CartControls } from "@/components/ui/providers/cart-context"
 
 const CustomMatStore = ({ items, params }: { items: GeneratedItemDto[], params: { locale: string } }) => {

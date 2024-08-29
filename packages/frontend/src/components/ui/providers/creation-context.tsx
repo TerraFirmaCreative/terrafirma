@@ -76,7 +76,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         ...userProduct,
         shopifyProduct: shopifyProductsMap.get(userProduct.shopifyProductId)
       }
-    })
+    }).sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf())
 
     setProducts(productsWithImagineData)
   }

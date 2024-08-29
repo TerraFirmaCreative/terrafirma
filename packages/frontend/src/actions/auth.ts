@@ -15,8 +15,8 @@ async function retrieveUser(userId: string) {
     cookies().set({
       name: 'token',
       value: userId,
-      expires: 1200000,
-      maxAge: 1200,
+      expires: 86400000,
+      maxAge: 86400,
     })
   }
 

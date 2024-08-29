@@ -1,27 +1,30 @@
 "use client"
-import { useContext, useEffect, useState } from "react"
-import { CartControls } from "@/components/ui/providers/cart-context"
-import GeneratedImageCarousel from "./image-carousel"
-import { CreationContext } from "@/components/ui/providers/creation-context"
-import { Button } from "@/components/ui/button"
+import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { CreationContext, ProductWithImagineData } from "@/components/ui/providers/creation-context"
+import { formatPrice, shopifyIdToUrlId, trimPrompt } from "@/lib/utils"
 import Link from "next/link"
-import { WandSparkles } from "lucide-react"
+import { useContext, useEffect, useState } from "react"
+import Image from "next/image"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { ChevronRightIcon, ChevronsRight, PlusCircle, PlusIcon, WandSparkles } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import * as yup from "yup"
 import { SubmitHandler, useForm } from "react-hook-form"
+import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { GenerateImageParams } from "@/lib/types/image.dto"
-import { formatTitle, trimPrompt } from "@/lib/utils"
 
+const Page = () => {
+  const { products, create, inProgress, refreshProducts, } = useContext(CreationContext)
 
-const ViewCustomMats = ({ params }: { params: { locale: string } }) => {
-  const [selected, setSelected] = useState(1)
-  const [promptOpen, setPromptOpen] = useState(false)
-  const { products, vary, inProgress, refreshProducts } = useContext(CreationContext)
+  const [groupedProducts, setGroupedProducts] = useState<Map<string, ProductWithImagineData[]>>(new Map())
   const [fetching, setFetching] = useState<boolean>(true)
 
+  const [promptOpen, setPromptOpen] = useState(false)
+
   const promptSchema = yup.object({
-    prompt: yup.string().required().default(products[selected]?.imagineData?.imaginePrompt),
+    prompt: yup.string().required().default(""),
   })
 
   const form = useForm<yup.InferType<typeof promptSchema>>({
@@ -29,9 +32,24 @@ const ViewCustomMats = ({ params }: { params: { locale: string } }) => {
   })
 
   const onSubmit: SubmitHandler<GenerateImageParams> = (data) => {
-    vary(selected, data.prompt)
+    create(data.prompt)
     setPromptOpen(false)
   }
+
+  useEffect(() => {
+    const ps = new Map<string, ProductWithImagineData[]>()
+    const filteredProducts = products.filter((product) => product?.imagineData)
+    for (const p of filteredProducts) {
+      if (!p!.allowVariants) {
+        const key = filteredProducts.find((q) => trimPrompt(p!.imagineData!.imaginePrompt).startsWith(trimPrompt(q!.imagineData!.imaginePrompt)))
+        console.log(key)
+      }
+      else {
+        ps.set(p!.imagineData!.imaginePrompt, [...(ps.get(p!.imagineData!.imaginePrompt) ?? []), p])
+      }
+    }
+    setGroupedProducts(ps)
+  }, [products])
 
   useEffect(() => {
     refreshProducts().then(() => {
@@ -39,54 +57,79 @@ const ViewCustomMats = ({ params }: { params: { locale: string } }) => {
     })
   }, [])
 
-  if (fetching) return (
-    <div className="flex lg:flex-row mt-20 flex-col justify-between align-center min-h-[100vh-5rem] h-screen w-full">
-      <div className="lg:w-1/2 px-20 py-10 gap-10 align-center h-full flex flex-row justify-center items-center">
-        <div className="w-[150px] h-[450px] bg-gray-200 animate-pulse" />
-      </div>
-      <div className="flex flex-col lg:w-1/2 gap-8 py-16 bg-white px-16">
-        <div className="bg-gray-200 rounded-md h-8 animate-pulse" />
-        <div className="pt-4 h-24 bg-gray-200 rounded-md animate-pulse" />
-      </div>
-    </div>
-  )
-
-  if (products.length < 1) return (
-    <div className="flex flex-col text-center gap-4 items-center justify-center h-screen w-full">
-      <h1 className="text-6xl">🧐</h1>
-      <h2 className="text-3xl font-light">{"Where'd they all go?"}</h2>
-      <p className="text-gray-700">Your custom yoga mat designs will appear here.</p>
-      <Link href="/">
-        <Button>Let Your Imagination Flow</Button>
-      </Link>
-    </div>
-  )
-
   return (
     <>
-      <div className="flex lg:flex-row mt-20 flex-col justify-between align-center min-h-[calc(100vh-5rem)] h-full">
-        <div className="lg:w-1/2 px-20 gap-10 align-center h-full flex flex-col justify-center items-center max-w-full">
-          <GeneratedImageCarousel products={products} setSelected={setSelected} />
-        </div>
-        <div className="flex flex-col lg:w-1/2 py-16 bg-white px-16">
-          <h1 className="text-slate-800 font-semibold text-4xl">{formatTitle(products[selected]!.shopifyProduct?.title ?? "")}</h1>
-          <div className="pt-4 text-lg"><i>$70.00</i></div>
-          <div className="flex flex-col gap-2 py-4">
-            <div className="flex flex-row flex-wrap gap-2">
-              <CartControls variantId={products[selected]!.shopifyProduct?.variants.edges[0].node.id ?? ""} />
-              {products[selected]!.allowVariants && !inProgress && <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setPromptOpen(true)}><WandSparkles size="15" className="mr-2" />Redesign</Button>}
-            </div>
-            <p className=" font-light leading-relaxed py-4">
-              {products[selected]?.shopifyProduct?.description}
-            </p>
+      <div className="mt-20 flex flex-col justify-center w-full">
+        <section id="recent-creations" className="px-[20%]">
+          <h1 className="text-5xl font-light text-gray-700 py-8">Your recent creations</h1>
+          <Badge>{trimPrompt(products.at(0)?.imagineData?.imaginePrompt ?? "")}</Badge>
+          <div className="
+            lg:grid-cols-[repeat(4,1fr)]
+            md:grid-cols-[repeat(3,1fr)]
+            sm:grid-cols-[repeat(2,1fr)]
+            grid-cols-[repeat(2,1fr)]
+            grid justify-center grid-flow-row-dense gap-2 pt-4
+            ">
+            {products.slice(0, 4).map((product) =>
+              <Link key={product!.id} href={`/browse/${shopifyIdToUrlId(product!.shopifyProduct!.id)}`}>
+                <div key={product!.id} className="overflow-clip relative border rounded-lg shadow">
+                  <AspectRatio ratio={1 / 3}>
+                    <Image
+                      src={product!.shopifyProduct!.featuredImage?.url}
+                      alt={product!.shopifyProduct!.title}
+                      fill
+                      sizes="20vw"
+                    />
+                    <div className="relative text-center w-full h-full bottom-0 opacity-0 hover:opacity-100 cursor-pointer transition-all">
+                      <div className="flex flex-col h-full justify-end my-auto text-white transition-all">
+                        <div className="bg-slate-900 py-6 flex flex-col justify-center">
+                          <div className="flex font-serif flex-col justify-center text-wrap text-2xl font-bold">
+                            {product!.shopifyProduct!.title.toUpperCase().split("[")[0].split("").filter((char: string) => char != '"').join("")}
+                          </div>
+                          <div className="text-xl h-1/5">{formatPrice(product!.shopifyProduct!.priceRange.maxVariantPrice)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </AspectRatio>
+                </div>
+              </Link>
+            )}
           </div>
-        </div>
+        </section>
+        <section id="previous-creations" className="border-t my-4 text-center flex flex-col justify-center">
+          <h2 className="text-3xl font-light text-gray-700 px-[20%] py-8">Creation History</h2>
+          {/* <div className={`
+          grid-cols-[repeat(3,1fr)]
+          grid justify-center grid-flow-row-dense gap-2 h-full p-2
+          `}> */}
+          <div className="flex flex-row flex-wrap gap-8 justify-center p-4">
+            {Array.from(groupedProducts.entries()).map(ps =>
+              <Link href={`/designs/${trimPrompt(ps[0])}`}>
+                <Card className="hover:bg-slate-50 cursor-pointer h-40 mx-auto">
+                  <CardHeader>
+                    <Badge variant="outline" className="w-fit">{trimPrompt(ps[0])}</Badge>
+                  </CardHeader>
+                  <CardFooter className="justify-start">
+                    <span className="p-2 font-normal">{ps[1]?.at(0)?.createdAt.toLocaleDateString()}</span>
+                    {/* <Button>View <ChevronRightIcon className="stroke-1" /></Button> */}
+                    <ChevronRightIcon className="stroke-1" />
+                  </CardFooter>
+                </Card>
+              </Link>
+            )}
+            {!inProgress &&
+              <div onClick={() => setPromptOpen(true)} className="hover:bg-slate-50 bg-transparent cursor-pointer max-w-sm w-40 h-40 border-2 rounded-lg border-dashed flex flex-col items-center">
+                <PlusIcon className="stroke-1 my-auto" />
+              </div>
+            }
+          </div>
+        </section >
       </div>
 
       <Dialog open={promptOpen} onOpenChange={setPromptOpen}>
         <DialogContent className="py-3 px-5">
           <form className="flex flex-row p-0" onSubmit={form.handleSubmit(onSubmit)}>
-            <WandSparkles strokeWidth={1.5} /><input {...form.register("prompt")} placeholder="Make it more colourful!" className="w-full mx-2 outline-none" />
+            <WandSparkles strokeWidth={1.5} /><input {...form.register("prompt")} placeholder="The most personal, imaginative yoga mat design yet" className="w-full mx-2 outline-none" />
           </form>
         </DialogContent>
       </Dialog>
@@ -94,4 +137,4 @@ const ViewCustomMats = ({ params }: { params: { locale: string } }) => {
   )
 }
 
-export default ViewCustomMats
+export default Page
