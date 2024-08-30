@@ -32,7 +32,7 @@ async function receiveMessages() {
   }))
 
   if (response.Messages) {
-    logger.info("Messages received: ", response.Messages.length)
+    logger.info(`Messages received: ${response.Messages.length}`)
     logger.info(response.Messages?.at(0)?.Body)
     response.Messages?.map((message) => {
       handleMessage({

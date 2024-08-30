@@ -58,7 +58,7 @@ export const imagineMats = async (prompt: string): Promise<(MJMessage | null)[]>
 }
 
 export const createVariants = async (imagineData: ImagineData, index: 1 | 2 | 3 | 4): Promise<(MJMessage | null)> => {
-  logger.info("createVariants()")
+  logger.info(`createVariants()`)
   const variants: MJMessage | null = await mjClient.Variation({
     index: index, //Original Imagine index 1-5
     msgId: imagineData.imagineId,
@@ -66,7 +66,7 @@ export const createVariants = async (imagineData: ImagineData, index: 1 | 2 | 3 
     flags: 0,
     content: `${imagineData.imaginePrompt}::2 --ar 1:3`
   })
-  logger.info("Variations made", variants)
+  logger.info(`Variations made ${variants}`)
 
 
   /*
