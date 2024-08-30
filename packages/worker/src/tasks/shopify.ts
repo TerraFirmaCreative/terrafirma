@@ -1,4 +1,4 @@
-import { adminClient } from "../config"
+import { adminClient, logger } from "../config"
 import { spawn } from "child_process"
 import sharp, { Sharp } from "sharp"
 import { uploadImage } from "./image"
@@ -16,7 +16,7 @@ export type CreatedProductVariant = {
 }
 
 export async function createProjectionMaps(productId: string, imageUrl: string) {
-  console.log("Starting", productId, imageUrl)
+  logger.info(`Starting ${productId} ${imageUrl}`)
   const child = spawn(process.env.PYTHON_CMD ?? "python3", ['./project.py', productId, imageUrl], {
     cwd: process.env.PROJECTION_MAP_PATH
   })
@@ -30,28 +30,28 @@ export async function createProjectionMaps(productId: string, imageUrl: string) 
     try {
       const images = JSON.parse(buffer) as string[]
 
-      console.log(`Received ${images.length} projection mapped images`)
+      logger.info(`Received ${images.length} projection mapped images`)
       const image_urls = await Promise.all(images.map((encoded: string, i) =>
         uploadImage(sharp(Buffer.from(encoded, "base64")), crypto.randomUUID())
       ))
-      console.log("Uploaded images to S3")
+      logger.info("Uploaded images to S3")
 
       image_urls.forEach((url) => {
         addProductMedia(productId, url)
-        console.log("Created product media")
+        logger.info("Created product media")
       })
     }
     catch (e) {
-      console.log(e)
+      logger.error(e)
     }
   })
 
   child.stderr.on('data', (data: Buffer) => {
-    console.log("Child process error: ", data.toString('ascii'))
+    logger.error(`Child process error: ${data.toString('ascii')}`)
   })
 
   child.on('error', (err) => {
-    console.log("Child process error:", err)
+    logger.error(`Child process error: ${err}`)
   })
 }
 
@@ -115,7 +115,7 @@ export async function uploadShopify(images: Sharp[]): Promise<string[]> {
   // TODO: dynamically take headers from response
   let i = 0
   for (const stagedTarget of stagedUploads.data?.stagedUploadsCreate.stagedTargets) {
-    console.log(i, stagedTarget)
+    logger.debug(`${i} ${stagedTarget}`)
     const buffer = await images[i].toBuffer()
     const uploadResponse = await fetch(stagedTarget.resourceUrl, {
       "method": "PUT",
@@ -125,7 +125,7 @@ export async function uploadShopify(images: Sharp[]): Promise<string[]> {
         "acl": "private"
       }
     })
-    console.log("uploadResponse:", uploadResponse)
+    logger.debug(`uploadResponse: ${uploadResponse}`)
     i++
   }
 
@@ -174,7 +174,9 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
       media: media
     }
   })
-  console.log(product.data?.productCreate.product.variants.edges[0].node.id)
+
+  logger.debug(product.data?.productCreate.product.variants.edges[0].node.id)
+
   const variantUpdate = await adminClient.request(`#gqladmin
     mutation productVariantUpdate($input: ProductVariantInput!) {
       productVariantUpdate(input: $input) {
@@ -205,7 +207,7 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
     }
   })
 
-  console.log(variantUpdate.errors?.message, require('util').inspect(variantUpdate, { depth: null }))
+  logger.debug(variantUpdate.errors?.message, require('util').inspect(variantUpdate, { depth: null }))
 
   await adminClient.request(`#gqladmin
     mutation setLocations($id: ID!, $updates: [InventoryBulkToggleActivationInput!]!) {

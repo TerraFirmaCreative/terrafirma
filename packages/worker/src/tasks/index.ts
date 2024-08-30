@@ -2,7 +2,7 @@ import { ImagineTask, ImagineVariantsTask } from "../types/worker"
 import { sanitisePrompt } from "@terrafirma/rest/src/utils"
 import { createVariants, generateCustomText, imagineMats } from "./midjourney"
 import { createProduct, uploadShopify } from "./shopify"
-import config, { prisma, sqsClient, transporter } from "../config"
+import config, { logger, prisma, sqsClient, transporter } from "../config"
 import { TaskStatus } from "@prisma/client"
 import { remoteImage, splitQuadImage } from "./image"
 import sharp, { Sharp } from "sharp"
@@ -11,7 +11,7 @@ import { taskDoneTemplate } from "../email"
 
 export const imagineTask = async (task: ImagineTask) => {
   const prompt = sanitisePrompt(task.Body.prompt)
-  console.log("imagineTask()")
+  logger.info("imagineTask()")
 
   try {
     const [customText, imaginedImages] = await Promise.all([generateCustomText(prompt), imagineMats(task.Body.taskId, prompt)])
@@ -61,7 +61,7 @@ export const imagineTask = async (task: ImagineTask) => {
         }
       })
     ])
-    console.log("transaction complete")
+    logger.info("transaction complete")
 
     const user = await prisma.user.findUnique({
       "where": {
@@ -79,17 +79,17 @@ export const imagineTask = async (task: ImagineTask) => {
         "subject": "Your designs are ready",
         html: taskDoneTemplate({ accessLink: `https://terrafirmacreative.com/designs?auth=${user?.token}` }),
       })
-      console.log(`https://terrafirmacreative.com/designs?auth=${user?.token}`)
+      logger.debug(`https://terrafirmacreative.com/designs?auth=${user?.token}`)
     }
 
-    console.log("Task Successful, deleting...")
+    logger.info("Task Successful, deleting...")
     await sqsClient.send(new DeleteMessageCommand({
       "QueueUrl": config.SQS_URL,
       "ReceiptHandle": task.ReceiptHandle
     }))
   }
   catch (e) {
-    console.error(task.Body.userId, "Error:", e)
+    logger.error(`${task.Body.userId} Error: ${e}`)
     await prisma.task.update({
       where: {
         id: task.Body.taskId
@@ -99,7 +99,7 @@ export const imagineTask = async (task: ImagineTask) => {
       }
     })
 
-    console.log("Task Failed, deleting...")
+    console.info("Task Failed, deleting...")
     await sqsClient.send(new DeleteMessageCommand({
       "QueueUrl": config.SQS_URL,
       "ReceiptHandle": task.ReceiptHandle
@@ -114,7 +114,7 @@ export const imagineTask = async (task: ImagineTask) => {
 
 export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
   const prompt = sanitisePrompt(task.Body.prompt)
-  console.log("BODY: ", task.Body)
+  logger.debug(`BODY: ${task.Body}`)
   try {
     const [customText, variantQuad] = await Promise.all([
       generateCustomText(prompt),
@@ -122,9 +122,9 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
     ])
 
     const variants: Sharp[] = await splitQuadImage(sharp(await remoteImage(variantQuad!.uri)))
-    console.log("variants split")
+    logger.debug("variants split")
     const variantUrls = await uploadShopify(variants)
-    console.log("images uploaded")
+    logger.debug("images uploaded")
     const createProductItems = []
     for (let i = 0; i < 4; i++) {
       createProductItems.push(
@@ -138,7 +138,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
     }
     const createdProducts = await Promise.all(createProductItems)
 
-    console.log("created shopify products")
+    logger.info("Created shopify products")
     const { id: _, ...newImagineData } = task.Body.srcImagineData
     await prisma.$transaction([
       prisma.task.update({
@@ -188,12 +188,12 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
         "subject": "Your designs are ready",
         html: taskDoneTemplate({ accessLink: `https://terrafirmacreative.com/designs?auth=${user?.token}` }),
       })
-      console.log(`https://terrafirmacreative.com/designs?auth=${user?.token}`)
+      logger.debug(`https://terrafirmacreative.com/designs?auth=${user?.token}`)
     }
   }
   catch (e) {
     // axios frontend something went wrong & update task in db
-    console.error(task.Body.userId, "Error:", e)
+    logger.error(`${task.Body.userId} Error: ${e}`)
     await prisma.task.update({
       where: {
         id: task.Body.taskId
@@ -206,7 +206,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
     return
   }
 
-  console.log("Success: deleting task")
+  logger.info("Success: deleting task")
   await sqsClient.send(new DeleteMessageCommand({
     "QueueUrl": config.SQS_URL,
     "ReceiptHandle": task.ReceiptHandle

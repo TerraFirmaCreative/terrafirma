@@ -7,6 +7,8 @@ import { PrismaClient } from "@prisma/client"
 import * as dotenv from 'dotenv'
 import * as nodemailer from 'nodemailer'
 import path from 'path'
+import pino from "pino"
+import "pino-pretty"
 
 dotenv.config()
 
@@ -23,6 +25,37 @@ const Config = {
   SHOPIFY_ADMIN_ACCESS_TOKEN: process.env.SHOPIFY_ADMIN_ACCESS_TOKEN ?? "",
   SHOPIFY_STOREFRONT_ACCESS_TOKEN: process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN ?? ""
 }
+
+const hooks = {
+  logMethod(inputArgs: any, method: any): any {
+    if (inputArgs.length >= 2) {
+      const arg1 = inputArgs.shift()
+      const arg2 = inputArgs.shift()
+      return method.apply(this, [arg2, arg1, ...inputArgs])
+    }
+    return method.apply(this, inputArgs)
+  },
+}
+
+export const logger = pino({
+  level: process.env.LOG_LEVEL ?? "debug",
+  transport: {
+    targets: [
+      {
+        target: 'pino-pretty',
+        options: {}
+      }
+    ].concat(process.env.NODE_ENV == "production" ? [
+      {
+        target: 'pino/file',
+        options: {
+          destination: `${process.env.LOG_DIR}/worker.log`
+        }
+      }
+    ] : [])
+  },
+  hooks
+})
 
 export const sqsClient = new SQSClient({
   region: "us-east-1",

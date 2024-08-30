@@ -6,10 +6,45 @@ import { Midjourney } from 'midjourney'
 import { S3Client } from '@aws-sdk/client-s3'
 import { PrismaClient } from '@prisma/client'
 import { SQSClient } from '@aws-sdk/client-sqs'
+import pino from 'pino'
+import "pino-pretty"
+
+console.log(process.env.NODE_ENV)
 
 dotenv.config()
 
 export const prisma = new PrismaClient({ "datasourceUrl": process.env.DATABASE_URL! })
+
+const hooks = {
+  logMethod(inputArgs: any, method: any): any {
+    if (inputArgs.length >= 2) {
+      const arg1 = inputArgs.shift()
+      const arg2 = inputArgs.shift()
+      return method.apply(this, [arg2, arg1, ...inputArgs])
+    }
+    return method.apply(this, inputArgs)
+  },
+}
+
+export const logger = pino({
+  level: process.env.LOG_LEVEL ?? "debug",
+  transport: {
+    targets: [
+      {
+        target: 'pino-pretty',
+        options: {}
+      }
+    ].concat(process.env.NODE_ENV == "production" ? [
+      {
+        target: 'pino/file',
+        options: {
+          destination: `${process.env.LOG_DIR}/rest.log`
+        }
+      }
+    ] : [])
+  },
+  hooks
+})
 
 const Config = {
   OPENAI_KEY: process.env.OPENAI_KEY ?? "",
