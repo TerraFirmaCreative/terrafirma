@@ -192,7 +192,7 @@ export const getPaginatedProducts = async (params: FilterParams, locale: string)
       first: 20,
       sortKey: params.sortKey ?? ProductSortKeys.CreatedAt,
       query: `variants.price:>=${params.priceRange?.at(0)?.toString() ?? '0'} variants.price:<=${params.priceRange?.at(1)?.toString() ?? '200'}`,
-      reverse: params.reverse,
+      reverse: params.reverse ?? true,
       after: params.cursor,
       countryCode: countryCode as CountryCode
     },

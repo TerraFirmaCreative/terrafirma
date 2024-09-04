@@ -30,6 +30,31 @@ export const imagineTask = async (task: ImagineTask) => {
     }
     const createdProducts = await Promise.all(createProductItems)
 
+    logger.debug(JSON.stringify({
+      "products": createdProducts.map((product) => {
+        return {
+          "product_id": product.productId,
+        }
+      })
+    }))
+
+    if (process.env.PROJECTION_API_URL) {
+      setTimeout(() =>
+        fetch(process.env.PROJECTION_API_URL!, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "products": createdProducts.map((product) => {
+              return {
+                "product_id": product.productId,
+              }
+            })
+          })
+        }), 10000)
+    }
+
     await prisma.$transaction([
       prisma.task.update({
         where: {
@@ -108,6 +133,8 @@ export const imagineTask = async (task: ImagineTask) => {
     return
   }
 
+  //Create projection maps
+
   // TODO: Isolate into its own service
   // createdProducts.forEach((product) => createProjectionMaps(product.productId, product.imageUrl))
 }
@@ -124,6 +151,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
     const variants: Sharp[] = await splitQuadImage(sharp(await remoteImage(variantQuad!.uri)))
     logger.debug("variants split")
     const variantUrls = await uploadShopify(variants)
+    console.log(variantUrls)
     logger.debug("images uploaded")
     const createProductItems = []
     for (let i = 0; i < 4; i++) {
@@ -137,6 +165,31 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
       )
     }
     const createdProducts = await Promise.all(createProductItems)
+
+    logger.debug(JSON.stringify({
+      "products": createdProducts.map((product) => {
+        return {
+          "product_id": product.productId,
+        }
+      })
+    }))
+
+    if (process.env.PROJECTION_API_URL) {
+      setTimeout(() =>
+        fetch(process.env.PROJECTION_API_URL!, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "products": createdProducts.map((product) => {
+              return {
+                "product_id": product.productId,
+              }
+            })
+          })
+        }), 10000)
+    }
 
     logger.info("Created shopify products")
     const { id: _, ...newImagineData } = task.Body.srcImagineData

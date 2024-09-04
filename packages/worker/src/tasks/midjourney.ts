@@ -52,7 +52,7 @@ export const generateCustomText = async (prompt: string) => {
       })
     )
   })
-
+  logger.info("Created titles and descriptions")
   return (await Promise.all(titlePromises)).map((title, i) => {
     return {
       title: title,
@@ -78,7 +78,6 @@ export const imagineMats = async (taskId: string, prompt: string): Promise<(MJMe
       customId: Imagine!.options!.at(i)!.custom
     }))
   }
-
   return ([Imagine, ...await Promise.all(separated)])
 }
 
