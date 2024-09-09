@@ -17,7 +17,7 @@ import { Progress } from "../progress"
 
 export const CreationContext = createContext<{
   create: (prompt: string) => Promise<void>,
-  vary: (index: number, prompt: string) => Promise<void>,
+  vary: (index: number, imagineData: ImagineData, prompt: string) => Promise<void>,
   refreshProducts: () => Promise<void>
   inProgress: boolean,
   products: ProductWithImagineData[],
@@ -26,7 +26,7 @@ export const CreationContext = createContext<{
 }
 >({
   create: async (prompt: string) => { },
-  vary: async (index: number, prompt: string) => { },
+  vary: async (index: number, imagineData: ImagineData, prompt: string) => { },
   refreshProducts: async () => { },
   inProgress: false,
   products: [],
@@ -66,6 +66,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const refreshProducts = async () => {
     const userProducts = (await getUserProducts())
     const shopifyProducts = await (await getProductsById(userProducts.map((product) => product.shopifyProductId), locale ?? "AU"))
+    console.log(userProducts, shopifyProducts)
     let shopifyProductsMap: Map<string, GetProductsByIdQuery["nodes"][0]> = new Map<string, GetProductsByIdQuery["nodes"][0]>
     for (const shopifyProduct of shopifyProducts) {
       shopifyProductsMap.set(shopifyProduct?.id!, shopifyProduct)
@@ -139,11 +140,11 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     setInProgress(true)
   }
 
-  const vary = async (index: number, prompt: string) => {
+  const vary = async (index: number, imagineData: ImagineData, prompt: string) => {
     beginTask({
       prompt: prompt,
-      srcImagineData: products.at(index)?.imagineData!,
-      index: products.at(index)?.imagineIndex,
+      srcImagineData: imagineData,
+      index: index,
       type: TaskType.ImagineVariants
     }).then((res) => {
       if (res.status !== TaskStatus.Failed) {

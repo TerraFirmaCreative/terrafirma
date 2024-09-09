@@ -1,4 +1,4 @@
-import PaginatedProducts from "@/components/app/browse/paginated-products"
+import PaginatedProducts from "@/components/ui/paginated-products"
 import { getPaginatedProducts } from "@/gateway/store"
 import { cookies } from "next/headers"
 

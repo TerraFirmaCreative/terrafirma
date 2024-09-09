@@ -3,7 +3,7 @@
 import { auth } from "@/actions/auth"
 import { sessions } from "@/components/session/session-data"
 import { getPrisma } from "@/config"
-import { ImagineData, TaskStatus, TaskType } from "@prisma/client"
+import { ImagineData, Product, TaskStatus, TaskType } from "@prisma/client"
 import { cookies } from "next/headers"
 
 export type BeginTaskResult = {
@@ -123,6 +123,19 @@ export const getUserProducts = async () => {
   })
 
   return products
+}
+
+export const getUserProduct = async (productId: string): Promise<Product & { imagineData: ImagineData | null } | null | undefined> => {
+  const product = (await getPrisma().product.findFirst({
+    where: {
+      shopifyProductId: productId
+    },
+    include: {
+      imagineData: true
+    }
+  }))
+
+  return product
 }
 
 export const updateUserEmail = async (email: string) => {

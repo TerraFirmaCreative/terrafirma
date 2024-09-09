@@ -10,6 +10,7 @@ import { getPages } from "@/gateway/cms"
 import SessionProvider from "@/components/session/session-provider"
 import { geistSans, lato, playfairDisplay } from "@/lib/fonts"
 import { getAvailableLocalization } from "@/gateway/store"
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: "Terra Firma Creative",
@@ -85,6 +86,7 @@ export default async function RootLayout({
             </CartProvider>
           </SessionProvider>
         </main>
+        <Toaster />
       </body>
     </html>
   )

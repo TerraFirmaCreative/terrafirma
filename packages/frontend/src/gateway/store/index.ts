@@ -1,10 +1,11 @@
 "use server"
-import { CartLineInput, CartLineUpdateInput, CountryCode, GetProductQuery, ProductSortKeys, SearchSortKeys } from "@/lib/types/graphql"
-import { getStorefrontClient } from '@/config'
+import { CartLineInput, CartLineUpdateInput, CountryCode, GetCollectionsQuery, GetProductQuery, PaginatedProductsQuery, ProductSortKeys, SearchSortKeys } from "@/lib/types/graphql"
+import { getPrisma, getStorefrontClient } from '@/config'
 import { parseLocale, shuffle } from "@/lib/utils"
 import { CartLineDto } from "@/lib/types/store.dto"
 import { useParams } from "next/navigation"
 import { RandomProductsQuery, SearchPredictionsQuery } from "../../../types/storefront.generated"
+import { ImagineData } from "@prisma/client"
 
 /*
 *  Store actions here are all related to fetching products for the common storefront functionality
@@ -163,7 +164,10 @@ export type FilterParams = {
   priceRange?: number[],
   productTag?: string
 }
-export const getPaginatedProducts = async (params: FilterParams, locale: string) => {
+
+export type ProductEdgeWithPrompt = PaginatedProductsQuery["products"]["edges"][0] & { imaginePrompt?: string }
+
+export const getPaginatedProducts = async (params: FilterParams, locale: string): Promise<PaginatedProductsQuery["products"]["edges"]> => {
   const [_, countryCode] = parseLocale(locale)
   const query = `#graphql
     query paginatedProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $reverse: Boolean, $after: String, $countryCode: CountryCode) @inContext(country: $countryCode) {
@@ -187,16 +191,18 @@ export const getPaginatedProducts = async (params: FilterParams, locale: string)
       }
     }
   `
-  return (await getStorefrontClient().request(query, {
+  const products = (await getStorefrontClient().request(query, {
     variables: {
       first: 20,
       sortKey: params.sortKey ?? ProductSortKeys.CreatedAt,
       query: `variants.price:>=${params.priceRange?.at(0)?.toString() ?? '0'} variants.price:<=${params.priceRange?.at(1)?.toString() ?? '200'}`,
-      reverse: params.reverse,
+      reverse: params.reverse ?? true,
       after: params.cursor,
       countryCode: countryCode as CountryCode
     },
-  })).data?.products.edges
+  })).data?.products.edges ?? []
+
+  return products
 }
 
 export const getProductsById = async (ids: string[], locale: string) => {
@@ -472,4 +478,20 @@ export const getAvailableLocalization = async () => {
   `)
 
   return localization.data?.localization
+}
+
+export const getPromptsForShopifyProduct = async (productId: string): Promise<string | undefined> => {
+  const prompt = (await (getPrisma().product.findFirst({
+    where: {
+      "shopifyProductId": productId
+    },
+    include: {
+      "imagineData": {
+        "select": {
+          "imaginePrompt": true
+        }
+      }
+    }
+  })))?.imagineData?.imaginePrompt
+  return prompt
 }

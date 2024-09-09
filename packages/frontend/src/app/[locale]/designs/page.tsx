@@ -1,14 +1,13 @@
 "use client"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardFooter, CardHeader } from "@/components/ui/card"
 import { CreationContext, ProductWithImagineData } from "@/components/ui/providers/creation-context"
 import { formatPrice, shopifyIdToUrlId, trimPrompt } from "@/lib/utils"
 import Link from "next/link"
 import { useContext, useEffect, useState } from "react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ChevronRightIcon, ChevronsRight, PlusCircle, PlusIcon, WandSparkles } from "lucide-react"
+import { ChevronRightIcon, PlusIcon, WandSparkles } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { SubmitHandler, useForm } from "react-hook-form"
 import * as yup from "yup"
@@ -35,7 +34,7 @@ const Page = () => {
     create(data.prompt)
     setPromptOpen(false)
   }
-
+  console.log(products)
   useEffect(() => {
     const ps = new Map<string, ProductWithImagineData[]>()
     const filteredProducts = products.filter((product) => product?.imagineData)
@@ -104,7 +103,7 @@ const Page = () => {
           `}> */}
           <div className="flex flex-row flex-wrap gap-8 justify-center p-4">
             {Array.from(groupedProducts.entries()).map(ps =>
-              <Link href={`/designs/${trimPrompt(ps[0])}`}>
+              <Link key={ps[1].at(0)?.id ?? 0} href={`/designs/${trimPrompt(ps[0])}`}>
                 <Card className="hover:bg-slate-50 cursor-pointer h-40 mx-auto">
                   <CardHeader>
                     <Badge variant="outline" className="w-fit">{trimPrompt(ps[0])}</Badge>
