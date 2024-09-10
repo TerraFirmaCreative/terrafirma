@@ -1,4 +1,4 @@
-import config, { mjClient, sqsClient } from "./config"
+import config, { logger, mjClient, sqsClient } from "./config"
 import { ReceiveMessageCommand } from "@aws-sdk/client-sqs"
 import { ImagineTask, ImagineVariantsTask, TaskMessage } from "./types/worker"
 import { TaskType } from '@prisma/client'
@@ -7,7 +7,6 @@ import { createProjectionMaps, uploadShopify } from "./tasks/shopify"
 import sharp from "sharp"
 
 async function handleMessage(message: TaskMessage) {
-  console.log("here", message)
   const task = message
   if (task) {
     switch (task.Body.type) {
@@ -33,8 +32,8 @@ async function receiveMessages() {
   }))
 
   if (response.Messages) {
-    console.info("Messages received: ", response.Messages.length)
-    console.log(response.Messages?.at(0)?.Body)
+    logger.info(`Messages received: ${response.Messages.length}`)
+    logger.info(response.Messages?.at(0)?.Body)
     response.Messages?.map((message) => {
       handleMessage({
         ...message,
@@ -46,7 +45,6 @@ async function receiveMessages() {
 
 async function main() {
   await mjClient.init()
-
   // const products_s = `
   // {
   //   "data": {

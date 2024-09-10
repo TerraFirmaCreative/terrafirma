@@ -1,6 +1,6 @@
 import express from "express"
 import OpenAI from "openai"
-import config, { mjClient, prisma } from "../config"
+import config, { logger, mjClient, prisma } from "../config"
 import { MJMessage } from "midjourney"
 import { ImagineData } from "@terrafirma/rest/src/types"
 import { trimPrompt } from "../utils"
@@ -12,7 +12,7 @@ const openai = new OpenAI({
 })
 
 export async function updateTaskProgress(taskId: string, progress: string, progressUri: string) {
-  console.log("PROGRESS", progress, progressUri)
+  logger.debug(`PROGRESS ${progress} ${progressUri}`)
   try {
     await prisma.task.update({
       where: {
@@ -25,7 +25,7 @@ export async function updateTaskProgress(taskId: string, progress: string, progr
     })
   }
   catch (e) {
-    console.log(`Error: Could not update progress for task ${taskId}: ${e}`)
+    logger.error(`Error: Could not update progress for task ${taskId}: ${e}`)
   }
 }
 
@@ -52,7 +52,7 @@ export const generateCustomText = async (prompt: string) => {
       })
     )
   })
-
+  logger.info("Created titles and descriptions")
   return (await Promise.all(titlePromises)).map((title, i) => {
     return {
       title: title,
@@ -69,7 +69,7 @@ export const imagineMats = async (taskId: string, prompt: string): Promise<(MJMe
     }
   )
 
-  console.log("Imagine", Imagine)
+  logger.info(`Imagine ${Imagine}`)
   let separated: Promise<MJMessage | null>[] = []
   for (let i = 0; i < 4; i++) {
     separated.push(mjClient.Custom({
@@ -78,12 +78,11 @@ export const imagineMats = async (taskId: string, prompt: string): Promise<(MJMe
       customId: Imagine!.options!.at(i)!.custom
     }))
   }
-
   return ([Imagine, ...await Promise.all(separated)])
 }
 
 export const createVariants = async (taskId: string, prompt: string, imagineData: ImagineData, index: 1 | 2 | 3 | 4): Promise<(MJMessage | null)> => {
-  console.log("createVariants()", imagineData)
+  logger.info(`createVariants() ${imagineData}`)
   const variants: MJMessage | null = await mjClient.Variation({
     index: index, //Original Imagine index 1-5
     msgId: imagineData.imagineId,
@@ -96,6 +95,6 @@ export const createVariants = async (taskId: string, prompt: string, imagineData
   },
   )
 
-  console.log("Variations made", variants)
+  logger.info(`Variations made ${variants}`)
   return variants
 }

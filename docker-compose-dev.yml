@@ -20,6 +20,8 @@ services:
     hostname: rest
     env_file: packages/rest/.env
     restart: always
+    volumes:
+      - ./logs:/log
 
   worker:
     container_name: terra-worker
@@ -27,8 +29,10 @@ services:
     hostname: worker
     env_file: packages/worker/.env
     restart: always
+    volumes:
+      - ./logs:/log
 
 networks:
   terra-net:
     name: terra-net
-    external: true
+    external: false

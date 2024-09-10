@@ -29,7 +29,7 @@ const FilterControls = ({ filterParams, filterSubmit }: { filterParams: FilterPa
                   <Toggle
                     className="stroke-1"
                     defaultPressed={filterParams.reverse ?? false}
-                    onPressedChange={(value) => filterSubmit({ reverse: !(filterParams.reverse ?? false) })}
+                    onPressedChange={(value) => filterSubmit({ reverse: !(filterParams.reverse ?? true) })}
                   >
                     {filterParams.reverse ? <ArrowDownWideNarrowIcon strokeWidth="1" /> : <ArrowUpNarrowWideIcon strokeWidth="1" />}
                   </Toggle>
