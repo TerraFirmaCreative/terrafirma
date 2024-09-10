@@ -1,10 +1,10 @@
 "use server"
 
 import { auth } from "@/actions/auth"
-import { sessions } from "@/components/session/session-data"
+import { getSessions, shouldAllowRequestRate } from "@/components/persistent/persistent-data"
 import { getPrisma } from "@/config"
 import { ImagineData, TaskStatus, TaskType } from "@prisma/client"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 
 export type BeginTaskResult = {
   id: string | null,
@@ -27,6 +27,8 @@ export const beginTask = async (task: TaskInput): Promise<BeginTaskResult> => {
     id: null,
     status: TaskStatus.Failed
   }
+
+  if (!shouldAllowRequestRate(headers())) return result
 
   if (!cookies().has('token')) {
     await auth()
@@ -139,5 +141,5 @@ export const updateUserEmail = async (email: string) => {
     }
   })
 
-  sessions.set(token.value, user)
+  getSessions().set(token.value, user)
 }

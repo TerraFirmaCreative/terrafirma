@@ -7,7 +7,7 @@ import CreationProvider from "@/components/ui/providers/creation-context"
 import MainMenu from "@/components/ui/header"
 import { HomeIcon, LayoutDashboardIcon, PaintbrushIcon } from "lucide-react"
 import { getPages } from "@/gateway/cms"
-import SessionProvider from "@/components/session/session-provider"
+import SessionProvider from "@/components/persistent/session-provider"
 import { geistSans, lato, playfairDisplay } from "@/lib/fonts"
 import { getAvailableLocalization } from "@/gateway/store"
 

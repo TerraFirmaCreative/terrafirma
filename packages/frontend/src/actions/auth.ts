@@ -1,5 +1,5 @@
 "use server"
-import { sessions } from "@/components/session/session-data"
+import { getSessions } from "@/components/persistent/persistent-data"
 import { getPrisma } from "@/config"
 import { cookies } from "next/headers"
 
@@ -11,7 +11,7 @@ async function retrieveUser(userId: string) {
   })
 
   if (user) {
-    sessions.set(userId, user)
+    getSessions().set(userId, user)
     cookies().set({
       name: 'token',
       value: userId,
@@ -32,7 +32,7 @@ export async function auth(authParam?: string | null) {
     })
 
     if (user) {
-      sessions.set(authParam, user)
+      getSessions().set(authParam, user)
       cookies().set({
         name: 'token',
         value: authParam,
@@ -44,7 +44,7 @@ export async function auth(authParam?: string | null) {
 
   const token = cookies().get('token')
   // TODO: Check DB after checking session just in case?
-  if (!token || !(sessions.has(token.value) || retrieveUser(token.value))) {
+  if (!token || !(getSessions().has(token.value) || retrieveUser(token.value))) {
     const newToken = crypto.randomUUID().replace("-", "")
 
     const user = await getPrisma().user.create({
@@ -53,7 +53,7 @@ export async function auth(authParam?: string | null) {
       }
     })
 
-    sessions.set(newToken, user)
+    getSessions().set(newToken, user)
     cookies().set({
       name: 'token',
       value: newToken,
