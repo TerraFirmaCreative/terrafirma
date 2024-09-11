@@ -34,7 +34,7 @@ export const CreationContext = createContext<{
 }
 )
 
-export type ProductWithImagineData = ({ imagineData: ImagineData | null, shopifyProduct: GetProductsByIdQuery["nodes"][0] | undefined } & Product | null)
+export type ProductWithImagineData = ({ imagineData: ImagineData | null, shopifyProduct: GetProductsByIdQuery["nodes"][0] | undefined } & (Product | null))
 
 const emailSchema = yup.object({
   email: yup.string().email().optional()

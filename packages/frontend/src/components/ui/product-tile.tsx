@@ -1,20 +1,17 @@
 "use client"
-
 import { AspectRatio } from "./aspect-ratio"
 import Image from "next/image"
 import { formatPrice, shopifyIdToUrlId, trimPrompt } from "@/lib/utils"
 import { toast } from "@/hooks/use-toast"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip"
-import { CopyIcon, WandSparklesIcon } from "lucide-react"
+import { CopyIcon } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { GetCollectionsQuery, PaginatedProductsQuery } from "@/lib/types/graphql"
 import { ImagineData, Product } from "@prisma/client"
 import { getUserProduct, getUserProducts } from "@/gateway/tasks"
+import { GetProductsByIdQuery } from "@/lib/types/graphql"
 
-type ProductUnion = PaginatedProductsQuery["products"]["edges"][0]["node"] | GetCollectionsQuery["collections"]["nodes"][0]["products"]["nodes"][0]
-
-const ProductTile = ({ product }: { product: ProductUnion }) => {
+const ProductTile = ({ product }: { product: NonNullable<GetProductsByIdQuery["nodes"][0]> }) => {
   const [userProduct, setUserProduct] = useState<Product & { imagineData?: ImagineData | null } | null | undefined>()
 
   useEffect(() => {
@@ -29,7 +26,7 @@ const ProductTile = ({ product }: { product: ProductUnion }) => {
       <AspectRatio ratio={1 / 3}>
         <Image
           src={product.featuredImage?.url}
-          alt={product.title}
+          alt={product.title ?? "Design for yoga mat product"}
           fill
           sizes="20vw"
         />

@@ -1,5 +1,4 @@
 "use server"
-
 import { auth } from "@/actions/auth"
 import { getSessions, shouldAllowRequestRate } from "@/components/persistent/persistent-data"
 import { getPrisma } from "@/config"

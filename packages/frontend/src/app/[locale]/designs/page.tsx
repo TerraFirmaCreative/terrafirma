@@ -1,23 +1,22 @@
 "use client"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
-import { Card, CardFooter, CardHeader } from "@/components/ui/card"
-import { CreationContext, ProductWithImagineData } from "@/components/ui/providers/creation-context"
+import { CreationContext } from "@/components/ui/providers/creation-context"
 import { formatPrice, shopifyIdToUrlId, trimPrompt } from "@/lib/utils"
 import Link from "next/link"
 import { useContext, useEffect, useState } from "react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
-import { ChevronRightIcon, PlusIcon, WandSparkles } from "lucide-react"
+import { WandSparkles } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { SubmitHandler, useForm } from "react-hook-form"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { GenerateImageParams } from "@/lib/types/image.dto"
+import ProductTile from "@/components/ui/product-tile"
 
 const Page = () => {
   const { products, create, inProgress, refreshProducts, } = useContext(CreationContext)
 
-  const [groupedProducts, setGroupedProducts] = useState<Map<string, ProductWithImagineData[]>>(new Map())
   const [fetching, setFetching] = useState<boolean>(true)
 
   const [promptOpen, setPromptOpen] = useState(false)
@@ -34,21 +33,6 @@ const Page = () => {
     create(data.prompt)
     setPromptOpen(false)
   }
-  console.log(products)
-  useEffect(() => {
-    const ps = new Map<string, ProductWithImagineData[]>()
-    const filteredProducts = products.filter((product) => product?.imagineData)
-    for (const p of filteredProducts) {
-      if (!p!.allowVariants) {
-        const key = filteredProducts.find((q) => trimPrompt(p!.imagineData!.imaginePrompt).startsWith(trimPrompt(q!.imagineData!.imaginePrompt)))
-        console.log(key)
-      }
-      else {
-        ps.set(p!.imagineData!.imaginePrompt, [...(ps.get(p!.imagineData!.imaginePrompt) ?? []), p])
-      }
-    }
-    setGroupedProducts(ps)
-  }, [products])
 
   useEffect(() => {
     refreshProducts().then(() => {
@@ -64,11 +48,10 @@ const Page = () => {
           <Badge>{trimPrompt(products.at(0)?.imagineData?.imaginePrompt ?? "")}</Badge>
           <div className="
             lg:grid-cols-[repeat(4,1fr)]
-            md:grid-cols-[repeat(3,1fr)]
             sm:grid-cols-[repeat(2,1fr)]
             grid-cols-[repeat(2,1fr)]
             grid justify-center grid-flow-row-dense gap-2 pt-4
-            ">
+          ">
             {products.slice(0, 4).map((product) =>
               <Link key={product!.id} href={`/browse/${shopifyIdToUrlId(product!.shopifyProduct!.id)}`}>
                 <div key={product!.id} className="overflow-clip relative border rounded-lg shadow">
@@ -95,34 +78,17 @@ const Page = () => {
             )}
           </div>
         </section>
-        <section id="previous-creations" className="border-t my-4 text-center flex flex-col justify-center">
-          <h2 className="text-3xl font-light text-gray-700 px-[20%] py-8">Creation History</h2>
-          {/* <div className={`
-          grid-cols-[repeat(3,1fr)]
-          grid justify-center grid-flow-row-dense gap-2 h-full p-2
-          `}> */}
-          <div className="flex flex-row flex-wrap gap-8 justify-center p-4">
-            {Array.from(groupedProducts.entries()).map(ps =>
-              <Link key={ps[1].at(0)?.id ?? 0} href={`/designs/${trimPrompt(ps[0])}`}>
-                <Card className="hover:bg-slate-50 cursor-pointer h-40 mx-auto">
-                  <CardHeader>
-                    <Badge variant="outline" className="w-fit">{trimPrompt(ps[0])}</Badge>
-                  </CardHeader>
-                  <CardFooter className="justify-start">
-                    <span className="p-2 font-normal">{ps[1]?.at(0)?.createdAt.toLocaleDateString()}</span>
-                    {/* <Button>View <ChevronRightIcon className="stroke-1" /></Button> */}
-                    <ChevronRightIcon className="stroke-1" />
-                  </CardFooter>
-                </Card>
-              </Link>
-            )}
-            {!inProgress &&
-              <div onClick={() => setPromptOpen(true)} className="hover:bg-slate-50 bg-transparent cursor-pointer max-w-sm w-40 h-40 border-2 rounded-lg border-dashed flex flex-col items-center">
-                <PlusIcon className="stroke-1 my-auto" />
-              </div>
-            }
+        <section id="previous-creations" className="border-t mt-4 text-center flex flex-col justify-center">
+          <div className="
+            lg:grid-cols-[repeat(7,1fr)]
+            md:grid-cols-[repeat(5,1fr)]
+            sm:grid-cols-[repeat(3,1fr)]
+            grid-cols-[repeat(2,1fr)]
+            grid justify-center grid-flow-row-dense gap-2 p-4"
+          >
+            {products.slice(4).map((product) => <ProductTile key={product.id} product={product.shopifyProduct!} />)}
           </div>
-        </section >
+        </section>
       </div>
 
       <Dialog open={promptOpen} onOpenChange={setPromptOpen}>

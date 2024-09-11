@@ -10,7 +10,7 @@ import { CartContext } from "./providers/cart-context"
 import { Popover, PopoverContent, PopoverTrigger } from "./popover"
 import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "./command"
 import { getSearchPredictions } from "@/gateway/store"
-import { SearchPredictionsQuery } from "../../../types/storefront.generated"
+import { SearchPredictionsQuery } from "@/lib/types/graphql"
 import Image from "next/image"
 import SearchDialog from "./search-dialog"
 

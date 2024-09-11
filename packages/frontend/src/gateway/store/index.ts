@@ -1,51 +1,12 @@
 "use server"
-import { CartLineInput, CartLineUpdateInput, CountryCode, GetCollectionsQuery, GetProductQuery, PaginatedProductsQuery, ProductSortKeys, SearchSortKeys } from "@/lib/types/graphql"
+import { CartLineUpdateInput, CountryCode, GetProductQuery, PaginatedProductsQuery, ProductSortKeys, SearchSortKeys } from "@/lib/types/graphql"
 import { getPrisma, getStorefrontClient } from '@/config'
 import { parseLocale, shuffle } from "@/lib/utils"
-import { CartLineDto } from "@/lib/types/store.dto"
-import { useParams } from "next/navigation"
-import { RandomProductsQuery, SearchPredictionsQuery } from "../../../types/storefront.generated"
-import { ImagineData } from "@prisma/client"
+import { RandomProductsQuery, SearchPredictionsQuery } from "@/lib/types/graphql"
 
 /*
 *  Store actions here are all related to fetching products for the common storefront functionality
 */
-
-
-export const getExistingCustomMats = async (locale: string) => {
-  const [_, countryCode] = parseLocale(locale)
-  const query = `#graphql
-    query customProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $countryCode: CountryCode) @inContext(country: $countryCode) {
-      products(first: $first, sortKey: $sortKey, query: $query) {
-        edges {
-          node {
-            id
-            title
-            featuredImage {
-              url
-            }
-            priceRange {
-              maxVariantPrice {
-                currencyCode
-                amount
-              }
-            }
-          }
-        }
-      }
-    }
-  `
-  return (await getStorefrontClient().request(query, {
-    variables: {
-      first: 20,
-      sortKey: ProductSortKeys.BestSelling,
-      query: "tag:Custom",
-      countryCode: countryCode as CountryCode
-    }
-  })).data?.products.edges.map((edge: any) =>
-    edge.node
-  )
-}
 
 export const getSearchPredictions = async (query: string, locale: string): Promise<SearchPredictionsQuery["predictiveSearch"]> => {
   const [_, countryCode] = parseLocale(locale)
@@ -177,13 +138,30 @@ export const getPaginatedProducts = async (params: FilterParams, locale: string)
           node {
             id
             title
+            createdAt
+            description
             featuredImage {
               url
+            }
+            images(first: 10) {
+              edges {
+                node {
+                  url
+                  altText
+                }
+              }
             }
             priceRange {
               maxVariantPrice {
                 amount
                 currencyCode
+              }
+            }
+            variants(first: 1) {
+              edges {
+                node {
+                  id
+                }
               }
             }
           }
@@ -235,7 +213,7 @@ export const getProductsById = async (ids: string[], locale: string) => {
             }
           }
           variants(first: 1) {
-            edges{
+            edges {
               node {
                 id
               }
@@ -316,13 +294,30 @@ export const getCollections = async (query: string, locale: string) => {
             nodes {
               id
               title
+              createdAt
+              description
               featuredImage {
                 url
+              }
+              images(first: 10) {
+                edges {
+                  node {
+                    url
+                    altText
+                  }
+                }
               }
               priceRange {
                 maxVariantPrice {
                   amount
                   currencyCode
+                }
+              }
+              variants(first: 1) {
+                edges {
+                  node {
+                    id
+                  }
                 }
               }
             }

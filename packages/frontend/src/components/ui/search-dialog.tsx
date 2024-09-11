@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Dialog } from "./dialog"
 import { Popover, PopoverTrigger, PopoverContent } from "./popover"
-import { SearchPredictionsQuery } from "../../../types/storefront.generated"
+import { SearchPredictionsQuery } from "@/lib/types/graphql"
 import { getSearchPredictions } from "@/gateway/store"
 import { useParams } from "next/navigation"
 import Image from "next/image"
