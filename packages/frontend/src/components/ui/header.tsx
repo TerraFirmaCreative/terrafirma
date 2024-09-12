@@ -31,7 +31,8 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
   const searchTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const updateScrolled = async () => {
-    setOpaque(pathname.split("/").length > 2 || window.scrollY > 50)
+    console.log(pathname.split("/"))
+    setOpaque(!pathname.split("/").at(2)?.includes("designs") && pathname.split("/").length > 2 || window.scrollY > 50)
   }
 
   // const sendQuery = async () => {
@@ -89,7 +90,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
   console.log(searchPredictions)
   return (
     <>
-      <header id="header-bar" className={cn(pathname.split("/").length > 2 && "border-b", opaque && "bg-zinc-50", "transition-colors duration-700 w-full fixed top-0 h-20 flex flex-row items-center bg-opacity-70 backdrop-blur-md px-8 z-50")}>
+      <header id="header-bar" className={cn(!pathname.split("/").at(2)?.includes("designs") && pathname.split("/").length > 2 && "border-b", opaque && "bg-zinc-50", "transition-colors duration-700 w-full fixed top-0 h-20 flex flex-row items-center bg-opacity-70 backdrop-blur-md px-8 z-50")}>
         <Responsive
           desktop={
             <div className="flex flex-row justify-between items-center w-full" >
