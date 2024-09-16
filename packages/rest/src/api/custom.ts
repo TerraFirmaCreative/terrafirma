@@ -1,11 +1,5 @@
 import express from "express"
-import { adminGqlClient, mjClient, storefrontClient } from "../config"
-import { CartLineDto, GeneratedItemDto } from "../types/store.dto"
-import { createVariants, generateCustomText, imagineMats } from "../tasks/midjourney"
-import { ImagineData } from "../types/image.dto"
-import { remoteImage, splitQuadImage, uploadImage } from "../tasks/image"
-import sharp, { Sharp } from "sharp"
-import { sanitisePrompt } from "../utils"
+import { mjClient } from "../config"
 import { slowDown } from "express-slow-down"
 
 export const router = express.Router()

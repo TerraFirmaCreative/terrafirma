@@ -5,15 +5,17 @@ import { CheckCircle } from "lucide-react"
 import { Button } from "../button"
 import { AlertDialogCancel, AlertDialog, AlertDialogFooter, AlertDialogContent, AlertDialogAction, AlertDialogTitle } from "../alert-dialog"
 import { useParams, useRouter } from "next/navigation"
-import { beginTask, getUserProducts, pollTask, updateUserEmail } from "@/gateway/tasks"
+import { beginTask, getUserProducts, pollTask, updateTaskShouldEmailUser, updateUserEmail } from "@/gateway/tasks"
 import { TaskStatus, Product, ImagineData, TaskType } from "@prisma/client"
 import { getProductsById } from "@/gateway/store"
 import { GetProductsByIdQuery } from "@/lib/types/graphql"
-import { Form, FormDescription } from "../form"
+import { Form, FormDescription, FormField, FormLabel } from "../form"
 import { SubmitHandler, useForm } from "react-hook-form"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Progress } from "../progress"
+import { getUser } from "@/gateway/custom"
+import { Checkbox } from "../checkbox"
 
 export const CreationContext = createContext<{
   create: (prompt: string) => Promise<void>,
@@ -37,7 +39,8 @@ export const CreationContext = createContext<{
 export type ProductWithImagineData = ({ imagineData: ImagineData | null, shopifyProduct: GetProductsByIdQuery["nodes"][0] | undefined } & (Product | null))
 
 const emailSchema = yup.object({
-  email: yup.string().email().optional()
+  email: yup.string().email().optional(),
+  shouldEmail: yup.bool().optional().default(false)
 })
 
 function CreationProvider({ children }: { children: React.ReactNode }) {
@@ -48,6 +51,8 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [errorOpen, setErrorOpen] = useState<boolean>(false)
   const [progress, setProgress] = useState<number>(0)
   const [progressUri, setProgressUri] = useState<string | null | undefined>()
+  const [userEmail, setUserEmail] = useState<string | null | undefined>()
+  const [latestTaskId, setLatestTaskId] = useState<string>("")
 
   const { locale }: { locale: string } = useParams()
 
@@ -56,8 +61,13 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   })
 
   const onSubmit: SubmitHandler<yup.InferType<typeof emailSchema>> = (data) => {
-    if (data.email) {
+    console.log("here", latestTaskId, data.shouldEmail)
+    if (data.email && !userEmail) {
       updateUserEmail(data.email)
+      if (latestTaskId.length != 0) updateTaskShouldEmailUser(latestTaskId, true)
+    }
+    if (userEmail && data.shouldEmail && latestTaskId.length != 0) {
+      updateTaskShouldEmailUser(latestTaskId, data.shouldEmail)
     }
   }
 
@@ -82,13 +92,17 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     setProducts(productsWithImagineData)
   }
 
-  const updateProgress = () => {
-    setProgress(Math.max(20, Math.min(progress + (100 / 30) + Math.random() * (100 / 60), 90)))
-  }
+  useEffect(() => {
+    getUser().then((user) => setUserEmail(user?.email))
+  }, [])
 
   useEffect(() => {
     inProgress && setTimeout(updateProgress, 2000)
   }, [progress])
+
+  const updateProgress = () => {
+    setProgress(Math.max(20, Math.min(progress + (100 / 30) + Math.random() * (100 / 60), 90)))
+  }
 
   useEffect(() => {
     if (inProgress) {
@@ -98,6 +112,13 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       setProgress(0)
     }
   }, [inProgress])
+
+  useEffect(() => {
+    if (confirmationOpen && latestTaskId.length > 0) {
+      setInProgress(true)
+      setTimeout(poll, 5000, latestTaskId)
+    }
+  }, [confirmationOpen, latestTaskId])
 
   const poll = async (taskId: string) => {
     const task = await pollTask(taskId)
@@ -129,15 +150,14 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }).then((res) => {
       if (res.status !== TaskStatus.Failed) {
         setConfirmationOpen(true)
-        setInProgress(true)
-        setTimeout(poll, 5000, res.id)
+        setLatestTaskId(res.id ?? "")
       }
       else {
         setInProgress(false)
+        setLatestTaskId("")
         setErrorOpen(true)
       }
     })
-    setInProgress(true)
   }
 
   const vary = async (index: number, imagineData: ImagineData, prompt: string) => {
@@ -149,17 +169,16 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }).then((res) => {
       if (res.status !== TaskStatus.Failed) {
         setConfirmationOpen(true)
-        setInProgress(true)
-        setTimeout(poll, 5000, res.id)
+        setLatestTaskId(res.id ?? "")
       }
       else {
         setInProgress(false)
+        setLatestTaskId("")
         setErrorOpen(true)
       }
     })
     setInProgress(true)
   }
-
 
   return (
     <>
@@ -180,7 +199,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <DialogHeader>
-                <DialogTitle>{""}</DialogTitle>
+                <DialogTitle>{ }</DialogTitle>
               </DialogHeader>
               <div className="flex flex-col items-center py-8 text-center gap-2">
                 <CheckCircle
@@ -191,17 +210,32 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
                 <div className="py-4">
                   <h1 className="text-xl">{"We're working on your design"}</h1>
                   <p className="text-gray-500">
-                    {"Feel free to explore our gallery while you wait"}<br />{"(Usually takes up to a minute)"}
+                    {"Feel free to explore our gallery while you wait"}<br />
                   </p>
                 </div>
-                <h2 className="text-lg pt-2">{"Don't want to wait?"}</h2>
-                <input {...form.register('email')} className="w-full border-gray-400 border rounded-md p-2" placeholder="Email"></input>
-                <FormDescription className="text-left">{"Enter your email and we'll notify you when it's done."}</FormDescription>
+                {!userEmail ?
+                  <>
+                    <h2 className="text-lg pt-2">{"Don't want to wait?"}</h2>
+                    <input {...form.register('email')} className="w-full border-gray-400 border rounded-md p-2" placeholder="Email"></input>
+                    <FormDescription className="text-left">{"Enter your email and we'll notify you when it's done."}</FormDescription>
+                  </>
+                  :
+                  <FormField
+                    control={form.control}
+                    name="shouldEmail"
+                    render={({ field }) =>
+                      <div className="flex flex-row gap-2 text-left">
+                        <Checkbox id={"shouldEmail"} checked={field.value} onCheckedChange={field.onChange} />
+                        <FormLabel htmlFor="shouldEmail">Email me once my design is ready.</FormLabel>
+                      </div>
+                    }
+                  />
+                }
               </div>
               <DialogFooter>
                 <Button type="submit" onClick={() => {
+                  console.log(form.getValues())
                   setConfirmationOpen(false)
-                  document.getElementById("browse-section")?.scrollIntoView()
                 }}>Got it</Button>
               </DialogFooter>
             </form>
@@ -252,12 +286,12 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         <div className="fixed z-10 bottom-5 left-5 right-5">
           <div className="flex flex-col items-center w-fit mx-auto justify-start gap-4 p-4 bg-white border border-gray-300 rounded-md shadow-gray-600 drop-shadow-lg">
             <div className="flex flex-row gap-4">
-              <div>{"We're working on your design..."}</div>
+              <h2>{"We're working on your design..."}</h2>
               <div className="animate-spin border-r-2 border-t-2 h-6 min-w-6 border-black rounded-[50%]" />
             </div>
             <Progress value={progress} />
           </div>
-        </div>
+        </div >
       }
     </>
   )

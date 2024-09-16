@@ -2,12 +2,17 @@ export const revalidate = 60
 
 import { CartControls } from "@/components/ui/providers/cart-context"
 import { getProduct } from "@/gateway/store"
-import { cn, formatPrice, formatTitle, urlIdToShopifyId } from "@/lib/utils"
+import { cn, formatPrice, formatTitle, trimPrompt, urlIdToShopifyId } from "@/lib/utils"
 import { Metadata, ResolvingMetadata } from "next"
 import Preview from "./preview"
-import { robotoSerif } from "@/lib/fonts"
 import { getUserProduct } from "@/gateway/tasks"
-import RedesignButton from "./redesign-button"
+import DesignControls from "./design-controls"
+import ClipboardBadge from "@/components/ui/badge-clipboard"
+import { CopyIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { toast } from "@/hooks/use-toast"
+import { TooltipTrigger, TooltipContent, TooltipProvider, Tooltip } from "@/components/ui/tooltip"
+import PromptDescription from "./prompt-description"
 
 export async function generateMetadata(
   { params }: { params: { productId: string, locale: string } },
@@ -36,11 +41,14 @@ const ProductPage = async ({ params }: { params: { productId: string, locale: st
             <div className="flex flex-col gap-2 py-4">
               <div className="flex flex-row flex-wrap gap-2">
                 <CartControls variantId={product.variants.edges[0].node.id} />
-                <RedesignButton product={userProduct} />
+                <DesignControls product={userProduct} />
               </div>
-              <p className="font-light leading-relaxed py-4">
+              <p className="font-light py-8 leading-relaxed">
                 {product.description}
               </p>
+              {userProduct?.imagineData &&
+                <PromptDescription prompt={userProduct!.imagineData!.imaginePrompt} />
+              }
             </div>
           </div>
         </section>

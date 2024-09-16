@@ -55,7 +55,7 @@ export const imagineTask = async (task: ImagineTask) => {
         }), 10000)
     }
 
-    await prisma.$transaction([
+    const [taskRecord,] = await prisma.$transaction([
       prisma.task.update({
         where: {
           id: task.Body.taskId,
@@ -95,10 +95,10 @@ export const imagineTask = async (task: ImagineTask) => {
       "select": {
         email: true,
         token: true
-      }
+      },
     })
 
-    if (user?.email) {
+    if (taskRecord.updateUser && user?.email) {
       await transporter.sendMail({
         "to": user?.email,
         "subject": "Your designs are ready",
@@ -132,11 +132,6 @@ export const imagineTask = async (task: ImagineTask) => {
 
     return
   }
-
-  //Create projection maps
-
-  // TODO: Isolate into its own service
-  // createdProducts.forEach((product) => createProjectionMaps(product.productId, product.imageUrl))
 }
 
 export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
@@ -193,7 +188,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
 
     logger.info("Created shopify products")
     const { id: _, ...newImagineData } = task.Body.srcImagineData
-    await prisma.$transaction([
+    const [taskRecord,] = await prisma.$transaction([
       prisma.task.update({
         where: {
           id: task.Body.taskId,
@@ -235,7 +230,7 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
       }
     })
 
-    if (user?.email) {
+    if (taskRecord.updateUser && user?.email) {
       await transporter.sendMail({
         "to": user?.email,
         "subject": "Your designs are ready",
@@ -245,7 +240,6 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
     }
   }
   catch (e) {
-    // axios frontend something went wrong & update task in db
     logger.error(`${task.Body.userId} Error: ${e}`)
     await prisma.task.update({
       where: {
@@ -263,5 +257,5 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
   await sqsClient.send(new DeleteMessageCommand({
     "QueueUrl": config.SQS_URL,
     "ReceiptHandle": task.ReceiptHandle
-  })) // TODO: We should only do this in the event of success. if fail, notify frontend ws
+  }))
 }

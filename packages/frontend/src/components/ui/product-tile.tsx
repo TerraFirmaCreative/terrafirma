@@ -22,7 +22,7 @@ const ProductTile = ({ product }: { product: NonNullable<GetProductsByIdQuery["n
   }, [product])
 
   return (
-    <div key={product.id} className="overflow-clip relative border">
+    <div key={product.id} className="rounded-md overflow-clip relative border">
       <AspectRatio ratio={1 / 3}>
         <Image
           src={product.featuredImage?.url}
@@ -42,7 +42,7 @@ const ProductTile = ({ product }: { product: NonNullable<GetProductsByIdQuery["n
               <TooltipProvider>
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger>
-                    <CopyIcon className="stroke-1 h-full w-full stroke-slate-400 hover:stroke-slate-50 p-2" />
+                    <CopyIcon className="stroke-[1.5] h-full w-full stroke-slate-400 hover:stroke-slate-50 p-2" />
                   </TooltipTrigger>
                   <TooltipContent>
                     Copy prompt

@@ -24,7 +24,7 @@ type TaskInput = { type: TaskType } & (ImagineTaskInput | ImagineVariantsTaskInp
 export const beginTask = async (task: TaskInput): Promise<BeginTaskResult> => {
   let result: BeginTaskResult = {
     id: null,
-    status: TaskStatus.Failed
+    status: TaskStatus.Failed,
   }
 
   if (!shouldAllowRequestRate(headers())) return result
@@ -154,4 +154,19 @@ export const updateUserEmail = async (email: string) => {
   })
 
   getSessions().set(token.value, user)
+}
+
+export const updateTaskShouldEmailUser = async (taskId: string, shouldEmail: boolean) => {
+  const token = cookies().get('token')
+
+  if (!token) return
+  console.log("updating task", taskId, shouldEmail)
+  const task = await getPrisma().task.update({
+    "where": {
+      "id": taskId
+    },
+    data: {
+      "updateUser": shouldEmail
+    }
+  })
 }

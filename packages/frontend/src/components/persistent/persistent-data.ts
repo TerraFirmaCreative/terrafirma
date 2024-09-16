@@ -20,7 +20,7 @@ export const getSessions = () => {
 * In-memory store for rate limiting. Does not persist between server restarts, and we should purge records older than
 */
 const rateLimitRecord: Map<string, number> = new Map()
-const RATE_LIMIT_WINDOW: number = 30000
+const RATE_LIMIT_WINDOW: number = 5000
 
 export const shouldAllowRequestRate = (headers: ReadonlyHeaders): boolean => {
   console.log(Array.from(rateLimitRecord.keys()))

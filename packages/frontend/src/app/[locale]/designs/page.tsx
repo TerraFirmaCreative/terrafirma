@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useContext, useEffect, useState } from "react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
-import { WandSparkles } from "lucide-react"
+import { CopyIcon, WandSparkles } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { SubmitHandler, useForm } from "react-hook-form"
 import * as yup from "yup"
@@ -14,6 +14,8 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { GenerateImageParams } from "@/lib/types/image.dto"
 import ProductTile from "@/components/ui/product-tile"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { Button } from "@/components/ui/button"
+import { toast } from "@/hooks/use-toast"
 
 const Page = () => {
   const { products, create, inProgress, refreshProducts, } = useContext(CreationContext)
@@ -46,12 +48,21 @@ const Page = () => {
   // useEffect(() => {
   //   const color = calcMajorColor(products)
   // }, [products])
+  if (products.length < 1) return (
+    <div className="bg-gradient-to-b from-[#eda96d] to-orange-50 to-[50vh] flex flex-col text-center gap-4 items-center justify-center h-screen w-full">
+      <h1 className="text-6xl">🧐</h1>
+      <h2 className="text-3xl font-light">{"Looks pretty empty"}</h2>
+      <p className="text-gray-700">Your custom yoga mat designs will appear here.</p>
+      <Link href="/">
+        <Button>Let Your Imagination Flow</Button>
+      </Link>
+    </div>
+  )
 
   return (
     <>
       <div className="bg-gradient-to-b from-[#eda96d] to-orange-50 to-[50vh] pt-20 flex flex-col justify-center w-full">
         <section id="recent-creations" className="flex flex-col gap-4 items-center">
-          <h1 className="font-serif text-5xl text-center text-gray-900 py-8">Your recent creations</h1>
           <Carousel
             className="w-[calc(100%-120px)] max-w-4xl"
             opts={{
@@ -59,7 +70,16 @@ const Page = () => {
               align: "start"
             }}
           >
-            <Badge className="self-start my-2">{trimPrompt(products.at(0)?.imagineData?.imaginePrompt ?? "")}</Badge>
+            <h1 className="font-serif text-5xl text-center text-gray-900 py-8">Your recent creations</h1>
+            <Badge
+              className="self-start my-2 cursor-pointer"
+              onClick={() => {
+                navigator.clipboard.writeText(trimPrompt(trimPrompt(products.at(0)!.imagineData!.imaginePrompt)))
+                toast({ title: "Copied prompt!", description: trimPrompt(products.at(0)!.imagineData!.imaginePrompt) })
+              }}
+            >
+              {trimPrompt(products.at(0)!.imagineData!.imaginePrompt)} <CopyIcon className="stroke-2 p-1 ml-2 h-6" />
+            </Badge>
             <CarouselContent>
               {products.slice(0, 4).map((product) =>
                 <CarouselItem key={product.id} className="basis-1/2 md:basis-1/4">
@@ -91,52 +111,15 @@ const Page = () => {
             <CarouselNext />
             <CarouselPrevious />
           </Carousel>
-          <div className={`
-            lg:grid-cols-[repeat(4,1fr)]
-            sm:grid-cols-[repeat(2,1fr)]
-            grid-cols-[repeat(2,1fr)]
-            grid justify-center grid-flow-row-dense gap-2 pt-4
-          `}>
-            {products.slice(0, 4).map((product) =>
-              <Link key={product!.id} href={`/browse/${shopifyIdToUrlId(product!.shopifyProduct!.id)}`}>
-                <div key={product!.id} className="overflow-clip relative border rounded-lg shadow">
-                  <AspectRatio ratio={1 / 3}>
-                    <Image
-                      src={product!.shopifyProduct!.featuredImage?.url}
-                      alt={product!.shopifyProduct!.title}
-                      fill
-                      sizes="20vw"
-                    />
-                    <div className="relative text-center w-full h-full bottom-0 opacity-0 hover:opacity-100 cursor-pointer transition-all">
-                      <div className="flex flex-col h-full justify-end my-auto text-white transition-all">
-                        <div className="bg-slate-900 py-6 flex flex-col justify-center">
-                          <div className="flex font-serif flex-col justify-center text-wrap text-2xl font-bold">
-                            {product!.shopifyProduct!.title.toUpperCase().split("[")[0].split("").filter((char: string) => char != '"').join("")}
-                          </div>
-                          <div className="text-xl h-1/5">{formatPrice(product!.shopifyProduct!.priceRange.maxVariantPrice)}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </AspectRatio>
-                </div>
-              </Link>
-            )}
-          </div>
         </section>
-        <section id="previous-creations" className=" border-t pt-8 text-center flex flex-col justify-center">
-          {/* <div className={`
-            lg:grid-cols-[repeat(${Math.min(7, products.slice(4).length)},1fr)]
-            md:grid-cols-[repeat(${Math.min(5, products.slice(4).length)},1fr)]
-            sm:grid-cols-[repeat(${Math.min(3, products.slice(4).length)},1fr)]
-            grid-cols-[repeat(${Math.min(2, products.slice(4).length)},1fr)]
-            grid justify-center grid-flow-row-dense gap-2 p-4`}
-          >
-            {products.slice(4).map((product) => <ProductTile key={product.id} product={product.shopifyProduct!} />)}
-          </div> */}
-          <div className="flex flex-row flex-wrap justify-center pt-2 pl-2">
-            {products.slice(4).map((product) => <div className="lg:basis-[14%] md:basis-1/5 sm:basis-1/3 basis-1/2 pr-2 pb-2">
-              <ProductTile key={product.id} product={product.shopifyProduct!} />
-            </div>)}
+        <section id="previous-creations" className="flex flex-col py-4 justify-center items-center">
+          <div className="flex flex-row flex-wrap justify-center gap-4 text-center w-[calc(100%-120px)] max-w-4xl">
+            <h2 className="font-serif text-3xl basis-full pt-4 ">Past creations</h2>
+            {products.slice(4).map((product) =>
+              <div key={product.id} className="md:basis-[calc(25%-12px)] basis-[calc(50%-8px)]">
+                <ProductTile key={product.id} product={product.shopifyProduct!} />
+              </div>
+            )}
           </div>
         </section>
       </div>

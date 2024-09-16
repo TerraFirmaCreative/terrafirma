@@ -21,6 +21,7 @@ router.route("").post(async (req, res) => {
       data: {
         status: TaskStatus.Queued,
         type: TaskType.Imagine,
+        updateUser: false,
         user: {
           "connect": {
             "token": token
@@ -75,6 +76,7 @@ router.route("/variants").post(async (req, res) => {
       data: {
         status: TaskStatus.Queued,
         type: TaskType.ImagineVariants,
+        updateUser: false,
         user: {
           connect: {
             token: token
@@ -85,6 +87,7 @@ router.route("/variants").post(async (req, res) => {
         user: true
       }
     })
+
     await sqsClient.send(new SendMessageCommand(
       {
         QueueUrl: process.env.SQS_URL ?? "",
