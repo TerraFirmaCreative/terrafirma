@@ -35,33 +35,6 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
     setOpaque(!pathname.split("/").at(2)?.includes("designs") && pathname.split("/").length > 2 || window.scrollY > 50)
   }
 
-  // const sendQuery = async () => {
-  //   console.log("  setSearchPredictions(await getSearchPredictions(searchQuery))")
-  //   setSearchPredictions(await getSearchPredictions(searchQuery, params?.locale ?? "AU"))
-  // }
-
-  // useEffect(() => {
-  //   clearTimeout(searchTimeout.current)
-  //   searchTimeout.current = setTimeout(sendQuery, 500)
-  // }, [searchQuery])
-
-  // useEffect(() => {
-  //   console.log("setCommandQuery(searchQuery)")
-  //   setCommandQuery(searchQuery)
-  // }, [searchPredictions])
-
-  // useEffect(() => {
-  //   const down = (e: KeyboardEvent) => {
-  //     if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
-  //       e.preventDefault()
-  //       setSearchOpen((open) => !open)
-  //     }
-  //   }
-
-  //   document.addEventListener("keydown", down)
-  //   return () => document.removeEventListener("keydown", down)
-  // }, [])
-
   useEffect(() => {
     updateScrolled()
     window.addEventListener('scroll', updateScrolled)
@@ -90,7 +63,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
   console.log(searchPredictions)
   return (
     <>
-      <header id="header-bar" className={cn(!pathname.split("/").at(2)?.includes("designs") && pathname.split("/").length > 2 && "border-b", opaque && "bg-zinc-50", "transition-colors duration-700 w-full fixed top-0 h-20 flex flex-row items-center bg-opacity-70 backdrop-blur-md px-8 z-50")}>
+      <nav id="header-bar" className={cn(!pathname.split("/").at(2)?.includes("designs") && pathname.split("/").length > 2 && "border-b", opaque && "bg-zinc-50", "transition-colors duration-700 w-full sticky top-0 h-20 flex flex-row items-center bg-opacity-70 backdrop-blur-md px-8 z-50")}>
         <Responsive
           desktop={
             <div className="flex flex-row justify-between items-center w-full" >
@@ -114,7 +87,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
             </div >
           }
           mobile={
-            < Sheet >
+            <Sheet>
               <div className="flex flex-row w-full justify-between">
                 <div className="flex flex-row gap-4">
                   <SheetTrigger asChild>
@@ -154,7 +127,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
             </Sheet >
           }
         />
-      </header >
+      </nav >
 
       {/* <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
         <CommandInput placeholder="Search anything..." value={commandQuery} visibleValue={searchQuery} onVisibleValueChange={(e) => { setSearchQuery(e.target.value) }} />

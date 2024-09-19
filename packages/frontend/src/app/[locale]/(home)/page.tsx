@@ -18,7 +18,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
   ])
 
   return (
-    <div className="bg-gradient-to-b from-[#eda96d] to-orange-50 to-[50vh] flex w-full min-h-screen flex-col items-center justify-start border-b pt-20">
+    <div className="bg-gradient-to-b from-[#eda96d] to-orange-50 to-[50vh] flex w-full min-h-screen flex-col items-center justify-start border-b -mt-20 pt-20">
       <PromptForm prompts={prompts} />
       <div className="flex flex-col justify-between w-full">
         <FeaturedCollections collections={featuredCollections} />

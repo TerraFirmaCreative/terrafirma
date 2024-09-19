@@ -121,7 +121,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
   }, [filterParams])
 
   return (
-    <div className="pt-20 w-full bg-zinc-50">
+    <div className="-mt-20 pt-20 w-full bg-zinc-50">
       <Responsive
         desktop={
           <section className="sticky float-left pt-20 px-8 top-0 w-60 min-h-screen">

@@ -81,3 +81,44 @@ export const getPage = async (handle: string): Promise<CMSPageData | null> => {
 
   return null
 }
+
+export const getBannerMessage = async () => {
+  let banner = (await getStorefrontClient().request(`#graphql
+    query getLocalizadBanner{
+      localization {
+        market {
+          id
+          handle
+          banner: metafield(namespace:"custom", key: "banner") {
+            value
+            type
+          }
+        }
+      }
+    }
+  `)).data?.localization.market.banner?.value
+
+  if (!banner) {
+    banner = (await getStorefrontClient().request(`#graphql
+      query getBanner($handle: MetaobjectHandleInput!){
+        metaobject(handle: $handle) {
+          id
+          fields {
+            key
+            value
+          }
+        }
+      }
+    `, {
+      "variables": {
+        "handle": {
+          "handle": "banner",
+          "type": "banner"
+        }
+      }
+    })).data?.metaobject?.fields.at(0)?.value ?? undefined
+  }
+
+  if (banner?.length != 0) return banner
+  return undefined
+}

@@ -158,6 +158,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         setErrorOpen(true)
       }
     })
+    setInProgress(true)
   }
 
   const vary = async (index: number, imagineData: ImagineData, prompt: string) => {

@@ -32,7 +32,7 @@ const ProductPage = async ({ params }: { params: { productId: string, locale: st
 
   if (product) {
     return (
-      <div className="mt-20">
+      <div>
         <section className={"flex lg:flex-row flex-col"}>
           <Preview product={product} />
           <div className="p-16 lg:w-1/2 border-l bg-white min-h-[calc(100vh-5rem)]">

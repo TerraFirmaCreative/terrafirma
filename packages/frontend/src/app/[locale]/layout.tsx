@@ -11,6 +11,7 @@ import SessionProvider from "@/components/persistent/session-provider"
 import { geistSans, lato, playfairDisplay } from "@/lib/fonts"
 import { getAvailableLocalization } from "@/gateway/store"
 import { Toaster } from "@/components/ui/toaster"
+import Banner from "@/components/ui/banner"
 
 export const metadata: Metadata = {
   title: "Terra Firma Creative",
@@ -75,11 +76,15 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={cn(geistSans.variable, playfairDisplay.variable, lato.variable, "bg-zinc-50 font-sans")}>
-        <main className="w-full h-min-screen">
+      <body className={cn(geistSans.variable, playfairDisplay.variable, lato.variable, "bg-zinc-50 font-sans h-min-screen")}>
+        <header className="relative w-full">
+          <Banner />
+        </header>
+        <main className="relative w-full h-full">
           <SessionProvider>
             <CartProvider locale={params.locale}>
               <CreationProvider>
+
                 <MainMenu menuItems={menuItems} moreMenuItems={moreMenuItems} />
                 {children}
               </CreationProvider>
