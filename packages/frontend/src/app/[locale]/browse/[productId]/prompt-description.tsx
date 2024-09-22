@@ -32,7 +32,7 @@ const PromptDescription = ({ prompt }: { prompt: string }) => {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <ScrollArea className="overflow-x-scroll pb-5">
+      <ScrollArea className="pb-5">
         {trimPrompt(prompt)}
         <ScrollBar orientation="horizontal" />
       </ScrollArea>

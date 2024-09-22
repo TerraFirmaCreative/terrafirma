@@ -29,8 +29,7 @@ const ProductPage = async ({ params }: { params: { productId: string, locale: st
     return (
       <section className={"flex lg:flex-row flex-col lg:max-h-full min-h-[calc(100vh-5rem)]"}>
         <Preview product={product} />
-        <div className="lg:w-1/2 min-h-full">
-          {/* <ScrollArea> */}
+        <div className="lg:w-3/5 min-h-full lg:max-h-full">
           <div className="p-16 h-full border-l bg-white">
             <h1 className={cn("text-slate-800 font-medium text-4xl")}>{formatTitle(product.title)}</h1>
             <div className="pt-4 text-lg"><i>{formatPrice(product.priceRange.maxVariantPrice)}</i></div>
@@ -47,7 +46,6 @@ const ProductPage = async ({ params }: { params: { productId: string, locale: st
               }
             </div>
           </div>
-          {/* </ScrollArea> */}
         </div>
       </section>
     )

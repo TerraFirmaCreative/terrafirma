@@ -12,7 +12,7 @@ const Preview = ({ product }: { product: GetProductQuery['product'] }) => {
   const [selected, setSelected] = useState<number>(0)
 
   return (
-    <div className="relative w-full lg:w-1/2">
+    <div className="relative w-full lg:w-2/5">
       <div className="z-10 absolute float-left left-0 top-1/2 -translate-y-1/2 top-20justify-center gap-4 py-4 px-2 flex flex-col">
         {product?.images.edges.map((edge, i) =>
           <Image
