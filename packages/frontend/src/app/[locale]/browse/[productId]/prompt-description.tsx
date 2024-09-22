@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { trimPrompt } from "@/lib/utils"
-import { CopyIcon } from "lucide-react"
+import { CopyIcon, Scroll } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 const PromptDescription = ({ prompt }: { prompt: string }) => {
   return (
@@ -31,8 +32,11 @@ const PromptDescription = ({ prompt }: { prompt: string }) => {
           </Tooltip>
         </TooltipProvider>
       </div>
-      {trimPrompt(prompt)}
-    </div>
+      <ScrollArea className="overflow-x-scroll pb-5">
+        {trimPrompt(prompt)}
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </div >
   )
 }
 

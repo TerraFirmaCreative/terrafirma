@@ -2,16 +2,11 @@ export const revalidate = 60
 
 import { CartControls } from "@/components/ui/providers/cart-context"
 import { getProduct } from "@/gateway/store"
-import { cn, formatPrice, formatTitle, trimPrompt, urlIdToShopifyId } from "@/lib/utils"
+import { cn, formatPrice, formatTitle, urlIdToShopifyId } from "@/lib/utils"
 import { Metadata, ResolvingMetadata } from "next"
 import Preview from "./preview"
 import { getUserProduct } from "@/gateway/tasks"
 import DesignControls from "./design-controls"
-import ClipboardBadge from "@/components/ui/badge-clipboard"
-import { CopyIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { toast } from "@/hooks/use-toast"
-import { TooltipTrigger, TooltipContent, TooltipProvider, Tooltip } from "@/components/ui/tooltip"
 import PromptDescription from "./prompt-description"
 
 export async function generateMetadata(
@@ -32,13 +27,14 @@ const ProductPage = async ({ params }: { params: { productId: string, locale: st
 
   if (product) {
     return (
-      <div>
-        <section className={"flex lg:flex-row flex-col"}>
-          <Preview product={product} />
-          <div className="p-16 lg:w-1/2 border-l bg-white min-h-[calc(100vh-5rem)]">
+      <section className={"flex lg:flex-row flex-col lg:max-h-full min-h-[calc(100vh-5rem)]"}>
+        <Preview product={product} />
+        <div className="lg:w-1/2 min-h-full">
+          {/* <ScrollArea> */}
+          <div className="p-16 h-full border-l bg-white">
             <h1 className={cn("text-slate-800 font-medium text-4xl")}>{formatTitle(product.title)}</h1>
             <div className="pt-4 text-lg"><i>{formatPrice(product.priceRange.maxVariantPrice)}</i></div>
-            <div className="flex flex-col gap-2 py-4">
+            <div className="flex flex-col gap-2 py-4 w-full">
               <div className="flex flex-row flex-wrap gap-2">
                 <CartControls variantId={product.variants.edges[0].node.id} />
                 <DesignControls product={userProduct} />
@@ -51,8 +47,9 @@ const ProductPage = async ({ params }: { params: { productId: string, locale: st
               }
             </div>
           </div>
-        </section>
-      </div>
+          {/* </ScrollArea> */}
+        </div>
+      </section>
     )
   }
 

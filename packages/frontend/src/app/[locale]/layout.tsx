@@ -74,24 +74,25 @@ export default async function RootLayout({
     }
   })
 
+  const [language, region] = parseLocale(params.locale)
+
   return (
-    <html lang="en">
-      <body className={cn(geistSans.variable, playfairDisplay.variable, lato.variable, "bg-zinc-50 font-sans h-min-screen")}>
+    <html lang={language} className="h-full">
+      <body className={cn(geistSans.variable, playfairDisplay.variable, lato.variable, "bg-zinc-50 font-sans min-h-full relative h-fit")}>
         <header className="relative w-full">
           <Banner />
         </header>
-        <main className="relative w-full h-full">
+        <main className="w-full h-full">
           <SessionProvider>
             <CartProvider locale={params.locale}>
               <CreationProvider>
-
                 <MainMenu menuItems={menuItems} moreMenuItems={moreMenuItems} />
                 {children}
               </CreationProvider>
             </CartProvider>
           </SessionProvider>
         </main>
-        <Toaster />
+        {/* <Toaster /> */}
       </body>
     </html>
   )

@@ -29,7 +29,6 @@ const Preview = ({ product }: { product: GetProductQuery['product'] }) => {
       </div>
       <div className="flex flex-col p-8 justify-top  items-center">
         {selected == 0 ?
-          // <div className="w-[250px] h-[750px] drop-shadow-md">
           <div className="h-3/4 w-[calc(75vh/3)] drop-shadow-md">
             <Link href={product?.featuredImage?.url} target="_blank">
               <ImageMagnifier
