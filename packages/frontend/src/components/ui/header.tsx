@@ -75,7 +75,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
                 )}
                 {moreMenuItems && <DropDownMenu text="More">
                   {moreMenuItems.map((item, i) =>
-                    <Link key={i} href={item.href} className={cn("p-4 hover:bg-slate-100 rounded-md text-gray-700 hover:text-black transition-colors", (pathname.split("/").at(2) ?? "") == item.href.split("/").at(1) && "text-black font-semibold")}>
+                    <Link key={i} href={item.href} className={cn("p-4 hover:bg-slate-100 rounded-md text-gray-700 hover:text-black transition-colors", (pathname.split("/").at(3) ?? "") == item.href.split("/").at(2) && "text-black font-semibold")}>
                       {item.text}
                     </Link>)}
                 </DropDownMenu>}
