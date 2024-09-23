@@ -92,7 +92,7 @@ export default async function RootLayout({
             </CartProvider>
           </SessionProvider>
         </main>
-        {/* <Toaster /> */}
+        <Toaster />
       </body>
     </html>
   )
