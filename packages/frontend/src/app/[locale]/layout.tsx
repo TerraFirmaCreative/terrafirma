@@ -14,8 +14,8 @@ import { Toaster } from "@/components/ui/toaster"
 import Banner from "@/components/ui/banner"
 
 export const metadata: Metadata = {
-  title: "Terra Firma Creative",
-  description: "Custom made yoga mat designs",
+  title: "Custom AI-Generated Yoga Mats | Unique, Eco-Friendly & Premium Quality",
+  description: "Discover our premium custom AI-generated yoga mats, featuring unique designs created from your prompts. Made with eco-friendly microfiber suede and natural rubber, our lightweight, 3mm thick mats offer comfort and style. Shop now for a one-of-a-kind yoga experience with personalized, high-quality mats.",
   alternates: {
     "canonical": "terrafirmacreative.com/en-AU",
     "languages": {

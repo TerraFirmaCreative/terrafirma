@@ -61,8 +61,8 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   })
 
   const onSubmit: SubmitHandler<yup.InferType<typeof emailSchema>> = (data) => {
-    console.log("here", latestTaskId, data.shouldEmail)
     if (data.email && !userEmail) {
+      setUserEmail(data.email)
       updateUserEmail(data.email)
       if (latestTaskId.length != 0) updateTaskShouldEmailUser(latestTaskId, true)
     }
