@@ -5,7 +5,7 @@ import { GetCollectionsQuery } from "@/lib/types/graphql"
 import { cn } from "@/lib/utils"
 import { ArrowRightIcon } from "lucide-react"
 import Image from 'next/image'
-import Link from "next/link"
+import Link from "@/components/ui/util/link-locale"
 
 const FeaturedCollections = ({ collections }: { collections: GetCollectionsQuery["collections"]["nodes"] }) => {
   return (

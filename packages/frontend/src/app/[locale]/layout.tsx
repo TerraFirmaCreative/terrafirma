@@ -12,6 +12,7 @@ import { geistSans, lato, playfairDisplay } from "@/lib/fonts"
 import { getAvailableLocalization } from "@/gateway/store"
 import { Toaster } from "@/components/ui/toaster"
 import Banner from "@/components/ui/banner"
+import { GoogleAnalytics } from "@next/third-parties/google"
 
 export const metadata: Metadata = {
   title: "Custom AI-Generated Yoga Mats | Unique, Eco-Friendly & Premium Quality",
@@ -94,6 +95,7 @@ export default async function RootLayout({
         </main>
         <Toaster />
       </body>
+      <GoogleAnalytics gaId="G-QNLBHNGSJ6" />
     </html>
   )
 }

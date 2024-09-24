@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, createContext, useContext, useEffect, useStat
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "../sheet"
 import { MinusIcon, PlusIcon } from "lucide-react"
 import { Button } from "../button"
-import Link from "next/link"
+import Link from "@/components/ui/util/link-locale"
 import { CartLineInput, CartLineUpdateInput } from "@/lib/types/graphql"
 
 export const CartContext = createContext<{

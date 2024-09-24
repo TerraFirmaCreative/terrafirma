@@ -9,6 +9,7 @@ import { getUserProduct } from "@/gateway/tasks"
 import DesignControls from "./design-controls"
 import PromptDescription from "./prompt-description"
 import { FeatherIcon, Layers3Icon, MoveVerticalIcon, PaintRollerIcon, RulerIcon, ShellIcon } from "lucide-react"
+import Link from "@/components/ui/util/link-locale"
 
 export async function generateMetadata(
   { params }: { params: { productId: string, locale: string } },
@@ -55,7 +56,7 @@ const ProductPage = async ({ params }: { params: { productId: string, locale: st
                   <div className="flex md:flex-row md:basis-1/2 gap-2"><RulerIcon className="stroke-1" />{"Dimensions 70\"x26\""}</div>
                   <div className="flex md:flex-row md:basis-1/2 gap-2"><MoveVerticalIcon className="stroke-1" />3mm thick</div>
                 </div>
-                <a href="/pages/about" className="py-2 font-semibold text-sm hover:underline">Learn more about our mats...</a>
+                <Link href="/pages/about" className="py-2 font-semibold text-sm hover:underline">Learn more about our mats...</Link>
               </div>
             </div>
           </div>

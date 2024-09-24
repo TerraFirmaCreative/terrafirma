@@ -6,7 +6,8 @@ import PromptForm from "./prompt-form"
 import { getCollections, getPaginatedProducts } from "@/gateway/store"
 import { cookies } from "next/headers"
 import FeaturedCollections from "./featured-collections"
-import Link from 'next/link'
+import Link from "@/components/ui/util/link-locale"
+
 
 export default async function HomePage({ params }: { params: { locale: string } }) {
   const _cookies = cookies() // Disable SSG
@@ -23,7 +24,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
       <div className="flex flex-col justify-between w-full">
         <FeaturedCollections collections={featuredCollections} />
         <div className="text-gray-600 p-8">
-          <Link href="/browse"><span className="underline">{"Created by others >"}</span></Link>
+          <Link href="/browse"><span className="underline">{`Created by others >`}</span></Link>
         </div>
         <BrowseProducts initialProducts={initialProducts} collections={browseCollections} />
       </div>

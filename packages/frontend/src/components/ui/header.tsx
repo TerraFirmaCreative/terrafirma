@@ -1,6 +1,6 @@
 "use client"
 import { useParams, usePathname, useRouter } from "next/navigation"
-import Link from "next/link"
+import Link from "@/components/ui/util/link-locale"
 import { cn, parseLocale } from "@/lib/utils"
 import Responsive from "./util/responsive"
 import { AlignLeftIcon, ChevronDown, GlobeIcon, ShoppingCartIcon } from "lucide-react"
@@ -89,7 +89,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel className="-ml-4">Store Region</SelectLabel>
-                      {locales.map((locale) => <SelectItem value={locale} >{parseLocale(locale).at(1)}</SelectItem>)}
+                      {locales.map((locale) => <SelectItem key={locale} value={locale} >{parseLocale(locale).at(1)}</SelectItem>)}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -114,7 +114,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel className="-ml-4">Store Region</SelectLabel>
-                        {locales.map((locale) => <SelectItem value={locale} >{parseLocale(locale).at(1)}</SelectItem>)}
+                        {locales.map((locale) => <SelectItem key={locale} value={locale} >{parseLocale(locale).at(1)}</SelectItem>)}
                       </SelectGroup>
                     </SelectContent>
                   </Select>

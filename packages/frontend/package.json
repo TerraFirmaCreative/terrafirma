@@ -11,6 +11,7 @@
     "@auth/prisma-adapter": "^2.1.0",
     "@formatjs/intl-localematcher": "^0.5.4",
     "@hookform/resolvers": "^3.3.4",
+    "@next/third-parties": "^14.2.13",
     "@prisma/client": "^5.14.0",
     "@prisma/nextjs-monorepo-workaround-plugin": "^5.14.0",
     "@radix-ui/colors": "^3.0.0",

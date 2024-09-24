@@ -2,7 +2,7 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { CreationContext } from "@/components/ui/providers/creation-context"
 import { formatPrice, shopifyIdToUrlId, trimPrompt } from "@/lib/utils"
-import Link from "next/link"
+import Link from "@/components/ui/util/link-locale"
 import { useContext, useEffect, useState } from "react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"

@@ -9,7 +9,6 @@ const internalRoutes: string[] = [""]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-
   // Server action (use for rate-limiting)
   // if (request.method == "POST") {
   // }
@@ -20,9 +19,8 @@ export async function middleware(request: NextRequest) {
     const locale = match(new Negotiator({ headers: acceptLanguage }).languages(), locales, defaultLocale)
 
     const hasLocale = locales.some((l) => pathname.startsWith(`/${l}`) || pathname == `/${l}`)
-
     if (!hasLocale) {
-      request.nextUrl.pathname = `/${locale}/${pathname}`
+      request.nextUrl.pathname = `/${locale}${pathname}`
       return NextResponse.redirect(request.nextUrl)
     }
   }

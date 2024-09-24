@@ -5,7 +5,7 @@ import ImageMagnifier from "@/components/ui/image-magnifier"
 import { GetProductQuery } from "@/lib/types/graphql"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
-import Link from "next/link"
+import Link from "@/components/ui/util/link-locale"
 import { useState } from "react"
 
 const Preview = ({ product }: { product: GetProductQuery['product'] }) => {
