@@ -1,17 +1,16 @@
 "use server"
 import { NextRequest, NextResponse } from "next/server"
-import { cookies, headers } from "next/headers"
+import { headers } from "next/headers"
 import { match } from "@formatjs/intl-localematcher"
 import Negotiator from "negotiator"
 import { defaultLocale, locales } from "./config"
-import rateLimit from 'express-rate-limit'
 
 const internalRoutes: string[] = [""]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Server action (use fir rate-limiting)
+  // Server action (use for rate-limiting)
   // if (request.method == "POST") {
   // }
 

@@ -1,18 +1,16 @@
 "use client"
-import { useParams, usePathname } from "next/navigation"
+import { useParams, usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
-import { cn, formatTitle } from "@/lib/utils"
+import { cn, parseLocale } from "@/lib/utils"
 import Responsive from "./util/responsive"
-import { AlignLeftIcon, ChevronDown, ShoppingCartIcon } from "lucide-react"
+import { AlignLeftIcon, ChevronDown, GlobeIcon, ShoppingCartIcon } from "lucide-react"
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./sheet"
 import { ReactNode, useContext, useEffect, useRef, useState } from "react"
 import { CartContext } from "./providers/cart-context"
 import { Popover, PopoverContent, PopoverTrigger } from "./popover"
-import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "./command"
-import { getSearchPredictions } from "@/gateway/store"
 import { SearchPredictionsQuery } from "@/lib/types/graphql"
-import Image from "next/image"
-import SearchDialog from "./search-dialog"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger } from "./select"
+import { locales } from "@/config"
 
 type MenuItem = {
   href: string,
@@ -25,13 +23,15 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
   const { setCartOpen } = useContext(CartContext)
   const [opaque, setOpaque] = useState<boolean>(false)
   const params: { locale: string } = useParams()
+  const [language, country] = parseLocale(params.locale)
+
+  const router = useRouter()
 
 
   const [searchPredictions, setSearchPredictions] = useState<SearchPredictionsQuery["predictiveSearch"] | null>(null)
   const searchTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const updateScrolled = async () => {
-    console.log(pathname.split("/"))
     setOpaque(!pathname.split("/").at(2)?.includes("designs") && pathname.split("/").length > 2 || window.scrollY > 50)
   }
 
@@ -80,11 +80,22 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
                     </Link>)}
                 </DropDownMenu>}
               </div>
-              <div className="flex flex-row gap-2 items-center">
+              <div className={cn("flex flex-row items-center gap-4")}>
                 {/* <SearchDialog /> */}
-                <ShoppingCartIcon className="cursor-pointer" strokeWidth={1} onClick={() => setCartOpen(true)} />
+                <Select value={params.locale} onValueChange={(value) => { router.push(`/${value}/${pathname.split('/').slice(2).join("/")}`) }}>
+                  <SelectTrigger className={cn(opaque ? "stroke-gray-700 text-gray-700 hover:underline" : " stroke-slate-100 text-slate-100 hover:stroke-gray-900 hover:text-gray-900", "bg-transparent transition-colors border-0")}>
+                    <GlobeIcon className={cn("mr-2 cursor-pointer stroke-1")} /> {country}
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel className="-ml-4">Store Region</SelectLabel>
+                      {locales.map((locale) => <SelectItem value={locale} >{parseLocale(locale).at(1)}</SelectItem>)}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <ShoppingCartIcon className={cn(opaque ? "stroke-gray-900" : "stroke-slate-100 hover:stroke-gray-900", "w-8 stroke-1 cursor-pointer")} onClick={() => setCartOpen(true)} />
               </div>
-            </div >
+            </div>
           }
           mobile={
             <Sheet>
@@ -93,10 +104,21 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
                   <SheetTrigger asChild>
                     <AlignLeftIcon strokeWidth="1" className="my-auto" />
                   </SheetTrigger>
-                  <span className="text-lg font-light">Terra Firma Creative</span>
+                  <span className="text-lg font-light leading-loose">Terra Firma Creative</span>
                 </div>
-                <div>
-                  <ShoppingCartIcon className="cursor-pointer" strokeWidth={1} onClick={() => setCartOpen(true)} />
+                <div className={cn("flex flex-row items-center gap-4")}>
+                  <Select value={params.locale} onValueChange={(value) => { router.push(`/${value}/${pathname.split('/').slice(2).join("/")}`) }}>
+                    <SelectTrigger className="bg-transparent transition-colors border-0">
+                      < GlobeIcon className="stroke-1" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel className="-ml-4">Store Region</SelectLabel>
+                        {locales.map((locale) => <SelectItem value={locale} >{parseLocale(locale).at(1)}</SelectItem>)}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <ShoppingCartIcon strokeWidth={1} onClick={() => setCartOpen(true)} />
                 </div>
               </div>
               <SheetContent side="left">
