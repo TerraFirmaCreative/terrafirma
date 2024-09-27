@@ -2,7 +2,7 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { CreationContext } from "@/components/ui/providers/creation-context"
 import { formatPrice, shopifyIdToUrlId, trimPrompt } from "@/lib/utils"
-import Link from "@/components/ui/util/link-locale"
+import Link from "next/link"
 import { useContext, useEffect, useState } from "react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
@@ -19,9 +19,7 @@ import { toast } from "@/hooks/use-toast"
 
 const Page = () => {
   const { products, create, inProgress, refreshProducts, } = useContext(CreationContext)
-
   const [fetching, setFetching] = useState<boolean>(true)
-
   const [promptOpen, setPromptOpen] = useState(false)
 
   const promptSchema = yup.object({

@@ -5,7 +5,7 @@ import ImageMagnifier from "@/components/ui/image-magnifier"
 import { GetProductQuery } from "@/lib/types/graphql"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
-import Link from "@/components/ui/util/link-locale"
+import Link from "next/link"
 import { useState } from "react"
 
 const Preview = ({ product }: { product: GetProductQuery['product'] }) => {
@@ -30,29 +30,25 @@ const Preview = ({ product }: { product: GetProductQuery['product'] }) => {
       <div className="flex flex-col p-8 justify-top  items-center">
         {selected == 0 ?
           <div className="h-3/4 w-[calc(75vh/3)] drop-shadow-md">
-            <Link href={product?.featuredImage?.url} target="_blank">
-              <ImageMagnifier
-                alt={`Product image for ${product?.id}`}
-                src={product?.images.edges.at(selected)?.node.url}
-                sizes={selected == 0 ? "20vw" : "40vw"}
-                className={cn("w-full h-full rounded-lg cursor-zoom-in", selected != 0 && "object-contain")}
-                width="100"
-                height="300"
-              />
-            </Link>
+            <ImageMagnifier
+              alt={`Product image for ${product?.id}`}
+              src={product?.images.edges.at(selected)?.node.url}
+              sizes={selected == 0 ? "20vw" : "40vw"}
+              className={cn("w-full h-full rounded-lg cursor-zoom-in", selected != 0 && "object-contain")}
+              width="100"
+              height="300"
+            />
           </div>
           :
           <div className="h-full w-full drop-shadow-md">
-            <Link href={product?.featuredImage?.url} target="_blank">
-              <ImageMagnifier
-                alt={`Product image for ${product?.id}`}
-                src={product?.images.edges.at(selected)?.node.url}
-                sizes={"(max-width: 1024px) 90vw, 40vw"}
-                className={cn("w-full h-full cursor-zoom-in", selected != 0 && "object-contain")}
-                width="100"
-                height="100"
-              />
-            </Link>
+            <ImageMagnifier
+              alt={`Product image for ${product?.id}`}
+              src={product?.images.edges.at(selected)?.node.url}
+              sizes={"(max-width: 1024px) 90vw, 40vw"}
+              className={cn("w-full h-full cursor-zoom-in", selected != 0 && "object-contain")}
+              width="100"
+              height="100"
+            />
           </div>
         }
       </div>

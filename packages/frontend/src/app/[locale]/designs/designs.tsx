@@ -6,7 +6,7 @@ import {
   Dispatch
 } from "react"
 import { ProductWithImagineData } from "../../../components/ui/providers/creation-context"
-import Link from "@/components/ui/util/link-locale"
+import Link from "next/link"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 
 const DesignGrid = ({

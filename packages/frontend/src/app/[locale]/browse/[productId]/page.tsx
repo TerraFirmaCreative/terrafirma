@@ -9,7 +9,7 @@ import { getUserProduct } from "@/gateway/tasks"
 import DesignControls from "./design-controls"
 import PromptDescription from "./prompt-description"
 import { FeatherIcon, Layers3Icon, MoveVerticalIcon, PaintRollerIcon, RulerIcon, ShellIcon } from "lucide-react"
-import Link from "@/components/ui/util/link-locale"
+import Link from "next/link"
 
 export async function generateMetadata(
   { params }: { params: { productId: string, locale: string } },

@@ -13,6 +13,7 @@ import { getAvailableLocalization } from "@/gateway/store"
 import { Toaster } from "@/components/ui/toaster"
 import Banner from "@/components/ui/banner"
 import { GoogleAnalytics } from "@next/third-parties/google"
+import { locales } from "@/config"
 
 export const metadata: Metadata = {
   title: "Custom AI-Generated Yoga Mats | Unique, Eco-Friendly & Premium Quality",
@@ -25,6 +26,10 @@ export const metadata: Metadata = {
       "en-GB": "terrafirmacreative.com/en-GB"
     }
   }
+}
+
+export async function generateStaticParams() {
+  return locales.map((locale) => ({ locale: locale }))
 }
 
 export default async function RootLayout({

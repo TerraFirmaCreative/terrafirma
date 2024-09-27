@@ -15,13 +15,38 @@ export async function middleware(request: NextRequest) {
 
   // Redirect to locale if not present (ignore locale for /api routes)
   if (!pathname.startsWith('/api/')) {
-    const acceptLanguage = { 'accept-language': request.headers.get('accept-language') ?? defaultLocale }
+    const hasLocale = locales.some((l) => pathname.startsWith(`/${l}`) || pathname == `/${l}`)
+
+    const acceptLanguage = { 'accept-language': (request.headers.get('accept-language') ?? defaultLocale) }
+
+    const preferredLocale = request.cookies.get('preferredLocale')?.value
+    if (preferredLocale) {
+      acceptLanguage["accept-language"] = [preferredLocale, acceptLanguage["accept-language"]].join(",")
+    }
+
     const locale = match(new Negotiator({ headers: acceptLanguage }).languages(), locales, defaultLocale)
 
-    const hasLocale = locales.some((l) => pathname.startsWith(`/${l}`) || pathname == `/${l}`)
     if (!hasLocale) {
       request.nextUrl.pathname = `/${locale}${pathname}`
-      return NextResponse.redirect(request.nextUrl)
+      const response = NextResponse.redirect(request.nextUrl)
+      response.cookies.set({
+        name: "preferredLocale",
+        value: locale,
+        expires: 86400000,
+        maxAge: 86400,
+      })
+      return response
+    }
+
+    if (locale != pathname.split('/').at(1)) {
+      const response = NextResponse.redirect(request.nextUrl)
+      response.cookies.set({
+        name: "preferredLocale",
+        value: pathname.split('/').at(1)!,
+        expires: 86400000,
+        maxAge: 86400,
+      })
+      return response
     }
   }
 

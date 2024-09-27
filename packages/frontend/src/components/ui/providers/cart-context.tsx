@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, createContext, useContext, useEffect, useStat
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "../sheet"
 import { MinusIcon, PlusIcon } from "lucide-react"
 import { Button } from "../button"
-import Link from "@/components/ui/util/link-locale"
+import Link from "next/link"
 import { CartLineInput, CartLineUpdateInput } from "@/lib/types/graphql"
 
 export const CartContext = createContext<{
@@ -135,7 +135,7 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
           </div>
           {(cart?.lines.edges.length ?? 0) > 0 &&
             <div>
-              <Link href={cart?.checkoutUrl ?? "/custom"}>
+              <Link href={cart?.checkoutUrl ?? `/`}>
                 <Button className="w-full">Checkout</Button>
               </Link>
             </div>}

@@ -1,6 +1,6 @@
 "use client"
 import { useParams, usePathname, useRouter } from "next/navigation"
-import Link from "@/components/ui/util/link-locale"
+import Link from "next/link"
 import { cn, parseLocale } from "@/lib/utils"
 import Responsive from "./util/responsive"
 import { AlignLeftIcon, ChevronDown, GlobeIcon, ShoppingCartIcon } from "lucide-react"
@@ -20,16 +20,19 @@ type MenuItem = {
 
 const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMenuItems?: MenuItem[] }) => {
   const pathname = usePathname()!
+  const router = useRouter()
   const { setCartOpen } = useContext(CartContext)
   const [opaque, setOpaque] = useState<boolean>(false)
   const params: { locale: string } = useParams()
   const [language, country] = parseLocale(params.locale)
 
-  const router = useRouter()
-
 
   const [searchPredictions, setSearchPredictions] = useState<SearchPredictionsQuery["predictiveSearch"] | null>(null)
   const searchTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
+
+  const setLocale = async (locale: string) => {
+    router.push(`/${locale}/${pathname.split('/').slice(2).join("/")}`)
+  }
 
   const updateScrolled = async () => {
     setOpaque(!pathname.split("/").at(2)?.includes("designs") && pathname.split("/").length > 2 || window.scrollY > 50)
@@ -60,7 +63,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
       </Popover>
     )
   }
-  console.log(searchPredictions)
+
   return (
     <>
       <nav id="header-bar" className={cn(!pathname.split("/").at(2)?.includes("designs") && pathname.split("/").length > 2 && "border-b", opaque && "bg-zinc-50", "transition-colors duration-700 w-full sticky top-0 h-20 flex flex-row items-center bg-opacity-70 backdrop-blur-md px-8 z-50")}>
@@ -82,7 +85,7 @@ const MainMenu = ({ menuItems, moreMenuItems }: { menuItems: MenuItem[], moreMen
               </div>
               <div className={cn("flex flex-row items-center gap-4")}>
                 {/* <SearchDialog /> */}
-                <Select value={params.locale} onValueChange={(value) => { router.push(`/${value}/${pathname.split('/').slice(2).join("/")}`) }}>
+                <Select value={params.locale} onValueChange={setLocale}>
                   <SelectTrigger className={cn(opaque ? "stroke-gray-700 text-gray-700 hover:underline" : " stroke-slate-100 text-slate-100 hover:stroke-gray-900 hover:text-gray-900", "bg-transparent transition-colors border-0")}>
                     <GlobeIcon className={cn("mr-2 cursor-pointer stroke-1")} /> {country}
                   </SelectTrigger>

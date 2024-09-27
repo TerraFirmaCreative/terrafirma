@@ -6,7 +6,7 @@ import PromptForm from "./prompt-form"
 import { getCollections, getPaginatedProducts } from "@/gateway/store"
 import { cookies } from "next/headers"
 import FeaturedCollections from "./featured-collections"
-import Link from "@/components/ui/util/link-locale"
+import Link from "next/link"
 
 
 export default async function HomePage({ params }: { params: { locale: string } }) {
