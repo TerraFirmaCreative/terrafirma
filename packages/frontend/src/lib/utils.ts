@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { ReadonlyURLSearchParams } from "next/navigation"
 import { twMerge } from "tailwind-merge"
-import { CurrencyCode, MoneyV2 } from "./types/graphql"
+import { MoneyV2 } from "./types/graphql"
 import { currencies } from "./locale/currencies"
 
 export function cn(...inputs: ClassValue[]) {

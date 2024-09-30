@@ -84,6 +84,7 @@ export default async function RootLayout({
 
   return (
     <html lang={language} className="h-full">
+      <GoogleAnalytics gaId="G-QNLBHNGSJ6" />
       <body className={cn(geistSans.variable, playfairDisplay.variable, lato.variable, "bg-zinc-50 font-sans min-h-full relative h-fit")}>
         <header className="relative w-full">
           <Banner />
@@ -100,7 +101,6 @@ export default async function RootLayout({
         </main>
         <Toaster />
       </body>
-      <GoogleAnalytics gaId="G-QNLBHNGSJ6" />
     </html>
   )
 }

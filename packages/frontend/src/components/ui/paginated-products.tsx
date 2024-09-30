@@ -15,6 +15,7 @@ import Responsive from "@/components/ui/util/responsive"
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useParams } from "next/navigation"
+import { sendGAEvent } from "@next/third-parties/google"
 
 const FilterControls = ({ filterParams, filterSubmit }: { filterParams: FilterParams, filterSubmit: (kv: any) => void }) => {
   return (
@@ -87,10 +88,22 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)
+
+    if (products.length > 1) {
+      // Only runs once so this is for initial items only
+      sendGAEvent('event', 'view_item_list', {
+        items: products.map((product) => ({
+          item_id: product.node.id,
+          item_name: product.node.title,
+          price: product.node.priceRange.maxVariantPrice.amount
+        }))
+      })
+    }
+
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [products])
+  }, [])
 
   const handleScroll = () => {
     if ((window.scrollY + window.innerHeight) > document.documentElement.scrollHeight - 100) {
@@ -107,6 +120,14 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
       }, params?.locale ?? "AU").then(
         (ps) => {
           setProducts([...products, ...ps ?? []])
+          // Send new products only to GA
+          sendGAEvent('event', 'view_item_list', {
+            items: ps.map((p) => ({
+              item_id: p.node.id,
+              item_name: p.node.title,
+              price: p.node.priceRange.maxVariantPrice.amount
+            }))
+          })
         }
       )
     }

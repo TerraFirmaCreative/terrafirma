@@ -6,10 +6,11 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTi
 import { MinusIcon, PlusIcon } from "lucide-react"
 import { Button } from "../button"
 import Link from "next/link"
-import { CartLineInput, CartLineUpdateInput } from "@/lib/types/graphql"
+import { CartLineUpdateInput, CreateCartMutation, GetProductQuery } from "@/lib/types/graphql"
+import { sendGAEvent } from "@next/third-parties/google"
 
 export const CartContext = createContext<{
-  cart: Cart | undefined,
+  cart: NonNullable<CreateCartMutation["cartCreate"]>["cart"] | undefined,
   setCart: Dispatch<SetStateAction<Cart | undefined>>,
   cartOpen: boolean,
   setCartOpen: Dispatch<SetStateAction<boolean>>
@@ -24,6 +25,21 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
       createCart(locale).then((cart) => setCart(cart))
     }
   }, [])
+
+  useEffect(() => {
+    console.log(cartOpen)
+    if (cartOpen && cart) {
+      sendGAEvent('event', 'view_cart', {
+        currency: cart.cost.totalAmount.currencyCode,
+        value: cart.cost.totalAmount.amount,
+        items: cart.lines.edges.map((edge) => ({
+          item_id: edge.node.merchandise.id,
+          item_name: edge.node.merchandise.product.title,
+          quantity: edge.node.quantity
+        }))
+      })
+    }
+  }, [cartOpen])
 
   const cartMutate = async (quantity: number, cartLine: CartLineDto) => {
     if (cart) {
@@ -47,6 +63,7 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
               node: {
                 id: edge.node.id,
                 merchandise: edge.node.merchandise,
+                cost: edge.node.cost,
                 quantity: edge.node.id == cartLine.id ? quantity : edge.node.quantity
               }
             }
@@ -81,7 +98,6 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
           </SheetHeader>
           {
             cart?.lines.edges.length ?? 0 ?
-
               <div className="flex flex-col gap-2 py-4">
                 <div className="flex flex-row justify-between py-2 text-sm font-medium">
                   <div >Item</div>
@@ -98,25 +114,46 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
                         <div className="flex flex-row border rounded-md">
                           <div
                             className="text-center p-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => cartMutate(edge.node.quantity - 1, {
-                              ...edge.node,
-                              merchandiseId: edge.node.merchandise.id
-                            })}
+                            onClick={() => {
+                              sendGAEvent('event', 'remove_from_cart', {
+                                currency: edge.node.cost.totalAmount.currencyCode,
+                                value: edge.node.cost.totalAmount.amount,
+                                items: [{
+                                  item_id: edge.node.merchandise.id,
+                                  item_name: edge.node.merchandise.product.title,
+                                  quantity: 1
+                                }]
+                              })
+                              cartMutate(edge.node.quantity - 1, {
+                                ...edge.node,
+                                merchandiseId: edge.node.merchandise.id
+                              })
+                            }}
                           ><MinusIcon className="w-3" /></div>
                           <div className="p-2 text-center border-x text-gray-600 cursor-default">{(edge.node.quantity)}</div>
                           <div
                             className="p-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => cartMutate(edge.node.quantity + 1, {
-                              ...edge.node,
-                              merchandiseId: edge.node.merchandise.id
-                            })}
+                            onClick={() => {
+                              sendGAEvent('event', 'add_to_cart', {
+                                currency: edge.node.cost.totalAmount.currencyCode,
+                                value: edge.node.cost.totalAmount.amount,
+                                items: [{
+                                  item_id: edge.node.merchandise.id,
+                                  item_name: edge.node.merchandise.product.title,
+                                  quantity: 1
+                                }]
+                              })
+                              cartMutate(edge.node.quantity + 1, {
+                                ...edge.node,
+                                merchandiseId: edge.node.merchandise.id
+                              })
+                            }}
                           >
                             <PlusIcon className="w-3" />
                           </div>
                         </div>
                       </div>
                     </div>
-
                   )
                 }
               </div>
@@ -135,7 +172,19 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
           </div>
           {(cart?.lines.edges.length ?? 0) > 0 &&
             <div>
-              <Link href={cart?.checkoutUrl ?? `/`}>
+              <Link href={cart?.checkoutUrl ?? `/`} onClick={() => {
+                if (cart) {
+                  sendGAEvent('event', 'begin_checkout', {
+                    currency: cart.cost.totalAmount.currencyCode,
+                    value: cart.cost.totalAmount.amount,
+                    items: cart.lines.edges.map((edge) => ({
+                      item_id: edge.node.merchandise.id,
+                      item_name: edge.node.merchandise.product.title,
+                      quantity: edge.node.quantity
+                    }))
+                  })
+                }
+              }}>
                 <Button className="w-full">Checkout</Button>
               </Link>
             </div>}
@@ -145,7 +194,7 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
   )
 }
 
-export const CartControls = ({ variantId }: { variantId: string }) => {
+export const CartControls = ({ product }: { product: NonNullable<GetProductQuery["product"]> }) => {
   const [quantity, setQuantity] = useState<number>(1)
   const { cart, setCart, setCartOpen } = useContext(CartContext)
 
@@ -153,7 +202,17 @@ export const CartControls = ({ variantId }: { variantId: string }) => {
     if (cart) {
       setQuantity(1)
       setCartOpen(true)
-      setCart(await addToCart(cart.id, variantId, quantity))
+      setCart(await addToCart(cart.id, product.variants.edges.at(0)!.node.id, quantity))
+      sendGAEvent('event', 'add_to_cart', {
+        currency: product.priceRange.maxVariantPrice.currencyCode,
+        value: product.priceRange.maxVariantPrice.amount,
+        items: [{
+          item_id: product.variants.edges.at(0)!.node.id,
+          item_name: product.title,
+          price: product.priceRange.maxVariantPrice.amount,
+          quantity: quantity
+        }]
+      })
     }
   }
 
@@ -180,7 +239,3 @@ export const CartControls = ({ variantId }: { variantId: string }) => {
 }
 
 export default CartProvider
-
-function getAvailableLocalization(): any {
-  throw new Error("Function not implemented.")
-}

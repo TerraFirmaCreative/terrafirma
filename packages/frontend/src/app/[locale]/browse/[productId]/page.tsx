@@ -38,7 +38,7 @@ const ProductPage = async ({ params }: { params: { productId: string, locale: st
               <div className="pt-4 text-lg"><i>{formatPrice(product.priceRange.maxVariantPrice)}</i></div>
               <div className="flex flex-col gap-2 py-4 w-full">
                 <div className="flex flex-row flex-wrap gap-2">
-                  <CartControls variantId={product.variants.edges[0].node.id} />
+                  <CartControls product={product} />
                   <DesignControls product={userProduct} />
                 </div>
                 <p className="font-light py-8 leading-relaxed">

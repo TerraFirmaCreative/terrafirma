@@ -1,15 +1,30 @@
 "use client"
 
-import { Carousel, CarouselContent } from "@/components/ui/carousel"
 import ImageMagnifier from "@/components/ui/image-magnifier"
 import { GetProductQuery } from "@/lib/types/graphql"
 import { cn } from "@/lib/utils"
+import { sendGAEvent } from "@next/third-parties/google"
 import Image from "next/image"
-import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const Preview = ({ product }: { product: GetProductQuery['product'] }) => {
   const [selected, setSelected] = useState<number>(0)
+
+  useEffect(() => {
+    if (product) {
+      sendGAEvent('event', 'view_item', {
+        currency: product.priceRange.maxVariantPrice.currencyCode,
+        value: product.priceRange.maxVariantPrice.amount,
+        items: [
+          {
+            item_id: product.id,
+            item_name: product.title,
+            price: product.priceRange.maxVariantPrice.amount
+          }
+        ]
+      })
+    }
+  }, [product])
 
   return (
     <div className="relative w-full lg:w-2/5">

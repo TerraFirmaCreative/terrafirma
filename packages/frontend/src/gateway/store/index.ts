@@ -343,12 +343,24 @@ export const createCart = async (locale: string) => {
       cartCreate(input: $input) {
         cart {
           id
+          cost {
+            totalAmount {
+              amount
+              currencyCode
+            }
+          }
           checkoutUrl
           lines(first: 100) {
             edges {
               node {
                 id
                 quantity
+                cost {
+                  totalAmount {
+                    amount
+                    currencyCode
+                  }
+                }
                 merchandise {
                   ...on ProductVariant {
                     id
@@ -383,12 +395,24 @@ export const addToCart = async (cartId: string, variantId: string, quantity: num
       cartLinesAdd(cartId: $cartId, lines: $lines) {
         cart {
           id
+          cost {
+            totalAmount {
+              amount
+              currencyCode
+            }
+          }
           checkoutUrl
           lines(first: 100) {
             edges {
               node {
                 id
                 quantity
+                cost {
+                  totalAmount {
+                    amount
+                    currencyCode
+                  }
+                }
                 merchandise {
                   ...on ProductVariant {
                     id
@@ -425,12 +449,24 @@ export const mutateCart = async (cartId: string, cartLines: CartLineUpdateInput[
       cartLinesUpdate(cartId: $cartId, lines: $lines) {
         cart {
           id
+          cost {
+            totalAmount {
+              amount
+              currencyCode
+            }
+          }
           checkoutUrl
           lines(first: 100) {
             edges {
               node {
                 id
                 quantity
+                cost {
+                  totalAmount {
+                    amount
+                    currencyCode
+                  }
+                }
                 merchandise {
                   ...on ProductVariant {
                     id

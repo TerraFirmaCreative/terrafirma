@@ -27,23 +27,28 @@ export type GetPageQuery = {
   )>
 }
 
-export type CustomProductsQueryVariables = StorefrontTypes.Exact<{
-  first?: StorefrontTypes.InputMaybe<StorefrontTypes.Scalars['Int']['input']>
-  sortKey?: StorefrontTypes.InputMaybe<StorefrontTypes.ProductSortKeys>
-  query?: StorefrontTypes.InputMaybe<StorefrontTypes.Scalars['String']['input']>
-  countryCode?: StorefrontTypes.InputMaybe<StorefrontTypes.CountryCode>
+export type GetLocalizadBannerQueryVariables = StorefrontTypes.Exact<{ [key: string]: never }>
+
+
+export type GetLocalizadBannerQuery = {
+  localization: {
+    market: (
+      Pick<StorefrontTypes.Market, 'id' | 'handle'>
+      & { banner?: StorefrontTypes.Maybe<Pick<StorefrontTypes.Metafield, 'value' | 'type'>> }
+    )
+  }
+}
+
+export type GetBannerQueryVariables = StorefrontTypes.Exact<{
+  handle: StorefrontTypes.MetaobjectHandleInput
 }>
 
 
-export type CustomProductsQuery = {
-  products: {
-    edges: Array<{
-      node: (
-        Pick<StorefrontTypes.Product, 'id' | 'title'>
-        & { featuredImage?: StorefrontTypes.Maybe<Pick<StorefrontTypes.Image, 'url'>>, priceRange: { maxVariantPrice: Pick<StorefrontTypes.MoneyV2, 'currencyCode' | 'amount'> } }
-      )
-    }>
-  }
+export type GetBannerQuery = {
+  metaobject?: StorefrontTypes.Maybe<(
+    Pick<StorefrontTypes.Metaobject, 'id'>
+    & { fields: Array<Pick<StorefrontTypes.MetaobjectField, 'key' | 'value'>> }
+  )>
 }
 
 export type SearchPredictionsQueryVariables = StorefrontTypes.Exact<{
@@ -185,12 +190,12 @@ export type CreateCartMutation = {
     cart?: StorefrontTypes.Maybe<(
       Pick<StorefrontTypes.Cart, 'id' | 'checkoutUrl'>
       & {
-        lines: {
+        cost: { totalAmount: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, lines: {
           edges: Array<{
             node: (
               Pick<StorefrontTypes.CartLine, 'id' | 'quantity'>
               & {
-                merchandise: (
+                cost: { totalAmount: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, merchandise: (
                   Pick<StorefrontTypes.ProductVariant, 'id'>
                   & { product: Pick<StorefrontTypes.Product, 'title'> }
                 )
@@ -198,7 +203,7 @@ export type CreateCartMutation = {
             ) | (
               Pick<StorefrontTypes.ComponentizableCartLine, 'id' | 'quantity'>
               & {
-                merchandise: (
+                cost: { totalAmount: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, merchandise: (
                   Pick<StorefrontTypes.ProductVariant, 'id'>
                   & { product: Pick<StorefrontTypes.Product, 'title'> }
                 )
@@ -222,12 +227,12 @@ export type AddCartMutation = {
     cart?: StorefrontTypes.Maybe<(
       Pick<StorefrontTypes.Cart, 'id' | 'checkoutUrl'>
       & {
-        lines: {
+        cost: { totalAmount: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, lines: {
           edges: Array<{
             node: (
               Pick<StorefrontTypes.CartLine, 'id' | 'quantity'>
               & {
-                merchandise: (
+                cost: { totalAmount: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, merchandise: (
                   Pick<StorefrontTypes.ProductVariant, 'id'>
                   & { product: Pick<StorefrontTypes.Product, 'title'> }
                 )
@@ -235,7 +240,7 @@ export type AddCartMutation = {
             ) | (
               Pick<StorefrontTypes.ComponentizableCartLine, 'id' | 'quantity'>
               & {
-                merchandise: (
+                cost: { totalAmount: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, merchandise: (
                   Pick<StorefrontTypes.ProductVariant, 'id'>
                   & { product: Pick<StorefrontTypes.Product, 'title'> }
                 )
@@ -259,12 +264,12 @@ export type UpdateCartMutation = {
     cart?: StorefrontTypes.Maybe<(
       Pick<StorefrontTypes.Cart, 'id' | 'checkoutUrl'>
       & {
-        lines: {
+        cost: { totalAmount: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, lines: {
           edges: Array<{
             node: (
               Pick<StorefrontTypes.CartLine, 'id' | 'quantity'>
               & {
-                merchandise: (
+                cost: { totalAmount: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, merchandise: (
                   Pick<StorefrontTypes.ProductVariant, 'id'>
                   & { product: Pick<StorefrontTypes.Product, 'title'> }
                 )
@@ -272,7 +277,7 @@ export type UpdateCartMutation = {
             ) | (
               Pick<StorefrontTypes.ComponentizableCartLine, 'id' | 'quantity'>
               & {
-                merchandise: (
+                cost: { totalAmount: Pick<StorefrontTypes.MoneyV2, 'amount' | 'currencyCode'> }, merchandise: (
                   Pick<StorefrontTypes.ProductVariant, 'id'>
                   & { product: Pick<StorefrontTypes.Product, 'title'> }
                 )
@@ -300,7 +305,8 @@ export type GetLocalizationQuery = {
 interface GeneratedQueryTypes {
   "#graphql\n    query getPages {\n      metaobjects(first: 10, type: \"Page\") {\n        edges {\n          node {\n            handle\n            fields {\n              key\n              value\n            }\n          }\n        }\n      }\n    }\n  ": { return: GetPagesQuery, variables: GetPagesQueryVariables },
   "#graphql\n    query getPage($handle: MetaobjectHandleInput) {\n      metaobject(handle: $handle) {\n        handle\n        fields {\n          key\n          value\n        }\n      }\n    }\n  ": { return: GetPageQuery, variables: GetPageQueryVariables },
-  "#graphql\n    query customProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $countryCode: CountryCode) @inContext(country: $countryCode) {\n      products(first: $first, sortKey: $sortKey, query: $query) {\n        edges {\n          node {\n            id\n            title\n            featuredImage {\n              url\n            }\n            priceRange {\n              maxVariantPrice {\n                currencyCode\n                amount\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: CustomProductsQuery, variables: CustomProductsQueryVariables },
+  "#graphql\n    query getLocalizadBanner{\n      localization {\n        market {\n          id\n          handle\n          banner: metafield(namespace:\"custom\", key: \"banner\") {\n            value\n            type\n          }\n        }\n      }\n    }\n  ": { return: GetLocalizadBannerQuery, variables: GetLocalizadBannerQueryVariables },
+  "#graphql\n      query getBanner($handle: MetaobjectHandleInput!){\n        metaobject(handle: $handle) {\n          id\n          fields {\n            key\n            value\n          }\n        }\n      }\n    ": { return: GetBannerQuery, variables: GetBannerQueryVariables },
   "#graphql\n    query searchPredictions($query: String!, $countryCode: CountryCode) @inContext(country: $countryCode) {\n      predictiveSearch(query: $query) {\n        queries {\n          text\n          styledText\n        }\n        products {\n          id\n          title\n          featuredImage {\n            url\n          }\n        }\n      }\n    }\n  ": { return: SearchPredictionsQuery, variables: SearchPredictionsQueryVariables },
   "#graphql\n    query searchPaginatedProducts($first: Int, $sortKey: SearchSortKeys, $query: String!, $reverse: Boolean, $after: String, $productFilters: [ProductFilter!] $countryCode: CountryCode) @inContext(country: $countryCode) {\n      search(first: $first, sortKey: $sortKey, query: $query, reverse: $reverse, after: $after, productFilters: $productFilters, prefix: LAST) {\n        edges {\n          cursor\n          node {\n            ...on Product {\n              id\n              title\n              featuredImage {\n                url\n              }\n              priceRange {\n                maxVariantPrice {\n                  amount\n                  currencyCode\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n": { return: SearchPaginatedProductsQuery, variables: SearchPaginatedProductsQueryVariables },
   "#graphql\n  query randomProducts {\n    products(first: 70, sortKey: ID) {\n      edges {\n        cursor\n        node {\n          id\n          title\n          featuredImage {\n            url\n          }\n          priceRange {\n            maxVariantPrice {\n              amount\n              currencyCode\n            }\n          }\n        }\n      }\n    }\n  }\n": { return: RandomProductsQuery, variables: RandomProductsQueryVariables },
@@ -312,9 +318,9 @@ interface GeneratedQueryTypes {
 }
 
 interface GeneratedMutationTypes {
-  "#graphql \n    mutation createCart($input: CartInput) {\n      cartCreate(input: $input) {\n        cart {\n          id\n          checkoutUrl\n          lines(first: 100) {\n            edges {\n              node {\n                id\n                quantity\n                merchandise {\n                  ...on ProductVariant {\n                    id\n                    product {\n                      title\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: CreateCartMutation, variables: CreateCartMutationVariables },
-  "#graphql\n    mutation addCart($cartId: ID!, $lines: [CartLineInput!]!) {\n      cartLinesAdd(cartId: $cartId, lines: $lines) {\n        cart {\n          id\n          checkoutUrl\n          lines(first: 100) {\n            edges {\n              node {\n                id\n                quantity\n                merchandise {\n                  ...on ProductVariant {\n                    id\n                    product {\n                      title\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: AddCartMutation, variables: AddCartMutationVariables },
-  "#graphql\n    mutation updateCart($cartId: ID!, $lines: [CartLineUpdateInput!]!) {\n      cartLinesUpdate(cartId: $cartId, lines: $lines) {\n        cart {\n          id\n          checkoutUrl\n          lines(first: 100) {\n            edges {\n              node {\n                id\n                quantity\n                merchandise {\n                  ...on ProductVariant {\n                    id\n                    product {\n                      title\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: UpdateCartMutation, variables: UpdateCartMutationVariables },
+  "#graphql \n    mutation createCart($input: CartInput) {\n      cartCreate(input: $input) {\n        cart {\n          id\n          cost {\n            totalAmount {\n              amount\n              currencyCode\n            }\n          }\n          checkoutUrl\n          lines(first: 100) {\n            edges {\n              node {\n                id\n                quantity\n                cost {\n                  totalAmount {\n                    amount\n                    currencyCode\n                  }\n                }\n                merchandise {\n                  ...on ProductVariant {\n                    id\n                    product {\n                      title\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: CreateCartMutation, variables: CreateCartMutationVariables },
+  "#graphql\n    mutation addCart($cartId: ID!, $lines: [CartLineInput!]!) {\n      cartLinesAdd(cartId: $cartId, lines: $lines) {\n        cart {\n          id\n          cost {\n            totalAmount {\n              amount\n              currencyCode\n            }\n          }\n          checkoutUrl\n          lines(first: 100) {\n            edges {\n              node {\n                id\n                quantity\n                cost {\n                  totalAmount {\n                    amount\n                    currencyCode\n                  }\n                }\n                merchandise {\n                  ...on ProductVariant {\n                    id\n                    product {\n                      title\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: AddCartMutation, variables: AddCartMutationVariables },
+  "#graphql\n    mutation updateCart($cartId: ID!, $lines: [CartLineUpdateInput!]!) {\n      cartLinesUpdate(cartId: $cartId, lines: $lines) {\n        cart {\n          id\n          cost {\n            totalAmount {\n              amount\n              currencyCode\n            }\n          }\n          checkoutUrl\n          lines(first: 100) {\n            edges {\n              node {\n                id\n                quantity\n                cost {\n                  totalAmount {\n                    amount\n                    currencyCode\n                  }\n                }\n                merchandise {\n                  ...on ProductVariant {\n                    id\n                    product {\n                      title\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ": { return: UpdateCartMutation, variables: UpdateCartMutationVariables },
 }
 declare module '@shopify/storefront-api-client' {
   type InputMaybe<T> = StorefrontTypes.InputMaybe<T>
