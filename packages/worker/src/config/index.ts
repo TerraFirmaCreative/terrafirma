@@ -26,35 +26,14 @@ const Config = {
   SHOPIFY_STOREFRONT_ACCESS_TOKEN: process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN ?? ""
 }
 
-const hooks = {
-  logMethod(inputArgs: any, method: any): any {
-    if (inputArgs.length >= 2) {
-      const arg1 = inputArgs.shift()
-      const arg2 = inputArgs.shift()
-      return method.apply(this, [arg2, arg1, ...inputArgs])
-    }
-    return method.apply(this, inputArgs)
-  },
-}
-
 export const logger = pino({
   level: process.env.LOG_LEVEL ?? "debug",
   transport: {
-    targets: [
-      {
-        target: 'pino-pretty',
-        options: {}
-      }
-    ].concat(process.env.NODE_ENV == "production" ? [
-      {
-        target: 'pino/file',
-        options: {
-          destination: `${process.env.LOG_DIR}/worker.log`
-        }
-      }
-    ] : [])
-  },
-  hooks
+    target: 'pino/file',
+    options: {
+      destination: process.env.NODE_ENV == "production" ? `${process.env.LOG_DIR}` : 1
+    }
+  }
 })
 
 export const sqsClient = new SQSClient({

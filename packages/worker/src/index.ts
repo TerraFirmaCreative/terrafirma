@@ -3,8 +3,6 @@ import { ReceiveMessageCommand } from "@aws-sdk/client-sqs"
 import { ImagineTask, ImagineVariantsTask, TaskMessage } from "./types/worker"
 import { TaskType } from '@prisma/client'
 import { imagineTask, imagineVariantsTask } from "./tasks"
-import { createProjectionMaps, uploadShopify } from "./tasks/shopify"
-import sharp from "sharp"
 
 async function handleMessage(message: TaskMessage) {
   const task = message

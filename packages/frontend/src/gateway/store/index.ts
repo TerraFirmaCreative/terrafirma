@@ -1,5 +1,5 @@
 "use server"
-import { CartLineUpdateInput, CountryCode, GetProductQuery, PaginatedProductsQuery, ProductSortKeys, SearchSortKeys } from "@/lib/types/graphql"
+import { CartLineUpdateInput, CountryCode, GetProductQuery, MoneyV2, PaginatedProductsQuery, ProductSortKeys, SearchSortKeys } from "@/lib/types/graphql"
 import { getPrisma, getStorefrontClient } from '@/config'
 import { parseLocale, shuffle } from "@/lib/utils"
 import { RandomProductsQuery, SearchPredictionsQuery } from "@/lib/types/graphql"
@@ -349,6 +349,28 @@ export const createCart = async (locale: string) => {
               currencyCode
             }
           }
+          buyerIdentity {
+            customer {
+              displayName
+              id
+              numberOfOrders
+
+            }
+          }
+          deliveryGroups(first:10) {
+            nodes {
+              deliveryOptions {
+                code
+                deliveryMethodType
+                estimatedCost {
+                  amount
+                  currencyCode
+                }
+                handle
+                title
+              }
+            }
+          }
           checkoutUrl
           lines(first: 100) {
             edges {
@@ -401,6 +423,28 @@ export const addToCart = async (cartId: string, variantId: string, quantity: num
               currencyCode
             }
           }
+          buyerIdentity {
+            customer {
+              displayName
+              id
+              numberOfOrders
+
+            }
+          }
+          deliveryGroups(first:10) {
+            nodes {
+              deliveryOptions {
+                code
+                deliveryMethodType
+                estimatedCost {
+                  amount
+                  currencyCode
+                }
+                handle
+                title
+              }
+            }
+          }
           checkoutUrl
           lines(first: 100) {
             edges {
@@ -438,7 +482,7 @@ export const addToCart = async (cartId: string, variantId: string, quantity: num
       ],
     },
   })
-
+  console.log(addCart.data?.cartLinesAdd?.cart?.deliveryGroups)
   return addCart.data?.cartLinesAdd?.cart
 }
 
@@ -525,4 +569,24 @@ export const getPromptsForShopifyProduct = async (productId: string): Promise<st
     }
   })))?.imagineData?.imaginePrompt
   return prompt
+}
+
+export type GetShippingRatesDto = {
+  name: string,
+  price: MoneyV2
+}
+export const getShippingRates = async (countryCode: string): Promise<GetShippingRatesDto | undefined> => {
+  try {
+    const response = await fetch(`${process.env.REST_API_URL}/admin/shipping/${countryCode}`, {
+      method: 'GET',
+      cache: 'force-cache'
+    })
+
+    if (response.status != 200 || !response.ok) throw new Error("Failed to get shipping result.")
+
+    return await response.json() as GetShippingRatesDto
+  }
+  catch (e) {
+    console.log(e)
+  }
 }

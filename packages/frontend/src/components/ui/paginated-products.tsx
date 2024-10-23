@@ -87,10 +87,8 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
   const params: { locale: string } = useParams()
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll)
-
     if (products.length > 1) {
-      // Only runs once so this is for initial items only
+      // Initial items only
       sendGAEvent('event', 'view_item_list', {
         items: products.map((product) => ({
           item_id: product.node.id,
@@ -99,11 +97,14 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
         }))
       })
     }
+  }, [])
 
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll)
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [])
+  }, [products])
 
   const handleScroll = () => {
     if ((window.scrollY + window.innerHeight) > document.documentElement.scrollHeight - 100) {

@@ -124,7 +124,7 @@ export const imagineTask = async (task: ImagineTask) => {
       }
     })
 
-    console.info("Task Failed, deleting...")
+    logger.info("Task Failed, deleting...")
     await sqsClient.send(new DeleteMessageCommand({
       "QueueUrl": config.SQS_URL,
       "ReceiptHandle": task.ReceiptHandle

@@ -1,6 +1,6 @@
 import express from "express"
 import http from 'http'
-import { router as customRouter } from './api/custom'
+import { router as adminRouter } from './api/admin'
 import { router as tasksRouter } from './api/tasks'
 import { logger, mjClient } from "./config"
 import cookieParser from "cookie-parser"
@@ -18,10 +18,20 @@ app.use(async (req, res, next) => {
   next()
 })
 
-app.use('/custom', customRouter)
 
+/**
+ * User-queued tasks
+ */
 app.use('/tasks', tasksRouter)
 
+/**
+ * Admin API methods (avoid exposing to frontend when possible).
+ */
+app.use('/admin', adminRouter)
+
+/**
+ * Should not be used by frontend anymore, but check
+ */
 app.post('/products', async (req, res) => {
   const gids = req.body.gids
 
@@ -30,6 +40,9 @@ app.post('/products', async (req, res) => {
   res.json({ products: products })
 })
 
+/**
+ * Hello midjourney
+ */
 app.post('/', async (req, res) => {
   const Imagine: MJMessage | null = await mjClient.Imagine(req.body.prompt)
 

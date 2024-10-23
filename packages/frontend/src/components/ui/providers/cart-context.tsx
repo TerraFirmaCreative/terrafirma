@@ -22,12 +22,17 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
 
   useEffect(() => {
     if (!cart) {
-      createCart(locale).then((cart) => setCart(cart))
+      console.log("Create cart")
+      createCart(locale).then((cart) => {
+        console.log("Cart created")
+        console.log(cart)
+        setCart(cart)
+      })
     }
-  }, [])
+  })
 
   useEffect(() => {
-    console.log(cartOpen)
+    console.log(cartOpen, cart)
     if (cartOpen && cart) {
       sendGAEvent('event', 'view_cart', {
         currency: cart.cost.totalAmount.currencyCode,
@@ -213,6 +218,9 @@ export const CartControls = ({ product }: { product: NonNullable<GetProductQuery
           quantity: quantity
         }]
       })
+    }
+    else {
+      console.log("Cart not found :(")
     }
   }
 

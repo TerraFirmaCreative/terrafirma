@@ -1,3 +1,5 @@
+import { CurrencyCode, MoneyV2 } from "../types/graphql"
+
 type Currency = {
   "symbol": string,
   "name": string,
@@ -6,6 +8,11 @@ type Currency = {
   "rounding": number,
   "code": string,
   "name_plural": string
+}
+
+type ShippingOption = {
+  price: MoneyV2,
+  courier: string
 }
 
 export const currencies: { [key: string]: Currency } = {
@@ -1079,5 +1086,37 @@ export const currencies: { [key: string]: Currency } = {
     "rounding": 0,
     "code": "ZWL",
     "name_plural": "Zimbabwean Dollar"
+  }
+}
+
+// Shipping costs for locale in their corresponging curency
+export const shippingOptions: { [region: string]: ShippingOption } = {
+  AU: {
+    courier: "E-PAQ Plus",
+    price: {
+      amount: 77,
+      currencyCode: CurrencyCode.Aud
+    }
+  },
+  US: {
+    courier: "USPS First Class",
+    price: {
+      amount: 22,
+      currencyCode: CurrencyCode.Usd
+    }
+  },
+  CA: {
+    courier: "E-PAQ Plus",
+    price: {
+      amount: 72,
+      currencyCode: CurrencyCode.Cad
+    }
+  },
+  GB: {
+    courier: "E-PAQ Plus",
+    price: {
+      amount: 40,
+      currencyCode: CurrencyCode.Gbp
+    }
   }
 }

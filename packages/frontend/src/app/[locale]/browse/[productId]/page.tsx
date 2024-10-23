@@ -1,15 +1,17 @@
 export const revalidate = 60
 
 import { CartControls } from "@/components/ui/providers/cart-context"
-import { getProduct } from "@/gateway/store"
-import { cn, formatPrice, formatTitle, urlIdToShopifyId } from "@/lib/utils"
+import { getProduct, getShippingRates } from "@/gateway/store"
+import { cn, formatPrice, formatTitle, parseLocale, urlIdToShopifyId } from "@/lib/utils"
 import { Metadata, ResolvingMetadata } from "next"
 import Preview from "./preview"
 import { getUserProduct } from "@/gateway/tasks"
 import DesignControls from "./design-controls"
 import PromptDescription from "./prompt-description"
-import { FeatherIcon, Layers3Icon, MoveVerticalIcon, PaintRollerIcon, RulerIcon, ShellIcon } from "lucide-react"
+import { FeatherIcon, Layers3Icon, MoveVerticalIcon, PaintRollerIcon, RulerIcon, ShellIcon, TruckIcon } from "lucide-react"
 import Link from "next/link"
+import { shippingOptions } from "@/lib/locale/currencies"
+import { Suspense } from "react"
 
 export async function generateMetadata(
   { params }: { params: { productId: string, locale: string } },
@@ -21,6 +23,27 @@ export async function generateMetadata(
     title: (await parent).title,
     description: product?.description
   }
+}
+
+const ShippingOptions = async ({ locale }: { locale: string }) => {
+  const [_, countryCode] = parseLocale(locale)
+  const shippingRates = await getShippingRates(countryCode)
+
+  return (
+    <>
+      <h3 className="pt-8">Estimated Shipping & Delivery</h3>
+      <div className="flex flex-row leading-loose flex-wrap pt-4 gap-2 font-light">
+        <TruckIcon className="stroke-1 my-auto" />
+        {shippingRates ?
+          <div className="flex flex-col gap-2">
+            <p>{shippingRates.name} {formatPrice(shippingRates.price)}</p>
+          </div>
+          :
+          <p>Shipping information is unavailable at this time. Please see detailed shipping information at checkout.</p>}
+      </div>
+    </>
+  )
+
 }
 
 const ProductPage = async ({ params }: { params: { productId: string, locale: string } }) => {
@@ -57,6 +80,9 @@ const ProductPage = async ({ params }: { params: { productId: string, locale: st
                   <div className="flex md:flex-row md:basis-1/2 gap-2"><MoveVerticalIcon className="stroke-1" />3mm thick</div>
                 </div>
                 <Link href="/pages/about" className="py-2 font-semibold text-sm hover:underline">Learn more about our mats...</Link>
+                <Suspense fallback={<div className="h-10 rounded-md bg-slate-200 animate-pulse" />}>
+                  <ShippingOptions locale={params.locale} />
+                </Suspense>
               </div>
             </div>
           </div>
