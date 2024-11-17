@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useEffect, useRef, useState } from "react"
+import { createContext, useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../dialog"
 import { CheckCircle } from "lucide-react"
 import { Button } from "../button"
@@ -14,8 +14,8 @@ import { SubmitHandler, useForm } from "react-hook-form"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Progress } from "../progress"
-import { getUser } from "@/gateway/custom"
 import { Checkbox } from "../checkbox"
+import { useInterval } from "@/hooks/use-interval"
 
 export const CreationContext = createContext<{
   create: (prompt: string) => Promise<void>,
@@ -52,8 +52,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = useState<string | null | undefined>()
   const [currentTaskId, setCurrentTaskId] = useState<string | undefined | null>()
 
-  const pollTimeoutRef = useRef<NodeJS.Timeout>()
-
   const { locale }: { locale: string } = useParams()
 
   const router = useRouter()
@@ -72,7 +70,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       updateTaskShouldEmailUser(currentTaskId, data.shouldEmail)
     }
   }
-
 
   const refreshProducts = async () => {
     const userProducts = (await getUserProducts())
@@ -94,21 +91,27 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    inProgress && setTimeout(updateProgress, 2000)
-  }, [progress])
-
-  const updateProgress = () => {
-    setProgress(Math.max(20, Math.min(progress + (100 / 30) + Math.random() * (100 / 60), 90)))
-  }
-
-  useEffect(() => {
     if (inProgress) {
-      updateProgress()
-    }
-    else {
-      setProgress(0)
+      setProgress(20)
     }
   }, [inProgress])
+
+  useEffect(() => {
+    const pollConditional = () => {
+      if (inProgress && currentTaskId && document.visibilityState == "visible") {
+        poll(currentTaskId)
+      }
+    }
+    document.addEventListener('visibilitychange', pollConditional)
+
+    return () => {
+      document.removeEventListener('visibilitychange', pollConditional)
+    }
+  }, [inProgress, currentTaskId])
+
+  useInterval(() => {
+    setProgress(Math.max(20, Math.min(progress + (100 / 30) + Math.random() * (100 / 60), 90)))
+  }, inProgress ? 2000 : null)
 
   // Fallback for lack of service worker
   const poll = async (taskId: string) => {
@@ -129,30 +132,11 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         setErrorOpen(true)
         break
       default:
-        pollTimeoutRef.current = setTimeout(poll, 5000, taskId)
         break
     }
   }
 
-  const onVisibilityChange = (e: Event) => {
-    if (pollTimeoutRef.current) {
-      clearTimeout(pollTimeoutRef.current)
-      console.log("Clearing timeout")
-    }
-    if (document.visibilityState == "visible" && currentTaskId) {
-      poll(currentTaskId)
-
-    }
-  }
-  useEffect(() => {
-    if (inProgress && currentTaskId) {
-      document.addEventListener('visibilitychange', onVisibilityChange)
-    }
-
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-    }
-  }, [inProgress, currentTaskId])
+  useInterval(poll, (currentTaskId && inProgress && document.visibilityState == "visible") ? 5000 : null, currentTaskId)
 
   const create = async (prompt: string) => {
     beginTask({
@@ -163,7 +147,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         console.log("taskStatus setInProgress(true)", res.id)
         setCurrentTaskId(res.id)
         setConfirmationOpen(true)
-        pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
+        // pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
       }
       else {
         console.log("Create setInProgress(false)", res.id)
@@ -185,7 +169,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       if (res.status !== TaskStatus.Failed && res.id) {
         setCurrentTaskId(res.id)
         setConfirmationOpen(true)
-        pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
+        // pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
       }
       else {
         setInProgress(false)
