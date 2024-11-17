@@ -122,13 +122,13 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       case TaskStatus.Complete:
         await refreshProducts()
         setInProgress(false)
-        setConfirmationOpen(false)
+        // setConfirmationOpen(false)
         setFinishedOpen(true)
         break
       case TaskStatus.Failed:
       case undefined:
         setInProgress(false)
-        setConfirmationOpen(false)
+        // setConfirmationOpen(false)
         setErrorOpen(true)
         break
       default:
@@ -146,7 +146,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       if (res.status !== TaskStatus.Failed && res.id) {
         console.log("taskStatus setInProgress(true)", res.id)
         setCurrentTaskId(res.id)
-        setConfirmationOpen(true)
+        // setConfirmationOpen(true)
         // pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
       }
       else {
@@ -168,7 +168,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }).then((res) => {
       if (res.status !== TaskStatus.Failed && res.id) {
         setCurrentTaskId(res.id)
-        setConfirmationOpen(true)
+        // setConfirmationOpen(true)
         // pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
       }
       else {
@@ -191,55 +191,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       }}>
         {children}
       </CreationContext.Provider>
-
-      <Dialog open={confirmationOpen} onOpenChange={setConfirmationOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <DialogHeader>
-                <DialogTitle>{ }</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col items-center py-8 text-center gap-2">
-                <CheckCircle
-                  size="70"
-                  strokeWidth={0.5}
-                  className=" stroke-green-500"
-                />
-                <div className="py-4">
-                  <h1 className="text-xl">{"We're working on your design"}</h1>
-                  <p className="text-gray-500">
-                    {"Feel free to explore our gallery while you wait"}<br />
-                  </p>
-                </div>
-                {!userEmail ?
-                  <>
-                    <h2 className="text-lg pt-2">{"Don't want to wait?"}</h2>
-                    <input {...form.register('email')} className="w-full border-gray-400 border rounded-md p-2" placeholder="Email"></input>
-                    <FormDescription className="text-left">{"Enter your email and we'll notify you when it's done."}</FormDescription>
-                  </>
-                  :
-                  <FormField
-                    control={form.control}
-                    name="shouldEmail"
-                    render={({ field }) =>
-                      <div className="flex flex-row gap-2 text-left">
-                        <Checkbox id={"shouldEmail"} checked={field.value} onCheckedChange={field.onChange} />
-                        <FormLabel htmlFor="shouldEmail">Email me once my design is ready.</FormLabel>
-                      </div>
-                    }
-                  />
-                }
-              </div>
-              <DialogFooter>
-                <Button type="submit" onClick={() => {
-                  console.log(form.getValues())
-                  setConfirmationOpen(false)
-                }}>Got it</Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
 
       <AlertDialog open={finishedOpen} onOpenChange={setFinishedOpen}>
         <AlertDialogContent className="sm:max-w-[425px]">
