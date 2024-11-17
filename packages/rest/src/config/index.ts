@@ -7,7 +7,6 @@ import { S3Client } from '@aws-sdk/client-s3'
 import { PrismaClient } from '@prisma/client'
 import { SQSClient } from '@aws-sdk/client-sqs'
 import pino from 'pino'
-import "pino-pretty"
 
 console.log(process.env.NODE_ENV)
 
@@ -35,6 +34,8 @@ export const logger = pino({
     }
   }
 })
+
+// export const logger = console
 
 const Config = {
   OPENAI_KEY: process.env.OPENAI_KEY ?? "",

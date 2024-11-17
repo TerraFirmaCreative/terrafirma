@@ -571,22 +571,22 @@ export const getPromptsForShopifyProduct = async (productId: string): Promise<st
   return prompt
 }
 
-export type GetShippingRatesDto = {
-  name: string,
-  price: MoneyV2
-}
-export const getShippingRates = async (countryCode: string): Promise<GetShippingRatesDto | undefined> => {
-  try {
-    const response = await fetch(`${process.env.REST_API_URL}/admin/shipping/${countryCode}`, {
-      method: 'GET',
-      cache: 'force-cache'
-    })
+// export type GetShippingRatesDto = {
+//   name: string,
+//   price: MoneyV2
+// }
+// export const getShippingRates = async (countryCode: string): Promise<GetShippingRatesDto | undefined> => {
+//   try {
+//     const response = await fetch(`${process.env.REST_API_URL}/admin/shipping/${countryCode}`, {
+//       method: 'GET',
+//       cache: 'force-cache'
+//     })
 
-    if (response.status != 200 || !response.ok) throw new Error("Failed to get shipping result.")
+//     if (response.status != 200 || !response.ok) throw new Error("Failed to get shipping result.")
 
-    return await response.json() as GetShippingRatesDto
-  }
-  catch (e) {
-    console.log(e)
-  }
-}
+//     return await response.json() as GetShippingRatesDto
+//   }
+//   catch (e) {
+//     console.log(e)
+//   }
+// }

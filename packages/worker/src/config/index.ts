@@ -6,9 +6,7 @@ import { Midjourney } from "midjourney"
 import { PrismaClient } from "@prisma/client"
 import * as dotenv from 'dotenv'
 import * as nodemailer from 'nodemailer'
-import path from 'path'
 import pino from "pino"
-import "pino-pretty"
 
 dotenv.config()
 

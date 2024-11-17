@@ -12,7 +12,7 @@ const app = express()
 const port: number = Number.parseInt(process.env.PORT ?? "3000")
 
 app.use(express.json())
-app.use(cookieParser(process.env.COOKIE_SECRET ?? undefined))
+app.use(cookieParser(undefined)) // TODO: Sign cookies on frontend and use secret here
 app.use(async (req, res, next) => {
   logger.info(`${req.method} ${req.path}`)
   next()
@@ -28,17 +28,6 @@ app.use('/tasks', tasksRouter)
  * Admin API methods (avoid exposing to frontend when possible).
  */
 app.use('/admin', adminRouter)
-
-/**
- * Should not be used by frontend anymore, but check
- */
-app.post('/products', async (req, res) => {
-  const gids = req.body.gids
-
-  const products = getProductsById(gids)
-
-  res.json({ products: products })
-})
 
 /**
  * Hello midjourney

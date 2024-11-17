@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useEffect, useState } from "react"
+import { createContext, useEffect, useRef, useState } from "react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../dialog"
 import { CheckCircle } from "lucide-react"
 import { Button } from "../button"
@@ -24,7 +24,6 @@ export const CreationContext = createContext<{
   inProgress: boolean,
   products: ProductWithImagineData[],
   progress: number,
-  progressUri?: string | null
 }
 >({
   create: async (prompt: string) => { },
@@ -50,11 +49,14 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [finishedOpen, setFinishedOpen] = useState<boolean>(false)
   const [errorOpen, setErrorOpen] = useState<boolean>(false)
   const [progress, setProgress] = useState<number>(0)
-  const [progressUri, setProgressUri] = useState<string | null | undefined>()
   const [userEmail, setUserEmail] = useState<string | null | undefined>()
-  const [latestTaskId, setLatestTaskId] = useState<string>("")
+  const [currentTaskId, setCurrentTaskId] = useState<string | undefined | null>()
+
+  const pollTimeoutRef = useRef<NodeJS.Timeout>()
 
   const { locale }: { locale: string } = useParams()
+
+  const router = useRouter()
 
   const form = useForm<yup.InferType<typeof emailSchema>>({
     resolver: yupResolver(emailSchema)
@@ -64,14 +66,13 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     if (data.email && !userEmail) {
       setUserEmail(data.email)
       updateUserEmail(data.email)
-      if (latestTaskId.length != 0) updateTaskShouldEmailUser(latestTaskId, true)
+      currentTaskId && updateTaskShouldEmailUser(currentTaskId, true)
     }
-    if (userEmail && data.shouldEmail && latestTaskId.length != 0) {
-      updateTaskShouldEmailUser(latestTaskId, data.shouldEmail)
+    if (userEmail && data.shouldEmail && currentTaskId) {
+      updateTaskShouldEmailUser(currentTaskId, data.shouldEmail)
     }
   }
 
-  const router = useRouter()
 
   const refreshProducts = async () => {
     const userProducts = (await getUserProducts())
@@ -93,10 +94,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    getUser().then((user) => setUserEmail(user?.email))
-  }, [])
-
-  useEffect(() => {
     inProgress && setTimeout(updateProgress, 2000)
   }, [progress])
 
@@ -113,15 +110,10 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }
   }, [inProgress])
 
-  useEffect(() => {
-    if (confirmationOpen && latestTaskId.length > 0) {
-      setInProgress(true)
-      setTimeout(poll, 5000, latestTaskId)
-    }
-  }, [confirmationOpen, latestTaskId])
-
+  // Fallback for lack of service worker
   const poll = async (taskId: string) => {
     const task = await pollTask(taskId)
+    console.log("Polling...", task?.status)
 
     switch (task?.status) {
       case TaskStatus.Complete:
@@ -137,27 +129,49 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         setErrorOpen(true)
         break
       default:
-        setProgressUri(task?.progressUri)
-        setTimeout(poll, 5000, taskId)
+        pollTimeoutRef.current = setTimeout(poll, 5000, taskId)
         break
     }
   }
+
+  const onVisibilityChange = (e: Event) => {
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current)
+      console.log("Clearing timeout")
+    }
+    if (document.visibilityState == "visible" && currentTaskId) {
+      poll(currentTaskId)
+
+    }
+  }
+  useEffect(() => {
+    if (inProgress && currentTaskId) {
+      document.addEventListener('visibilitychange', onVisibilityChange)
+    }
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [inProgress, currentTaskId])
 
   const create = async (prompt: string) => {
     beginTask({
       prompt: prompt,
       type: TaskType.Imagine
     }).then((res) => {
-      if (res.status !== TaskStatus.Failed) {
+      if (res.status !== TaskStatus.Failed && res.id) {
+        console.log("taskStatus setInProgress(true)", res.id)
+        setCurrentTaskId(res.id)
         setConfirmationOpen(true)
-        setLatestTaskId(res.id ?? "")
+        pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
       }
       else {
+        console.log("Create setInProgress(false)", res.id)
         setInProgress(false)
-        setLatestTaskId("")
         setErrorOpen(true)
       }
     })
+    console.log("create end setInProgress(true)")
     setInProgress(true)
   }
 
@@ -168,13 +182,13 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       index: index,
       type: TaskType.ImagineVariants
     }).then((res) => {
-      if (res.status !== TaskStatus.Failed) {
+      if (res.status !== TaskStatus.Failed && res.id) {
+        setCurrentTaskId(res.id)
         setConfirmationOpen(true)
-        setLatestTaskId(res.id ?? "")
+        pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
       }
       else {
         setInProgress(false)
-        setLatestTaskId("")
         setErrorOpen(true)
       }
     })
@@ -190,7 +204,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         inProgress: inProgress,
         products: products,
         progress: progress,
-        progressUri: progressUri
       }}>
         {children}
       </CreationContext.Provider>
