@@ -23,22 +23,20 @@ const FilterControls = ({ filterParams, filterSubmit }: { filterParams: FilterPa
       <div>
         <div className="flex flex-row justify-between py-2">
           <label className="block py-2">Sort</label>
-          <TooltipProvider>
-            <Tooltip>
-              <FormItem>
-                <TooltipTrigger>
-                  <Toggle
-                    className="stroke-1"
-                    defaultPressed={filterParams.reverse ?? false}
-                    onPressedChange={(value) => filterSubmit({ reverse: !(filterParams.reverse ?? true) })}
-                  >
-                    {filterParams.reverse ? <ArrowDownWideNarrowIcon strokeWidth="1" /> : <ArrowUpNarrowWideIcon strokeWidth="1" />}
-                  </Toggle>
-                </TooltipTrigger>
-              </FormItem>
-              <TooltipContent>{filterParams.reverse ? "Descending" : "Ascending"}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Tooltip>
+            <FormItem>
+              <TooltipTrigger>
+                <Toggle
+                  className="stroke-1"
+                  defaultPressed={filterParams.reverse ?? false}
+                  onPressedChange={(value) => filterSubmit({ reverse: !(filterParams.reverse ?? true) })}
+                >
+                  {filterParams.reverse ? <ArrowDownWideNarrowIcon strokeWidth="1" /> : <ArrowUpNarrowWideIcon strokeWidth="1" />}
+                </Toggle>
+              </TooltipTrigger>
+            </FormItem>
+            <TooltipContent>{filterParams.reverse ? "Descending" : "Ascending"}</TooltipContent>
+          </Tooltip>
         </div>
 
         <Select defaultValue={ProductSortKeys.CreatedAt} onValueChange={(value) => filterSubmit({ sortKey: value })}>

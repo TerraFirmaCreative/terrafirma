@@ -12,25 +12,23 @@ const PromptDescription = ({ prompt }: { prompt: string }) => {
     <div className="border rounded-md p-4 font-light w-full">
       <div className="flex flex-row w-full justify-between">
         <h3 className="font-normal">Prompt</h3>
-        <TooltipProvider>
-          <Tooltip delayDuration={100}>
-            <TooltipTrigger>
-              <Button
-                variant="ghost"
-                className="p-2"
-                onClick={() => {
-                  navigator.clipboard.writeText(trimPrompt(prompt))
-                  toast({ title: "Copied prompt!", description: trimPrompt(prompt) })
-                }}
-              >
-                <CopyIcon className="stroke-1" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              Copy Prompt
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip delayDuration={100}>
+          <TooltipTrigger>
+            <Button
+              variant="ghost"
+              className="p-2"
+              onClick={() => {
+                navigator.clipboard.writeText(trimPrompt(prompt))
+                toast({ title: "Copied prompt!", description: trimPrompt(prompt) })
+              }}
+            >
+              <CopyIcon className="stroke-1" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            Copy Prompt
+          </TooltipContent>
+        </Tooltip>
       </div>
       <ScrollArea className="pb-5">
         {trimPrompt(prompt)}

@@ -39,16 +39,14 @@ const ProductTile = ({ product }: { product: NonNullable<GetProductsByIdQuery["n
                 toast({ title: "Copied prompt!", description: trimPrompt(userProduct.imagineData!.imaginePrompt) })
               }}
             >
-              <TooltipProvider>
-                <Tooltip delayDuration={100}>
-                  <TooltipTrigger>
-                    <CopyIcon className="stroke-[1.5] h-full w-full stroke-slate-400 hover:stroke-slate-50 p-2" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Copy prompt
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Tooltip delayDuration={100}>
+                <TooltipTrigger>
+                  <CopyIcon className="stroke-[1.5] h-full w-full stroke-slate-400 hover:stroke-slate-50 p-2" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  Copy prompt
+                </TooltipContent>
+              </Tooltip>
             </div>
           }
           <Link key={product.id} href={`/browse/${shopifyIdToUrlId(product.id)}`}>

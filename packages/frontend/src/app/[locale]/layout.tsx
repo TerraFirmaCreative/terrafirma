@@ -14,6 +14,7 @@ import { Toaster } from "@/components/ui/toaster"
 import Banner from "@/components/ui/banner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { locales } from "@/config"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 export const metadata: Metadata = {
   title: "Custom AI-Generated Yoga Mats | Unique, Eco-Friendly & Premium Quality",
@@ -90,14 +91,16 @@ export default async function RootLayout({
           <Banner />
         </header>
         <main className="w-full h-full">
-          <SessionProvider>
-            <CartProvider locale={params.locale}>
-              <CreationProvider>
-                <MainMenu menuItems={menuItems} moreMenuItems={moreMenuItems} />
-                {children}
-              </CreationProvider>
-            </CartProvider>
-          </SessionProvider>
+          <TooltipProvider>
+            <SessionProvider>
+              <CartProvider locale={params.locale}>
+                <CreationProvider>
+                  <MainMenu menuItems={menuItems} moreMenuItems={moreMenuItems} />
+                  {children}
+                </CreationProvider>
+              </CartProvider>
+            </SessionProvider>
+          </TooltipProvider>
         </main>
         <Toaster />
       </body>

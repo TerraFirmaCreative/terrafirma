@@ -1,7 +1,7 @@
 "use client"
 import { createContext, useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../dialog"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle, InfoIcon } from "lucide-react"
 import { Button } from "../button"
 import { AlertDialogCancel, AlertDialog, AlertDialogFooter, AlertDialogContent, AlertDialogAction, AlertDialogTitle } from "../alert-dialog"
 import { useParams, useRouter } from "next/navigation"
@@ -16,6 +16,8 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { Progress } from "../progress"
 import { Checkbox } from "../checkbox"
 import { useInterval } from "@/hooks/use-interval"
+import Link from "next/link"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip"
 
 export const CreationContext = createContext<{
   create: (prompt: string) => Promise<void>,
@@ -45,7 +47,6 @@ const emailSchema = yup.object({
 function CreationProvider({ children }: { children: React.ReactNode }) {
   const [inProgress, setInProgress] = useState<boolean>(false)
   const [products, setProducts] = useState<ProductWithImagineData[]>([])
-  const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false)
   const [finishedOpen, setFinishedOpen] = useState<boolean>(false)
   const [errorOpen, setErrorOpen] = useState<boolean>(false)
   const [progress, setProgress] = useState<number>(0)
@@ -122,13 +123,11 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       case TaskStatus.Complete:
         await refreshProducts()
         setInProgress(false)
-        // setConfirmationOpen(false)
         setFinishedOpen(true)
         break
       case TaskStatus.Failed:
       case undefined:
         setInProgress(false)
-        // setConfirmationOpen(false)
         setErrorOpen(true)
         break
       default:
@@ -146,8 +145,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       if (res.status !== TaskStatus.Failed && res.id) {
         console.log("taskStatus setInProgress(true)", res.id)
         setCurrentTaskId(res.id)
-        // setConfirmationOpen(true)
-        // pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
       }
       else {
         console.log("Create setInProgress(false)", res.id)
@@ -168,8 +165,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }).then((res) => {
       if (res.status !== TaskStatus.Failed && res.id) {
         setCurrentTaskId(res.id)
-        // setConfirmationOpen(true)
-        // pollTimeoutRef.current = setTimeout(poll, 5000, res.id)
       }
       else {
         setInProgress(false)
@@ -235,9 +230,10 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         <div className="fixed z-10 bottom-5 left-5 right-5">
           <div className="flex flex-col items-center w-fit mx-auto justify-start gap-4 p-4 bg-white border border-gray-300 rounded-md shadow-gray-600 drop-shadow-lg">
             <div className="flex flex-row gap-4">
-              <h2>{"We're working on your design..."}</h2>
+              <h2 className="my-auto">{"We're working on your design..."}</h2>
               <div className="animate-spin border-r-2 border-t-2 h-6 min-w-6 border-black rounded-[50%]" />
             </div>
+            <p className="text-xs text-center">{"This usually takes under a minute. "}<br /><span className="font-bold hover:underline cursor-pointer">{"Notify me when my design is ready."}</span></p>
             <Progress value={progress} />
           </div>
         </div >
