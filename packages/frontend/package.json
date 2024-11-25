@@ -3,7 +3,7 @@
   "version": "0.16.0",
   "scripts": {
     "dev": "node server.mjs",
-    "build": "next build",
+    "build": "esbuild server.mjs --platform=node --external:next --bundle --outfile=server.js && next build",
     "start": "NODE_ENV=production node server.mjs"
   },
   "dependencies": {

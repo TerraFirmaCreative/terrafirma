@@ -2,17 +2,21 @@
 import { createContext, useEffect, useRef, useState } from "react"
 import { AlertDialogCancel, AlertDialog, AlertDialogFooter, AlertDialogContent, AlertDialogAction, AlertDialogTitle } from "../alert-dialog"
 import { useParams, useRouter } from "next/navigation"
-import { beginTask, getUserProducts, pollTask } from "@/gateway/tasks"
+import { beginTask, getUserProducts, pollTask, updateTaskShouldEmailUser, updateUserEmail } from "@/gateway/tasks"
 import { TaskStatus, Product, ImagineData, TaskType } from "@prisma/client"
 import { getProductsById } from "@/gateway/store"
 import { GetProductsByIdQuery } from "@/lib/types/graphql"
-import { useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Progress } from "../progress"
 import { useInterval } from "@/hooks/use-interval"
 
 import { socket } from "@/app/ws"
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from "../dialog"
+import { getUser } from "@/gateway/custom"
+import { Checkbox } from "../checkbox"
+import { Button } from "../button"
 
 export const CreationContext = createContext<{
   create: (prompt: string) => Promise<void>,
@@ -36,7 +40,6 @@ export type ProductWithImagineData = ({ imagineData: ImagineData | null, shopify
 
 const emailSchema = yup.object({
   email: yup.string().email().optional(),
-  shouldEmail: yup.bool().optional().default(false)
 })
 
 function CreationProvider({ children }: { children: React.ReactNode }) {
@@ -44,8 +47,10 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<ProductWithImagineData[]>([])
   const [finishedOpen, setFinishedOpen] = useState<boolean>(false)
   const [errorOpen, setErrorOpen] = useState<boolean>(false)
+  const [emailOpen, setEmailOpen] = useState<boolean>(false)
+  const [shouldEmail, setShouldEmail] = useState<boolean>(false)
   const [progress, setProgress] = useState<number>(0)
-  const [userEmail, setUserEmail] = useState<string | null | undefined>()
+  const [userEmail, setUserEmail] = useState<string | null>()
   const currentTaskRef = useRef<string>()
 
   const { locale }: { locale: string } = useParams()
@@ -55,10 +60,17 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
 
   const form = useForm<yup.InferType<typeof emailSchema>>({
-    resolver: yupResolver(emailSchema)
+    resolver: yupResolver(emailSchema),
+    defaultValues: {
+      email: userEmail ?? undefined
+    }
   })
 
   useEffect(() => {
+    getUser().then((user) => {
+      setUserEmail(user?.email)
+    })
+
     if (socket.connected) {
       onConnect();
     }
@@ -81,21 +93,24 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // const onSubmit: SubmitHandler<yup.InferType<typeof emailSchema>> = (data) => {
-  //   if (data.email && !userEmail) {
-  //     setUserEmail(data.email)
-  //     updateUserEmail(data.email)
-  //     currentTaskId && updateTaskShouldEmailUser(currentTaskId, true)
-  //   }
-  //   if (userEmail && data.shouldEmail && currentTaskId) {
-  //     updateTaskShouldEmailUser(currentTaskId, data.shouldEmail)
-  //   }
-  // }
+  const onEmailSubmit: SubmitHandler<yup.InferType<typeof emailSchema>> = (data) => {
+    if (data.email) {
+      setUserEmail(data.email)
+      updateUserEmail(data.email)
+      if (currentTaskRef.current) updateTaskShouldEmailUser(currentTaskRef.current, true)
+    }
+    setEmailOpen(false)
+  }
+
+  useEffect(() => {
+    if (shouldEmail && !userEmail) {
+      setEmailOpen(true)
+    }
+  }, [shouldEmail])
 
   const refreshProducts = async () => {
     const userProducts = (await getUserProducts())
     const shopifyProducts = await (await getProductsById(userProducts.map((product) => product.shopifyProductId), locale ?? "AU"))
-    console.log(userProducts, shopifyProducts)
     let shopifyProductsMap: Map<string, GetProductsByIdQuery["nodes"][0]> = new Map<string, GetProductsByIdQuery["nodes"][0]>
     for (const shopifyProduct of shopifyProducts) {
       shopifyProductsMap.set(shopifyProduct?.id!, shopifyProduct)
@@ -116,9 +131,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       setProgress(20)
     }
     else if (currentTaskRef.current) {
-      socket.emit("unsubscribe", currentTaskRef.current, (response: string) => {
-        console.log(response)
-      })
+      socket.emit("unsubscribe", currentTaskRef.current, (response: string) => { })
     }
 
     const onVisibilityChange = () => {
@@ -175,9 +188,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }).then((res) => {
       if (res.status !== TaskStatus.Failed && res.id) {
         currentTaskRef.current = res.id
-        socket.emit("subscribe", res.id, (response: string) => {
-          console.log(response)
-        })
+        socket.emit("subscribe", res.id, (response: string) => { })
       }
       else {
         setInProgress(false)
@@ -196,9 +207,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }).then((res) => {
       if (res.status !== TaskStatus.Failed && res.id) {
         currentTaskRef.current = res.id
-        socket.emit("subscribe", res.id, (response: string) => {
-          console.log(response)
-        })
+        socket.emit("subscribe", res.id, (response: string) => { })
       }
       else {
         setInProgress(false)
@@ -260,14 +269,38 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {!inProgress &&
+      <Dialog open={emailOpen} onOpenChange={setEmailOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <div className="text-center flex flex-col gap-4">
+            <h1 className="text-4xl">✉️</h1>
+            <DialogTitle>Notify me</DialogTitle>
+            <p className="text-gray-500">
+              {"Have your designs emailed to you once they're ready."}
+            </p>
+            <form onSubmit={form.handleSubmit(onEmailSubmit)}>
+              <input {...form.register("email")} placeholder="Email" className="p-2 border-slate-400 border w-full rounded-md" />
+            </form>
+          </div>
+          <DialogFooter>
+            <Button onClick={form.handleSubmit(onEmailSubmit)}>
+              Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {inProgress &&
         <div className="fixed z-10 bottom-5 left-5 right-5">
           <div className="flex flex-col items-center w-fit mx-auto justify-start gap-4 p-4 bg-white border border-gray-300 rounded-md shadow-gray-600 drop-shadow-lg">
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-row">
               <h2 className="my-auto">{"We're working on your design..."}</h2>
               <div className="animate-spin border-r-2 border-t-2 h-6 min-w-6 border-black rounded-[50%]" />
             </div>
-            <p className="text-xs text-center">{"This usually takes under a minute. "}<br /><span className="font-bold hover:underline cursor-pointer">{"Notify me when my design is ready."}</span></p>
+            <p className="text-xs text-center">{"You can still browse around while you wait."}</p>
+            <div className="flex flex-row justify-start text-xs gap-x-2">
+              <Checkbox id="notify-me" checked={shouldEmail} onCheckedChange={(checked) => setShouldEmail(checked == 'indeterminate' ? false : checked)} />
+              <label htmlFor="notify-me" className="font-bold cursor-pointer">{"Notify me when my design is ready."}</label>
+            </div>
             <Progress value={progress} />
           </div>
         </div >

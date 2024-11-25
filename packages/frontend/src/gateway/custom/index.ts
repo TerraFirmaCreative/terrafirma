@@ -23,7 +23,7 @@ export const getPrompts = async () => {
 
 export const getUser = async (): Promise<Partial<User> | null> => {
   const token = cookies().get('token')?.value
-
+  console.log("TOKEN", token)
   // if (!token) return 
 
   const user = await getPrisma().user.findFirst({
