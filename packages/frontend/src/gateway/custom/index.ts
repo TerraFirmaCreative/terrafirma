@@ -12,9 +12,12 @@ import { cookies } from "next/headers"
 
 export const getPrompts = async () => {
   const prompts = await getPrisma().imagineData.findMany({
-    "take": 50,
+    "take": 10,
     "select": {
       "imaginePrompt": true
+    },
+    "orderBy": {
+      createdAt: "desc"
     }
   })
 
