@@ -78,7 +78,7 @@ const Page = () => {
                 <CarouselItem key={product.id} className="basis-1/2 md:basis-1/4">
                   <Link href={`/browse/${shopifyIdToUrlId(product!.shopifyProduct!.id)}`}>
                     <div className="overflow-clip relative border rounded-lg shadow">
-                      <AspectRatio ratio={1 / 3}>
+                      <AspectRatio ratio={130 / 350}>
                         <Image
                           src={product!.shopifyProduct!.featuredImage?.url}
                           alt={product!.shopifyProduct!.title}

@@ -3,7 +3,7 @@
 import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin"
 
 const nextConfig = {
-  webpack: (config, {isServer} ) => {
+  webpack: (config, { isServer }) => {
     if (isServer) {
       config.plugins = [...config.plugins, new PrismaPlugin()]
     }
@@ -32,7 +32,7 @@ const nextConfig = {
       },
     ],
   },
-  ...!["vercel", "local"].includes(process.env.DEPLOY_ENV) && {output: "standalone"},
+  output: "standalone"
 };
 
 export default nextConfig;

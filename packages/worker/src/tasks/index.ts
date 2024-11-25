@@ -2,12 +2,13 @@ import { ImagineTask, ImagineVariantsTask } from "../types/worker"
 import { sanitisePrompt } from "@terrafirma/rest/src/utils"
 import { createVariants, generateCustomText, imagineMats } from "./midjourney"
 import { createProduct, uploadShopify } from "./shopify"
-import config, { logger, prisma, sqsClient, transporter } from "../config"
+import config, { logger, prisma, socket, sqsClient, transporter } from "../config"
 import { TaskStatus } from "@prisma/client"
 import { remoteImage, splitQuadImage } from "./image"
 import sharp, { Sharp } from "sharp"
 import { DeleteMessageCommand } from "@aws-sdk/client-sqs"
 import { taskDoneTemplate } from "../email"
+import { notifyTaskUpdate } from "./ws"
 
 export const imagineTask = async (task: ImagineTask) => {
   const prompt = sanitisePrompt(task.Body.prompt)
@@ -86,7 +87,9 @@ export const imagineTask = async (task: ImagineTask) => {
         }
       })
     ])
+    notifyTaskUpdate(task.Body.taskId, TaskStatus.Complete)
     logger.info("transaction complete")
+
 
     const user = await prisma.user.findUnique({
       "where": {
@@ -129,6 +132,8 @@ export const imagineTask = async (task: ImagineTask) => {
       "QueueUrl": config.SQS_URL,
       "ReceiptHandle": task.ReceiptHandle
     }))
+
+    notifyTaskUpdate(task.Body.taskId, TaskStatus.Failed)
 
     return
   }
@@ -250,6 +255,8 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
       }
     })
 
+    notifyTaskUpdate(task.Body.taskId, TaskStatus.Failed)
+
     return
   }
 
@@ -258,4 +265,6 @@ export const imagineVariantsTask = async (task: ImagineVariantsTask) => {
     "QueueUrl": config.SQS_URL,
     "ReceiptHandle": task.ReceiptHandle
   }))
+
+  notifyTaskUpdate(task.Body.taskId, TaskStatus.Complete)
 }

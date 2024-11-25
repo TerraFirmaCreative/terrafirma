@@ -7,10 +7,15 @@ import { PrismaClient } from "@prisma/client"
 import * as dotenv from 'dotenv'
 import * as nodemailer from 'nodemailer'
 import pino from "pino"
+import { io } from "socket.io-client"
 
 dotenv.config()
 
 export const prisma = new PrismaClient({ "datasourceUrl": process.env.DATABASE_URL! })
+
+export const socket = io('ws://localhost:3000', {
+  autoConnect: true
+})
 
 const Config = {
   SQS_URL: process.env.SQS_URL!,
@@ -58,7 +63,7 @@ export const mjClient = new Midjourney({
   ServerId: process.env.MJ_SERVER_ID,
   ChannelId: process.env.MJ_CHANNEL_ID,
   SalaiToken: process.env.MJ_SALAI_TOKEN ?? "",
-  Debug: false
+  Debug: false,
 })
 
 export const s3Client = new S3Client({

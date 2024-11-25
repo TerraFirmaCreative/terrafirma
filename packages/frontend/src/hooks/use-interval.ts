@@ -9,6 +9,7 @@ export function useInterval<TArgs extends any[]>(callback: (...args: any[]) => v
 
   // Set up the interval.
   useEffect(() => {
+    console.log(delay, "Heres")
     function tick(...args: TArgs) {
       if (savedCallback.current) {
         savedCallback.current(...args);

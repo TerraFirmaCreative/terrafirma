@@ -185,7 +185,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
           {products.map((product: PaginatedProductsQuery["products"]["edges"][0]) => {
             return <Link key={product.node.id} href={`/browse/${shopifyIdToUrlId(product.node.id)}`}>
               <div key={product.cursor} className="bg-white overflow-clip rounded-md relative border">
-                <AspectRatio ratio={1 / 3}>
+                <AspectRatio ratio={13 / 35}>
                   <Image
                     src={product.node.featuredImage?.url}
                     alt={product.node.title}

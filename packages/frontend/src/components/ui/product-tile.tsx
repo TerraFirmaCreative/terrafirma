@@ -23,7 +23,7 @@ const ProductTile = ({ product }: { product: NonNullable<GetProductsByIdQuery["n
 
   return (
     <div key={product.id} className="rounded-md overflow-clip relative border">
-      <AspectRatio ratio={1 / 3}>
+      <AspectRatio ratio={13 / 35}>
         <Image
           src={product.featuredImage?.url}
           alt={product.title ?? "Design for yoga mat product"}

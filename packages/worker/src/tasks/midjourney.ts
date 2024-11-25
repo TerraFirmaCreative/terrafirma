@@ -33,7 +33,7 @@ export const generateCustomText = async (prompt: string) => {
   const descriptions: string[] = (await openai.chat.completions.create({
     "model": "gpt-3.5-turbo-0125",
     "messages": [
-      { role: "user", content: `Imagine an image using the following promp: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat. Include only the caption in your response, without any quotation or speech marks. Use only commas and full stops in your punctuation` },
+      { role: "user", content: `Imagine an image using the following prompt: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat. Include only the caption in your response, without any quotation or speech marks. Use only commas and full stops in your punctuation` },
     ],
     "n": 4,
   })).choices.map((choice) => choice.message.content ?? "Failed to generate description")
@@ -43,7 +43,7 @@ export const generateCustomText = async (prompt: string) => {
       openai.chat.completions.create({
         "model": "gpt-3.5-turbo-0125",
         "messages": [
-          { role: "user", content: `Imagine an image using the following promp: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat.` },
+          { role: "user", content: `Imagine an image using the following prompt: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat.` },
           { role: "system", content: desc },
           { role: "user", content: `Create an meaningful-sounding title for this image less than 5 words` }
         ]
@@ -63,7 +63,7 @@ export const generateCustomText = async (prompt: string) => {
 
 export const imagineMats = async (taskId: string, prompt: string): Promise<(MJMessage | null)[]> => {
   const Imagine: MJMessage | null = await mjClient.Imagine(
-    `${prompt} --ar 1:3`,
+    `${prompt} --ar 13:35`,
     (uri, progress) => {
       updateTaskProgress(taskId, progress, uri)
     }
@@ -88,7 +88,7 @@ export const createVariants = async (taskId: string, prompt: string, imagineData
     msgId: imagineData.imagineId,
     hash: imagineData.imagineHash,
     flags: 0,
-    content: `${trimPrompt(imagineData.imaginePrompt)}. ${prompt} --ar 1:3`,
+    content: `${trimPrompt(imagineData.imaginePrompt)}. ${prompt} --ar 13:35`,
     loading: (uri, progress) => {
       updateTaskProgress(taskId, progress, uri)
     }

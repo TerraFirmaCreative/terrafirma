@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useEffect, useState } from "react"
+import { createContext, useEffect, useRef, useState } from "react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../dialog"
 import { CheckCircle, InfoIcon } from "lucide-react"
 import { Button } from "../button"
@@ -18,6 +18,8 @@ import { Checkbox } from "../checkbox"
 import { useInterval } from "@/hooks/use-interval"
 import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip"
+
+import { socket } from "@/app/ws"
 
 export const CreationContext = createContext<{
   create: (prompt: string) => Promise<void>,
@@ -51,26 +53,52 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const [errorOpen, setErrorOpen] = useState<boolean>(false)
   const [progress, setProgress] = useState<number>(0)
   const [userEmail, setUserEmail] = useState<string | null | undefined>()
-  const [currentTaskId, setCurrentTaskId] = useState<string | undefined | null>()
+  const currentTaskRef = useRef<string>()
 
   const { locale }: { locale: string } = useParams()
 
   const router = useRouter()
 
+  const [isConnected, setIsConnected] = useState(false);
+  // const [transport, setTransport] = useState("N/A");
+
   const form = useForm<yup.InferType<typeof emailSchema>>({
     resolver: yupResolver(emailSchema)
   })
 
-  const onSubmit: SubmitHandler<yup.InferType<typeof emailSchema>> = (data) => {
-    if (data.email && !userEmail) {
-      setUserEmail(data.email)
-      updateUserEmail(data.email)
-      currentTaskId && updateTaskShouldEmailUser(currentTaskId, true)
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect();
     }
-    if (userEmail && data.shouldEmail && currentTaskId) {
-      updateTaskShouldEmailUser(currentTaskId, data.shouldEmail)
+
+    function onConnect() {
+      setIsConnected(true);
     }
-  }
+
+    function onDisconnect() {
+      setIsConnected(false);
+    }
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("task-update", handleTaskUpdate)
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, []);
+
+  // const onSubmit: SubmitHandler<yup.InferType<typeof emailSchema>> = (data) => {
+  //   if (data.email && !userEmail) {
+  //     setUserEmail(data.email)
+  //     updateUserEmail(data.email)
+  //     currentTaskId && updateTaskShouldEmailUser(currentTaskId, true)
+  //   }
+  //   if (userEmail && data.shouldEmail && currentTaskId) {
+  //     updateTaskShouldEmailUser(currentTaskId, data.shouldEmail)
+  //   }
+  // }
 
   const refreshProducts = async () => {
     const userProducts = (await getUserProducts())
@@ -95,31 +123,31 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     if (inProgress) {
       setProgress(20)
     }
-  }, [inProgress])
+    else if (currentTaskRef.current) {
+      socket.emit("unsubscribe", currentTaskRef.current, (response: string) => {
+        console.log(response)
+      })
+    }
 
-  useEffect(() => {
-    const pollConditional = () => {
-      if (inProgress && currentTaskId && document.visibilityState == "visible") {
-        poll(currentTaskId)
+    const onVisibilityChange = () => {
+      if (inProgress && currentTaskRef.current && document.visibilityState == "visible") {
+        poll()
       }
     }
-    document.addEventListener('visibilitychange', pollConditional)
+    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
-      document.removeEventListener('visibilitychange', pollConditional)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [inProgress, currentTaskId])
+  }, [inProgress])
 
   useInterval(() => {
     setProgress(Math.max(20, Math.min(progress + (100 / 30) + Math.random() * (100 / 60), 90)))
   }, inProgress ? 2000 : null)
 
-  // Fallback for lack of service worker
-  const poll = async (taskId: string) => {
-    const task = await pollTask(taskId)
-    console.log("Polling...", task?.status)
-
-    switch (task?.status) {
+  const handleTaskUpdate = async (status?: TaskStatus) => {
+    console.log("Task status: ", status)
+    switch (status) {
       case TaskStatus.Complete:
         await refreshProducts()
         setInProgress(false)
@@ -135,7 +163,18 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  useInterval(poll, (currentTaskId && inProgress && document.visibilityState == "visible") ? 5000 : null, currentTaskId)
+  // Fallback for lack of ws
+  const poll = async () => {
+    console.log(currentTaskRef.current)
+    if (currentTaskRef.current) {
+      const task = await pollTask(currentTaskRef.current)
+      console.log("Polling...", task?.status)
+      handleTaskUpdate(task?.status)
+    }
+  }
+
+  // We dont use this anymore. We only poll when visibility changes.
+  // useInterval(poll, (currentTaskRef.current && inProgress && document.visibilityState == "visible") ? 5000 : null)
 
   const create = async (prompt: string) => {
     beginTask({
@@ -143,16 +182,16 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       type: TaskType.Imagine
     }).then((res) => {
       if (res.status !== TaskStatus.Failed && res.id) {
-        console.log("taskStatus setInProgress(true)", res.id)
-        setCurrentTaskId(res.id)
+        currentTaskRef.current = res.id
+        socket.emit("subscribe", res.id, (response: string) => {
+          console.log(response)
+        })
       }
       else {
-        console.log("Create setInProgress(false)", res.id)
         setInProgress(false)
         setErrorOpen(true)
       }
     })
-    console.log("create end setInProgress(true)")
     setInProgress(true)
   }
 
@@ -164,7 +203,10 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
       type: TaskType.ImagineVariants
     }).then((res) => {
       if (res.status !== TaskStatus.Failed && res.id) {
-        setCurrentTaskId(res.id)
+        currentTaskRef.current = res.id
+        socket.emit("subscribe", res.id, (response: string) => {
+          console.log(response)
+        })
       }
       else {
         setInProgress(false)
