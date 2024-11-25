@@ -106,6 +106,9 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     if (shouldEmail && !userEmail) {
       setEmailOpen(true)
     }
+    if (userEmail && currentTaskRef.current && inProgress) {
+      updateTaskShouldEmailUser(currentTaskRef.current, shouldEmail)
+    }
   }, [shouldEmail])
 
   const refreshProducts = async () => {
@@ -132,6 +135,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }
     else if (currentTaskRef.current) {
       socket.emit("unsubscribe", currentTaskRef.current, (response: string) => { })
+      setShouldEmail(false)
     }
 
     const onVisibilityChange = () => {
