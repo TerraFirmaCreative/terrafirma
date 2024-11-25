@@ -7,6 +7,7 @@ ENV SHOPIFY_STORE_DOMAIN=$SHOPIFY_STORE_DOMAIN
 ENV SHOPIFY_STOREFRONT_ACCESS_TOKEN=$SHOPIFY_STOREFRONT_ACCESS_TOKEN
 ENV SHOPIFY_ADMIN_ACCESS_TOKEN=$SHOPIFY_ADMIN_ACCESS_TOKEN
 ENV DEPLOY_ENV=docker
+ENV NODE_ENV=production
 
 WORKDIR /root
 COPY ["yarn.lock", "package.json", "./"]
@@ -24,4 +25,8 @@ EXPOSE 3000
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=builder /root/packages/frontend/.next/standalone ./standalone
-CMD node ./standalone/packages/frontend/server.js
+COPY --from=builder /root/packages/frontend/server.js ./standalone/packages/frontend/server.js
+
+WORKDIR /app/standalone/packages/frontend
+
+CMD node ./server.js

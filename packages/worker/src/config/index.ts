@@ -13,7 +13,7 @@ dotenv.config()
 
 export const prisma = new PrismaClient({ "datasourceUrl": process.env.DATABASE_URL! })
 
-export const socket = io('ws://localhost:3000', {
+export const socket = io(process.env.WS_URL ?? "ws://localhost:3000", {
   autoConnect: true
 })
 

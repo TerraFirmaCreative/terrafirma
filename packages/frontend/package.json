@@ -4,8 +4,7 @@
   "scripts": {
     "dev": "node server.mjs",
     "build": "next build",
-    "start": "next start",
-    "start:ws": "NEXT_ENV=production node server.mjs"
+    "start": "NODE_ENV=production node server.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.1.0",

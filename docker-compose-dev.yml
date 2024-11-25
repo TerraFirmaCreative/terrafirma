@@ -13,8 +13,6 @@ services:
   rest:
     container_name: terra-rest
     image: tipex360/terrafirma-rest:0.1
-    ports:
-      - "6000:5000"
     networks:
       - terra-net
     hostname: rest
@@ -31,6 +29,8 @@ services:
     restart: always
     volumes:
       - ./logs:/log
+    networks:
+      - terra-net
 
 networks:
   terra-net:

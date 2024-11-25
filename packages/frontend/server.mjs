@@ -1,13 +1,25 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
+import fs from "fs"
+import { fileURLToPath } from "node:url";
+import path from "path"
 
-const dev = process.env.NEXT_ENV !== "production";
+const dev = process.env.NODE_ENV !== "production";
 const hostname = "0.0.0.0";
 const port = parseInt(process.env.PORT, 10) || 3000;
+
+const { config } = dev ? { config: undefined } : JSON.parse(fs.readFileSync('./.next/required-server-files.json'));
+if (!dev) process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(config)
+
 // when using middleware `hostname` and `port` must be provided below
-const app = next({ dev, hostname, port });
+const app = next({ dev, hostname, port, conf: config });
 const handler = app.getRequestHandler();
+
+
+// Make sure commands gracefully respect termination signals (e.g. from Docker)
+process.on('SIGTERM', () => process.exit(0));
+process.on('SIGINT', () => process.exit(0));
 
 app.prepare().then(() => {
   const httpServer = createServer(handler);

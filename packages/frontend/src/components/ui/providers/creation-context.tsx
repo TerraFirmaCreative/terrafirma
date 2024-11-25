@@ -1,23 +1,16 @@
 "use client"
 import { createContext, useEffect, useRef, useState } from "react"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../dialog"
-import { CheckCircle, InfoIcon } from "lucide-react"
-import { Button } from "../button"
 import { AlertDialogCancel, AlertDialog, AlertDialogFooter, AlertDialogContent, AlertDialogAction, AlertDialogTitle } from "../alert-dialog"
 import { useParams, useRouter } from "next/navigation"
-import { beginTask, getUserProducts, pollTask, updateTaskShouldEmailUser, updateUserEmail } from "@/gateway/tasks"
+import { beginTask, getUserProducts, pollTask } from "@/gateway/tasks"
 import { TaskStatus, Product, ImagineData, TaskType } from "@prisma/client"
 import { getProductsById } from "@/gateway/store"
 import { GetProductsByIdQuery } from "@/lib/types/graphql"
-import { Form, FormDescription, FormField, FormLabel } from "../form"
-import { SubmitHandler, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Progress } from "../progress"
-import { Checkbox } from "../checkbox"
 import { useInterval } from "@/hooks/use-interval"
-import Link from "next/link"
-import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip"
 
 import { socket } from "@/app/ws"
 
@@ -60,7 +53,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   const [isConnected, setIsConnected] = useState(false);
-  // const [transport, setTransport] = useState("N/A");
 
   const form = useForm<yup.InferType<typeof emailSchema>>({
     resolver: yupResolver(emailSchema)
@@ -268,7 +260,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {inProgress &&
+      {!inProgress &&
         <div className="fixed z-10 bottom-5 left-5 right-5">
           <div className="flex flex-col items-center w-fit mx-auto justify-start gap-4 p-4 bg-white border border-gray-300 rounded-md shadow-gray-600 drop-shadow-lg">
             <div className="flex flex-row gap-4">

@@ -11,7 +11,7 @@ export const notifyTaskUpdate = async (taskId: string, status: TaskStatus) => {
   }
 
   if (!socket.connected) {
-    socket.io.open((err) => {
+    socket.io.open((err: Error | undefined) => {
       if (err) {
         logger.error(`WS socket failed! ${err}`)
       }
