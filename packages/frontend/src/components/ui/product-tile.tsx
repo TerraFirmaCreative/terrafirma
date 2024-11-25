@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import { ImagineData, Product } from "@prisma/client"
 import { getUserProduct, getUserProducts } from "@/gateway/tasks"
 import { GetProductsByIdQuery } from "@/lib/types/graphql"
+import { Badge } from "./badge"
 
 const ProductTile = ({ product }: { product: NonNullable<GetProductsByIdQuery["nodes"][0]> }) => {
   const [userProduct, setUserProduct] = useState<Product & { imagineData?: ImagineData | null } | null | undefined>()
@@ -33,7 +34,7 @@ const ProductTile = ({ product }: { product: NonNullable<GetProductsByIdQuery["n
         <div className="relative text-center w-full h-full bottom-0 opacity-0 hover:opacity-100 cursor-pointer transition-all">
           {userProduct?.imagineData &&
             <div
-              className="absolute w-10 h-10 right-0 rounded-sm stroke-slate-400 m-4 bg-slate-900 shadow-lg"
+              className="absolute right-0 rounded-full stroke-slate-400 m-4 bg-black shadow-lg"
               onClick={() => {
                 navigator.clipboard.writeText(trimPrompt(userProduct.imagineData!.imaginePrompt))
                 toast({ title: "Copied prompt!", description: trimPrompt(userProduct.imagineData!.imaginePrompt) })
@@ -41,7 +42,11 @@ const ProductTile = ({ product }: { product: NonNullable<GetProductsByIdQuery["n
             >
               <Tooltip delayDuration={100}>
                 <TooltipTrigger>
-                  <CopyIcon className="stroke-[1.5] h-full w-full stroke-slate-400 hover:stroke-slate-50 p-2" />
+                  {/* <CopyIcon className="stroke-[1.5] h-full w-full stroke-slate-400 hover:stroke-slate-50 p-2" /> */}
+                  <Badge>
+                    {trimPrompt(userProduct.imagineData!.imaginePrompt).slice(0, 10)}
+                    <CopyIcon className="stroke-2 p-1 ml-2 h-6" />
+                  </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
                   Copy prompt

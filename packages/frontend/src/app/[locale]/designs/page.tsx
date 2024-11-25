@@ -19,7 +19,7 @@ import { toast } from "@/hooks/use-toast"
 
 const Page = () => {
   const { products, create, inProgress, refreshProducts, } = useContext(CreationContext)
-  const [fetching, setFetching] = useState<boolean>(true)
+  const [fetching, setFetching] = useState<boolean>(true) //TODO: Suspense screen
   const [promptOpen, setPromptOpen] = useState(false)
 
   const promptSchema = yup.object({
@@ -67,7 +67,7 @@ const Page = () => {
             <Badge
               className="self-start my-2 cursor-pointer"
               onClick={() => {
-                navigator.clipboard.writeText(trimPrompt(trimPrompt(products.at(0)!.imagineData!.imaginePrompt)))
+                navigator.clipboard.writeText(trimPrompt(products.at(0)!.imagineData!.imaginePrompt))
                 toast({ title: "Copied prompt!", description: trimPrompt(products.at(0)!.imagineData!.imaginePrompt) })
               }}
             >
