@@ -1,15 +1,21 @@
-# syntax=docker/dockerfile:1
-FROM node:21-alpine as builder
+FROM node:23-alpine AS base
+ENV YARN_VERSION=4.5.3
+
+RUN corepack enable && corepack prepare yarn@${YARN_VERSION}
+
+FROM base AS builder
 ENV NODE_ENV=production
 WORKDIR /root
-COPY ["yarn.lock", "package.json", "./"]
+COPY [".yarnrc.yml", "yarn.lock", "package.json", "./"]
 COPY ./packages/worker ./packages/worker
 COPY ./packages/rest ./packages/rest
 
-RUN yarn workspace @terrafirma/worker install --ignore-engines --immutable --all --non-interactive --cache-folder ./ycache; rm -rf ./ycache
+RUN yarn install
+RUN yarn workspace @terrafirma/rest prisma generate
+RUN yarn workspace @terrafirma/worker install --immutable --ignore-engines --all --non-interactive --cache-folder ./ycache; rm -rf ./ycache
 RUN yarn workspace @terrafirma/worker build
 
-FROM node:21-alpine as runner
+FROM base as runner
 EXPOSE 3000
 ENV NODE_ENV=production
 WORKDIR /app

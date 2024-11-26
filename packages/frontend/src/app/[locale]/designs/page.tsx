@@ -109,7 +109,7 @@ const Page = () => {
           <section id="previous-creations" className="flex flex-col py-4 justify-center items-center">
             <div className="flex flex-row flex-wrap justify-center gap-4 text-center w-[calc(100%-120px)] max-w-4xl">
               <h2 className="font-serif text-3xl basis-full pt-4 ">Past creations</h2>
-              {products.slice(4).map((product) =>
+              {products.slice(4).map((product, i, ps) =>
                 <div key={product.id} className="md:basis-[calc(25%-12px)] basis-[calc(50%-8px)]">
                   <ProductTile key={product.id} product={product.shopifyProduct!} />
                 </div>

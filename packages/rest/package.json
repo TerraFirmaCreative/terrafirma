@@ -17,7 +17,7 @@
     "@aws-sdk/client-s3": "^3.565.0",
     "@aws-sdk/client-sqs": "^3.574.0",
     "@aws-sdk/s3-request-presigner": "^3.565.0",
-    "@prisma/client": "^5.13.0",
+    "@prisma/client": "5.22.0",
     "@shopify/admin-api-client": "^0.2.8",
     "@shopify/shopify-api": "^9.5.1",
     "@shopify/storefront-api-client": "^0.3.3",
@@ -36,13 +36,13 @@
     "openai": "^4.28.4",
     "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
-    "prisma": "^5.13.0",
     "sharp": "^0.33.4",
     "typescript": "^5.4.5"
   },
   "devDependencies": {
     "@shopify/api-codegen-preset": "^0.0.7",
     "nodemon": "^3.0.1",
+    "prisma": "5.22.0",
     "ts-node": "^10.9.1"
   },
   "exports": {

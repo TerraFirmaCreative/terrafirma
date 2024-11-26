@@ -4,7 +4,6 @@ import { getBannerMessage } from "@/gateway/cms"
 
 const Banner = async () => {
   const bannerMessage = await getBannerMessage()
-  console.log("banner", bannerMessage)
   if (!bannerMessage) return
 
   return (
