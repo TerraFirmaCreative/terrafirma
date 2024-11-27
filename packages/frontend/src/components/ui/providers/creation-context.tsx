@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogFooter, DialogTitle } from "../dialog"
 import { getUser } from "@/gateway/custom"
 import { Checkbox } from "../checkbox"
 import { Button } from "../button"
+import { cn } from "@/lib/utils"
 
 export const CreationContext = createContext<{
   create: (prompt: string) => Promise<void>,
@@ -39,7 +40,7 @@ export const CreationContext = createContext<{
 export type ProductWithImagineData = ({ imagineData: ImagineData | null, shopifyProduct: GetProductsByIdQuery["nodes"][0] | undefined } & (Product | null))
 
 const emailSchema = yup.object({
-  email: yup.string().email().optional(),
+  email: yup.string().email().required(),
 })
 
 function CreationProvider({ children }: { children: React.ReactNode }) {
@@ -56,8 +57,6 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
   const { locale }: { locale: string } = useParams()
 
   const router = useRouter()
-
-  const [isConnected, setIsConnected] = useState(false);
 
   const form = useForm<yup.InferType<typeof emailSchema>>({
     resolver: yupResolver(emailSchema),
@@ -76,11 +75,11 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     }
 
     function onConnect() {
-      setIsConnected(true);
+      // setIsConnected(true);
     }
 
     function onDisconnect() {
-      setIsConnected(false);
+      // setIsConnected(false);
     }
 
     socket.on("connect", onConnect);
@@ -220,7 +219,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
     })
     setInProgress(true)
   }
-
+  console.log(form.formState.errors)
   return (
     <>
       <CreationContext.Provider value={{
@@ -282,7 +281,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
               {"Have your designs emailed to you once they're ready."}
             </p>
             <form onSubmit={form.handleSubmit(onEmailSubmit)}>
-              <input {...form.register("email")} placeholder="Email" className="p-2 border-slate-400 border w-full rounded-md" />
+              <input {...form.register("email")} placeholder="Email" className={cn(form.formState.errors.email ? "border-red-500" : "border-slate-400", "p-2 border w-full rounded-md")} />
             </form>
           </div>
           <DialogFooter>
@@ -293,10 +292,10 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         </DialogContent>
       </Dialog>
 
-      {inProgress &&
+      {!inProgress &&
         <div className="fixed z-10 bottom-5 left-5 right-5">
           <div className="flex flex-col items-center w-fit mx-auto justify-start gap-4 p-4 bg-white border border-gray-300 rounded-md shadow-gray-600 drop-shadow-lg">
-            <div className="flex flex-row">
+            <div className="flex flex-row gap-x-2">
               <h2 className="my-auto">{"We're working on your design..."}</h2>
               <div className="animate-spin border-r-2 border-t-2 h-6 min-w-6 border-black rounded-[50%]" />
             </div>

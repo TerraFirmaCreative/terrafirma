@@ -1,1 +1,1 @@
-docker build $(for i in `cat ./packages/frontend/.env.docker`; do out+="--build-arg $i "; done; echo $out;out="";) -t tipex360/terrafirma-frontend:0.6 -f ./packages/frontend/Dockerfile .
+docker build $(for i in `cat ./packages/frontend/.env.docker`; do out+="--build-arg $i "; done; echo $out;out="";) -t tipex360/terrafirma-frontend:0.7 -f ./packages/frontend/Dockerfile .

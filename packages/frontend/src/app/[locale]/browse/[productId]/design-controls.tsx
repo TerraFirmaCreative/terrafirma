@@ -29,7 +29,7 @@ const DesignControls = ({ product }: { product: Product & { imagineData?: Imagin
 
   return (
     <>
-      {!inProgress && product?.allowVariants &&
+      {inProgress && product?.allowVariants && product?.imagineData?.imagineFlags == 0 &&
         <>
           <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setPromptOpen(true)}><WandSparkles size="15" className="mr-2" />Redesign</Button>
           <Dialog open={promptOpen} onOpenChange={setPromptOpen}>
