@@ -15,6 +15,7 @@ import Banner from "@/components/ui/banner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { locales } from "@/config"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import Script from "next/script"
 
 export const metadata: Metadata = {
   title: "Custom AI-Generated Yoga Mats | Unique, Eco-Friendly & Premium Quality",
@@ -86,6 +87,7 @@ export default async function RootLayout({
   return (
     <html lang={language} className="h-full">
       <GoogleAnalytics gaId="G-QNLBHNGSJ6" />
+      <Script type="text/javascript" src="https://af.uppromote.com/tracking_third_party.js?shop=e38601-2.myshopify.com" />
       <body className={cn(geistSans.variable, playfairDisplay.variable, lato.variable, "bg-zinc-50 font-sans min-h-full relative h-fit")}>
         <header className="relative w-full">
           <Banner />
