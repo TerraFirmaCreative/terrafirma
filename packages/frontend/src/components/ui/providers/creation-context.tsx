@@ -292,7 +292,7 @@ function CreationProvider({ children }: { children: React.ReactNode }) {
         </DialogContent>
       </Dialog>
 
-      {!inProgress &&
+      {inProgress &&
         <div className="fixed z-10 bottom-5 left-5 right-5">
           <div className="flex flex-col items-center w-fit mx-auto justify-start gap-4 p-4 bg-white border border-gray-300 rounded-md shadow-gray-600 drop-shadow-lg">
             <div className="flex flex-row gap-x-2">

@@ -7,13 +7,12 @@ import { getCollections, getPaginatedProducts } from "@/gateway/store"
 import { cookies } from "next/headers"
 import FeaturedCollections from "./featured-collections"
 import Link from "next/link"
-
+import { prompts } from "@/config/prompts"
 
 export default async function HomePage({ params }: { params: { locale: string } }) {
   const _cookies = cookies() // Disable SSG
-  const [initialProducts, prompts, browseCollections, featuredCollections] = await Promise.all([
+  const [initialProducts, browseCollections, featuredCollections] = await Promise.all([
     getPaginatedProducts({}, params.locale),
-    getPrompts(),
     getCollections("title:='Home'", params.locale),
     getCollections("title:='FEATURED*'", params.locale)
   ])
