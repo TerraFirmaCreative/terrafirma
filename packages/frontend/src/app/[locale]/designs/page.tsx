@@ -1,6 +1,6 @@
 "use client"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
-import { CreationContext } from "@/components/ui/providers/creation-context"
+import { CreationContext } from "@/components/context/creation-context"
 import { formatPrice, shopifyIdToUrlId, trimPrompt } from "@/lib/utils"
 import Link from "next/link"
 import { useContext, useEffect, useState } from "react"
@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/use-toast"
 
 const Page = () => {
-  const { products, create, inProgress, refreshProducts, } = useContext(CreationContext)
+  const { products, create, refreshProducts, } = useContext(CreationContext)
   const [fetching, setFetching] = useState<boolean>(true) //TODO: Suspense screen
   const [promptOpen, setPromptOpen] = useState(false)
 
@@ -41,6 +41,23 @@ const Page = () => {
     })
   }, [])
 
+  /**
+   * Suspense
+   */
+  if (!fetching) return (
+    <div className="-mt-20 bg-gradient-to-b from-[#eda96d] to-orange-50 to-[50vh] flex flex-col text-center gap-4 items-center justify-center h-screen w-full">
+      <div className="w-1/2 h-8 bg-gray-200 rounded-md animate-pulse" />
+      <div className="w-full flex flex-row gap-4 justify-center">
+        {new Array(4).map((_, i) =>
+          <div key={i} className="w-1/5 h-80 aspect-[calc(130/350)] bg-gray-200 animate-pulse" />
+        )}
+      </div>
+    </div>
+  )
+
+  /**
+   * No products
+   */
   if (products.length < 1) return (
     <div className="-mt-20 bg-gradient-to-b from-[#eda96d] to-orange-50 to-[50vh] flex flex-col text-center gap-4 items-center justify-center h-screen w-full">
       <h1 className="text-6xl">🧐</h1>

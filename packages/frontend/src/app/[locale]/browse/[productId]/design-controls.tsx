@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { CreationContext } from "@/components/ui/providers/creation-context"
+import { CreationContext } from "@/components/context/creation-context"
 import { GenerateImageParams } from "@/lib/types/image.dto"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { ImagineData, Product } from "@prisma/client"

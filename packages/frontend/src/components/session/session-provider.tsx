@@ -19,7 +19,6 @@ const Auth = ({ children }: { children: React.ReactNode }) => {
 }
 
 const SessionProvider = ({ children }: { children: React.ReactNode }) => {
-
   return (
     <Suspense>
       <Auth>

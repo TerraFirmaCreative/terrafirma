@@ -3,7 +3,6 @@ import { useEffect, useState } from "react"
 import { FilterParams, ProductEdgeWithPrompt, getPaginatedProducts } from "@/gateway/store"
 import { GetCollectionsQuery, PaginatedProductsQuery } from "@/lib/types/graphql"
 import { useParams } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
 import ProductTile from "@/components/ui/product-tile"
 
 const BrowseProducts = ({ initialProducts, collections }: {
@@ -13,7 +12,6 @@ const BrowseProducts = ({ initialProducts, collections }: {
   const [products, setProducts] = useState<PaginatedProductsQuery["products"]["edges"]>(initialProducts ?? [])
   const [filterParams, setFilterParams] = useState<FilterParams>({})
   const params: { locale: string } = useParams()
-  const { toast } = useToast()
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)

@@ -1,6 +1,6 @@
 "use server"
 import { auth } from "@/actions/auth"
-import { getSessions, shouldAllowRequestRate } from "@/components/persistent/persistent-data"
+import { getSessions, shouldAllowRequestRate } from "@/components/session/persistent-data"
 import { getPrisma } from "@/config"
 import { ImagineData, Product, TaskStatus, TaskType } from "@prisma/client"
 import { cookies, headers } from "next/headers"

@@ -30,35 +30,46 @@ export async function updateTaskProgress(taskId: string, progress: string, progr
 }
 
 export const generateCustomText = async (prompt: string) => {
-  const descriptions: string[] = (await openai.chat.completions.create({
-    "model": "gpt-3.5-turbo-0125",
-    "messages": [
-      { role: "user", content: `Imagine an image using the following prompt: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat. Include only the caption in your response, without any quotation or speech marks. Use only commas and full stops in your punctuation` },
-    ],
-    "n": 4,
-  })).choices.map((choice) => choice.message.content ?? "Failed to generate description")
+  try {
+    const descriptions: string[] = (await openai.chat.completions.create({
+      "model": "gpt-3.5-turbo-0125",
+      "max_completion_tokens": 2000,
+      "messages": [
+        { role: "user", content: `Imagine an image using the following prompt: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat. Include only the caption in your response, without any quotation or speech marks. Use only commas and full stops in your punctuation` },
+      ],
+      "n": 4,
+    })).choices.map((choice) => choice.message.content ?? "Failed to generate description")
 
-  const titlePromises = descriptions.map((desc, i) => {
-    return (
-      openai.chat.completions.create({
-        "model": "gpt-3.5-turbo-0125",
-        "messages": [
-          { role: "user", content: `Imagine an image using the following prompt: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat.` },
-          { role: "system", content: desc },
-          { role: "user", content: `Create an meaningful-sounding title for this image less than 5 words` }
-        ]
-      }).then((title) => {
-        return title.choices[0].message.content?.split("").filter((char) => char != '"').join("") ?? `Design #${i}`
-      })
-    )
-  })
-  logger.info("Created titles and descriptions")
-  return (await Promise.all(titlePromises)).map((title, i) => {
-    return {
-      title: title,
-      description: descriptions[i]
-    }
-  })
+    const titlePromises = descriptions.map((desc, i) => {
+      return (
+        openai.chat.completions.create({
+          "model": "gpt-3.5-turbo-0125",
+          "max_completion_tokens": 2000,
+          "messages": [
+            { role: "user", content: `Imagine an image using the following prompt: ['${prompt}']. This image will be the design of a yoga mat to be sold. Create an insightful caption for this mat.` },
+            { role: "system", content: desc },
+            { role: "user", content: `Create an meaningful-sounding title for this image less than 5 words` }
+          ]
+        }).then((title) => {
+          return title.choices[0].message.content?.split("").filter((char) => char != '"').join("") ?? `Design #${i}`
+        })
+      )
+    })
+    logger.info("Created titles and descriptions")
+    return (await Promise.all(titlePromises)).map((title, i) => {
+      return {
+        title: title,
+        description: descriptions[i]
+      }
+    })
+  }
+  catch (e) {
+    logger.error("OpenAI Error: ", e)
+    return new Array(4).fill(0).map((_, i) => ({
+      title: `Design #${i}`,
+      description: "Generating description failed."
+    }))
+  }
 }
 
 export const imagineMats = async (taskId: string, prompt: string): Promise<(MJMessage | null)[]> => {

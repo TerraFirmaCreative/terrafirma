@@ -1,5 +1,5 @@
 "use server"
-import { getSessions } from "@/components/persistent/persistent-data"
+import { getSessions } from "@/components/session/persistent-data"
 import { getPrisma } from "@/config"
 import { cookies } from "next/headers"
 
@@ -15,8 +15,8 @@ async function retrieveUser(userId: string) {
     cookies().set({
       name: 'token',
       value: userId,
-      expires: 86400000,
-      maxAge: 86400,
+      expires: 2419200000,
+      maxAge: 2419200,
     })
   }
 
@@ -36,8 +36,8 @@ export async function auth(authParam?: string | null) {
       cookies().set({
         name: 'token',
         value: authParam,
-        expires: 1200000,
-        maxAge: 1200,
+        expires: 2419200000,
+        maxAge: 2419200,
       })
     }
   }
@@ -57,16 +57,16 @@ export async function auth(authParam?: string | null) {
     cookies().set({
       name: 'token',
       value: newToken,
-      expires: 1200000,
-      maxAge: 1200,
+      expires: 2419200000,
+      maxAge: 2419200,
     })
   }
   else {
     cookies().set({
       name: 'token',
       value: token.value,
-      expires: 1200000,
-      maxAge: 1200,
+      expires: 2419200000,
+      maxAge: 2419200,
     })
   }
 }

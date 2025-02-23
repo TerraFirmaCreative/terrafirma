@@ -1,13 +1,12 @@
-import type { Metadata } from "next"
-
 import "./globals.css"
+import type { Metadata } from "next"
 import { cn, parseLocale } from "@/lib/utils"
-import CartProvider from "@/components/ui/providers/cart-context"
-import CreationProvider from "@/components/ui/providers/creation-context"
+import CartProvider from "@/components/context/cart-context"
+import CreationProvider from "@/components/context/creation-context"
 import MainMenu from "@/components/ui/header"
 import { HomeIcon, LayoutDashboardIcon, PaintbrushIcon } from "lucide-react"
 import { getPages } from "@/gateway/cms"
-import SessionProvider from "@/components/persistent/session-provider"
+import SessionProvider from "@/components/session/session-provider"
 import { geistSans, lato, playfairDisplay } from "@/lib/fonts"
 import { getAvailableLocalization } from "@/gateway/store"
 import { Toaster } from "@/components/ui/toaster"
@@ -16,6 +15,7 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 import { locales } from "@/config"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import Script from "next/script"
+import CookiesProvider from "@/components/context/cookies-context"
 
 export const metadata: Metadata = {
   title: "Custom AI-Generated Yoga Mats | Unique, Eco-Friendly & Premium Quality",
@@ -86,8 +86,8 @@ export default async function RootLayout({
 
   return (
     <html lang={language} className="h-full">
-      <GoogleAnalytics gaId="G-QNLBHNGSJ6" />
-      <Script type="text/javascript" src="https://af.uppromote.com/tracking_third_party.js?shop=e38601-2.myshopify.com" />
+      {/* <GoogleAnalytics gaId="G-QNLBHNGSJ6" />
+      <Script type="text/javascript" src="https://af.uppromote.com/tracking_third_party.js?shop=e38601-2.myshopify.com" /> */}
       <body className={cn(geistSans.variable, playfairDisplay.variable, lato.variable, "bg-zinc-50 font-sans min-h-full relative h-fit")}>
         <header className="relative w-full">
           <Banner />
@@ -96,10 +96,12 @@ export default async function RootLayout({
           <TooltipProvider>
             <SessionProvider>
               <CartProvider locale={params.locale}>
-                <CreationProvider>
-                  <MainMenu menuItems={menuItems} moreMenuItems={moreMenuItems} />
-                  {children}
-                </CreationProvider>
+                <CookiesProvider>
+                  <CreationProvider>
+                    <MainMenu menuItems={menuItems} moreMenuItems={moreMenuItems} />
+                    {children}
+                  </CreationProvider>
+                </CookiesProvider>
               </CartProvider>
             </SessionProvider>
           </TooltipProvider>

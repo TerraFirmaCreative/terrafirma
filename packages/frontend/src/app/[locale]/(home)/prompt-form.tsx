@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { CreationContext } from "@/components/ui/providers/creation-context"
+import { CreationContext } from "@/components/context/creation-context"
 import { GenerateImageParams } from "@/lib/types/image.dto"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { ArrowRightIcon } from "lucide-react"

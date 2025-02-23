@@ -1,13 +1,10 @@
 import { User } from "@prisma/client"
-import { time } from "console"
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers"
-import { NextRequest } from "next/server"
 
 /*
 *  We only use this to store keep track of real user token in-memory and not fetch from the DB every time.
 */
 let sessions: Map<string, Session> = new Map()
-
 
 export const getSessions = () => {
   if (!sessions) {

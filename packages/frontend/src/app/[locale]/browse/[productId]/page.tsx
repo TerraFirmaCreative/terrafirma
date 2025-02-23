@@ -1,8 +1,8 @@
 export const revalidate = 60
 
-import { CartControls } from "@/components/ui/providers/cart-context"
+import { CartControls } from "@/components/context/cart-context"
 import { getProduct } from "@/gateway/store"
-import { cn, formatPrice, formatTitle, parseLocale, urlIdToShopifyId } from "@/lib/utils"
+import { cn, formatPrice, formatTitle, urlIdToShopifyId } from "@/lib/utils"
 import { Metadata, ResolvingMetadata } from "next"
 import Preview from "./preview"
 import { getUserProduct } from "@/gateway/tasks"
