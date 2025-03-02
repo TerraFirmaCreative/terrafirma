@@ -128,7 +128,7 @@ export type FilterParams = {
 
 export type ProductEdgeWithPrompt = PaginatedProductsQuery["products"]["edges"][0] & { imaginePrompt?: string }
 
-export const getPaginatedProducts = async (params: FilterParams, locale: string): Promise<PaginatedProductsQuery["products"]["edges"]> => {
+export const getPaginatedProducts = async (params: FilterParams, locale: string, amount: number = 20): Promise<PaginatedProductsQuery["products"]["edges"]> => {
   const [_, countryCode] = parseLocale(locale)
   const query = `#graphql
     query paginatedProducts($first: Int, $sortKey: ProductSortKeys, $query: String, $reverse: Boolean, $after: String, $countryCode: CountryCode) @inContext(country: $countryCode) {
@@ -171,7 +171,7 @@ export const getPaginatedProducts = async (params: FilterParams, locale: string)
   `
   const products = (await getStorefrontClient().request(query, {
     variables: {
-      first: 20,
+      first: amount,
       sortKey: params.sortKey ?? ProductSortKeys.CreatedAt,
       query: `variants.price:>=${params.priceRange?.at(0)?.toString() ?? '0'} variants.price:<=${params.priceRange?.at(1)?.toString() ?? '200'}`,
       reverse: params.reverse ?? true,

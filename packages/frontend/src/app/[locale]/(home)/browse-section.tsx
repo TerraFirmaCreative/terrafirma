@@ -21,7 +21,7 @@ const BrowseProducts = ({ initialProducts, collections }: {
   }, [products])
 
   const handleScroll = () => {
-    if ((window.scrollY + window.innerHeight) > document.documentElement.scrollHeight - 500) {
+    if ((window.scrollY + window.innerHeight) > document.documentElement.scrollHeight - 2500) {
       window.removeEventListener('scroll', handleScroll)
       fetchMoreProducts()
     }
@@ -32,7 +32,7 @@ const BrowseProducts = ({ initialProducts, collections }: {
       getPaginatedProducts({
         cursor: products.at(-1)?.cursor,
         ...filterParams
-      }, params?.locale ?? "AU").then(
+      }, params?.locale ?? "AU", 7).then(
         (ps) => {
           setProducts([...products, ...ps ?? []])
         }
@@ -42,7 +42,7 @@ const BrowseProducts = ({ initialProducts, collections }: {
 
   return (
     <>
-      <section id="browse-section">
+      <section id="browse-section" className="flex flex-col justify-start items-center">
         <div
           className="
             lg:grid-cols-[repeat(7,1fr)]
@@ -56,6 +56,8 @@ const BrowseProducts = ({ initialProducts, collections }: {
 
           {products.map((product) => <ProductTile key={product.cursor} product={product.node} />)}
         </div >
+        <div className="aspect-square w-20 m-16 border-r-2 border-slate-800 rounded-full animate-spin">
+        </div>
       </section >
     </>
   )

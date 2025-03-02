@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader } from "../ui/sheet"
 import { Button } from "../ui/button"
 import { Toast } from "../ui/toast"
 import { useToast } from "@/hooks/use-toast"
-import { getConsentCookie, setConsentCookie } from "@/actions/consent"
+import { setConsentCookie } from "@/actions/consent"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import Script from "next/script"
 import { cn } from "@/lib/utils"
@@ -23,9 +23,9 @@ const CookiesProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const applySavedPreferences = async () => {
-      const consent = await getConsentCookie()
+      const consent: string | undefined = `; ${document.cookie}`.split("; cookieConsent=").at(1)?.split(";").at(0)
 
-      setConsent(consent)
+      setConsent(consent ? Boolean(JSON.parse(consent)) : undefined)
       if (consent === undefined) setOpen(true)
     }
 
@@ -38,6 +38,8 @@ const CookiesProvider = ({ children }: { children: React.ReactNode }) => {
       setConsentCookie(consent)
     }
   }, [consent])
+
+  if (consent) console.log("CONSENT FOUND")
 
   return (
     <>
