@@ -62,3 +62,6 @@ export const readStream = async (stream: ReadableStream<Uint8Array>) => {
 }
 
 export const parseLocale = (locale: string) => locale.split('-')
+
+export const getClientCookie = (name: string): string | undefined =>
+  `; ${document.cookie}`.split(`; ${name}=`).at(1)?.split(";").at(0)

@@ -5,9 +5,10 @@ import { Dispatch, SetStateAction, createContext, useContext, useEffect, useStat
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { MinusIcon, PlusIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { CartLineUpdateInput, CreateCartMutation, GetProductQuery } from "@/lib/types/graphql"
 import { sendGAEvent } from "@next/third-parties/google"
+import { useRouter, useSearchParams } from "next/navigation"
+import { getClientCookie } from "@/lib/utils"
 
 export const CartContext = createContext<{
   cart: NonNullable<CreateCartMutation["cartCreate"]>["cart"] | undefined,
@@ -16,9 +17,12 @@ export const CartContext = createContext<{
   setCartOpen: Dispatch<SetStateAction<boolean>>
 }>({ cart: undefined, setCart: () => { }, cartOpen: false, setCartOpen: () => { } })
 
+
 const CartProvider = ({ children, locale }: { children: React.ReactNode, locale: string }) => {
   const [cart, setCart] = useState<Cart | undefined>()
   const [cartOpen, setCartOpen] = useState<boolean>(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     if (!cart) {
@@ -32,7 +36,6 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
   })
 
   useEffect(() => {
-    console.log(cartOpen, cart)
     if (cartOpen && cart) {
       sendGAEvent('event', 'view_cart', {
         currency: cart.cost.totalAmount.currencyCode,
@@ -77,6 +80,27 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
       })
 
       mutateCart(cart.id, newCartLines)
+    }
+  }
+
+  const onCheckout = () => {
+    if (cart) {
+      sendGAEvent('event', 'begin_checkout', {
+        currency: cart.cost.totalAmount.currencyCode,
+        value: cart.cost.totalAmount.amount,
+        items: cart.lines.edges.map((edge) => ({
+          item_id: edge.node.merchandise.id,
+          item_name: edge.node.merchandise.product.title,
+          quantity: edge.node.quantity
+        }))
+      })
+
+      const scaRef = (searchParams.get('sca_ref') || getClientCookie('sca_ref_duration')) ?? null
+      const checkoutUrl = new URL(cart.checkoutUrl)
+      console.log(scaRef)
+      if (scaRef) checkoutUrl.searchParams.append('sca_ref', scaRef)
+
+      router.push(checkoutUrl.href)
     }
   }
 
@@ -177,21 +201,7 @@ const CartProvider = ({ children, locale }: { children: React.ReactNode, locale:
           </div>
           {(cart?.lines.edges.length ?? 0) > 0 &&
             <div>
-              <Link href={cart?.checkoutUrl ?? `/`} onClick={() => {
-                if (cart) {
-                  sendGAEvent('event', 'begin_checkout', {
-                    currency: cart.cost.totalAmount.currencyCode,
-                    value: cart.cost.totalAmount.amount,
-                    items: cart.lines.edges.map((edge) => ({
-                      item_id: edge.node.merchandise.id,
-                      item_name: edge.node.merchandise.product.title,
-                      quantity: edge.node.quantity
-                    }))
-                  })
-                }
-              }}>
-                <Button className="w-full">Checkout</Button>
-              </Link>
+              <Button onClick={onCheckout} className="w-full">Checkout</Button>
             </div>}
         </SheetContent>
       </Sheet>

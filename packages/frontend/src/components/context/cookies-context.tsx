@@ -1,20 +1,17 @@
 "use client"
 import { createContext, useEffect, useState } from "react"
-import { Sheet, SheetContent, SheetDescription, SheetHeader } from "../ui/sheet"
 import { Button } from "../ui/button"
-import { Toast } from "../ui/toast"
-import { useToast } from "@/hooks/use-toast"
 import { setConsentCookie } from "@/actions/consent"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import Script from "next/script"
-import { cn } from "@/lib/utils"
+import { cn, getClientCookie } from "@/lib/utils"
 
 type CookiesContextProps = {
   cookieConsent: boolean
 }
 
 const CookiesContext = createContext<CookiesContextProps>({
-  cookieConsent: false
+  cookieConsent: false,
 })
 
 const CookiesProvider = ({ children }: { children: React.ReactNode }) => {
@@ -22,14 +19,11 @@ const CookiesProvider = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = useState<boolean>(false)
 
   useEffect(() => {
-    const applySavedPreferences = async () => {
-      const consent: string | undefined = `; ${document.cookie}`.split("; cookieConsent=").at(1)?.split(";").at(0)
+    const consent: string | undefined = getClientCookie('cookieConsent')
 
-      setConsent(consent ? Boolean(JSON.parse(consent)) : undefined)
-      if (consent === undefined) setOpen(true)
-    }
+    setConsent(consent ? Boolean(JSON.parse(consent)) : undefined)
+    if (consent === undefined) setOpen(true)
 
-    applySavedPreferences()
   }, [])
 
   useEffect(() => {
@@ -38,8 +32,6 @@ const CookiesProvider = ({ children }: { children: React.ReactNode }) => {
       setConsentCookie(consent)
     }
   }, [consent])
-
-  if (consent) console.log("CONSENT FOUND")
 
   return (
     <>
