@@ -1,4 +1,4 @@
-import { adminClient, logger } from "../config"
+import Config, { adminClient, logger } from "../config"
 import { spawn } from "child_process"
 import sharp, { Sharp } from "sharp"
 import { uploadImage } from "./image"
@@ -192,7 +192,7 @@ export async function createProduct(item: CreateProductItem): Promise<CreatedPro
     "variables": {
       "input": {
         id: product.data?.productCreate.product.variants.edges[0].node.id,
-        price: "70.00",
+        price: Config.PRODUCT_PRICE,
         inventoryItem: {
           measurement: {
             weight: {

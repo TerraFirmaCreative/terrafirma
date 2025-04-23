@@ -44,13 +44,14 @@ const Page = () => {
   /**
    * Suspense
    */
-  if (!fetching) return (
+  if (fetching) return (
     <div className="-mt-20 bg-gradient-to-b from-[#eda96d] to-orange-50 to-[50vh] flex flex-col text-center gap-4 items-center justify-center h-screen w-full">
-      <div className="w-1/2 h-8 bg-gray-200 rounded-md animate-pulse" />
+      {/* <div className="w-1/2 h-8 bg-gray-200 rounded-md animate-pulse" /> */}
       <div className="w-full flex flex-row gap-4 justify-center">
-        {new Array(4).map((_, i) =>
-          <div key={i} className="w-1/5 h-80 aspect-[calc(130/350)] bg-gray-200 animate-pulse" />
-        )}
+        <div className="w-1/5 bg-gray-600 aspect-[calc(100/300)] animate-pulse rounded-lg" />
+        <div className="w-1/5 bg-gray-600 aspect-[calc(100/300)] animate-pulse rounded-lg" />
+        <div className="w-1/5 bg-gray-600 aspect-[calc(100/300)] animate-pulse rounded-lg" />
+        <div className="w-1/5 bg-gray-600 aspect-[calc(100/300)] animate-pulse rounded-lg" />
       </div>
     </div>
   )

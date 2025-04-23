@@ -105,7 +105,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
   }, [products])
 
   const handleScroll = () => {
-    if ((window.scrollY + window.innerHeight) > document.documentElement.scrollHeight - 100) {
+    if ((window.scrollY + window.innerHeight) > document.documentElement.scrollHeight - 2500) {
       window.removeEventListener('scroll', handleScroll)
       fetchMoreProducts()
     }
@@ -169,7 +169,7 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
         }
       />
 
-      <section className="sm:ml-60 ">
+      <section className="sm:ml-60">
         <h1 className="text-5xl font-light text-gray-700 px-8 pt-8">Browse</h1>
         {/* <div className="p-16 grid grid-cols-[repeat(auto-fill,250px)] justify-center sm:justify-start grid-flow-row-dense w-full gap-6 h-full"> */}
         <div
@@ -204,10 +204,9 @@ const PaginatedProducts = ({ initialProducts }: { initialProducts?: PaginatedPro
                 </AspectRatio>
               </div>
             </Link>
-          }
-          )
-          }
+          })}
         </div >
+        <div className="aspect-square w-20 m-16 border-r-2 border-slate-800 rounded-full animate-spin mx-auto" />
       </section>
     </div>
   )

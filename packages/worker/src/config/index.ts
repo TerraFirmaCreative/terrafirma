@@ -18,6 +18,7 @@ export const socket = io(process.env.WS_URL ?? "ws://localhost:3000", {
 })
 
 const Config = {
+  PRODUCT_PRICE: "80.00",
   SQS_URL: process.env.SQS_URL!,
   MAX_TASK_COUNT: parseInt(process.env.MAX_TASK_COUNT ?? '1'),
   MJ_COOLDOWN_MS: parseInt(process.env.MJ_COOLDOWN_MS ?? '3000'),

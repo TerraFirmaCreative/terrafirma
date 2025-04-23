@@ -11,32 +11,43 @@ import { cookies } from "next/headers"
 */
 
 export const getPrompts = async () => {
-  const prompts = await getPrisma().imagineData.findMany({
-    "take": 10,
-    "select": {
-      "imaginePrompt": true
-    },
-    "orderBy": {
-      createdAt: "desc"
-    }
-  })
+  try {
+    const prompts = await getPrisma().imagineData.findMany({
+      "take": 10,
+      "select": {
+        "imaginePrompt": true
+      },
+      "orderBy": {
+        createdAt: "desc"
+      }
+    })
 
-  return prompts.map((prompt) => trimPrompt(prompt.imaginePrompt).split(" ").slice(0, 10).join(" "))
+    return prompts.map((prompt) => trimPrompt(prompt.imaginePrompt).split(" ").slice(0, 10).join(" "))
+  }
+  catch (e) {
+    console.log(e)
+    return []
+  }
 }
 
 export const getUser = async (): Promise<Partial<User> | null> => {
   const token = cookies().get('token')?.value
   console.log("TOKEN", token)
-  if (!token) return null
+  // if (!token) return null
+  try {
+    const user = await getPrisma().user.findFirst({
+      where: {
+        token: token
+      },
+      select: {
+        "email": true,
+      }
+    })
 
-  const user = await getPrisma().user.findFirst({
-    where: {
-      token: token
-    },
-    select: {
-      "email": true,
-    }
-  })
-
-  return user
+    return user
+  }
+  catch (e) {
+    console.log(e)
+    return null
+  }
 }

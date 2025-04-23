@@ -29,6 +29,7 @@ const BrowseProducts = ({ initialProducts, collections }: {
 
   const fetchMoreProducts = () => {
     if (products.length > 9) {
+      console.log("fetching...", products.at(-1)?.cursor, products.length)
       getPaginatedProducts({
         cursor: products.at(-1)?.cursor,
         ...filterParams
@@ -56,8 +57,7 @@ const BrowseProducts = ({ initialProducts, collections }: {
 
           {products.map((product) => <ProductTile key={product.cursor} product={product.node} />)}
         </div >
-        <div className="aspect-square w-20 m-16 border-r-2 border-slate-800 rounded-full animate-spin">
-        </div>
+        <div className="aspect-square w-20 m-16 border-r-2 border-slate-800 rounded-full animate-spin" />
       </section >
     </>
   )
