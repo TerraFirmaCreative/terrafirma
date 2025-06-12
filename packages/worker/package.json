@@ -21,7 +21,7 @@
     "@types/nodemailer": "^6.4.15",
     "dotenv": "^16.4.5",
     "handlebars": "^4.7.8",
-    "midjourney": "^4.3.17",
+    "midjourney": "^4.3.18",
     "nodemailer": "^6.9.13",
     "pino": "^9.3.2",
     "pino-pretty": "^11.2.2",

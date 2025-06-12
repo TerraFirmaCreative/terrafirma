@@ -73,14 +73,15 @@ export const generateCustomText = async (prompt: string) => {
 }
 
 export const imagineMats = async (taskId: string, prompt: string): Promise<(MJMessage | null)[]> => {
+  logger.info("Imagine start.")
   const Imagine: MJMessage | null = await mjClient.Imagine(
     `${prompt} --ar 13:35`,
     (uri, progress) => {
       updateTaskProgress(taskId, progress, uri)
     }
   )
-
-  logger.info(`Imagine ${Imagine}`)
+  logger.info("Imagine complete.")
+  logger.debug(`Imagine data ${Imagine}`)
   let separated: Promise<MJMessage | null>[] = []
   for (let i = 0; i < 4; i++) {
     separated.push(mjClient.Custom({

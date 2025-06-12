@@ -336,7 +336,6 @@ export const getCollections = async (query: string, locale: string) => {
 }
 
 export const createCart = async (locale: string) => {
-  console.log("createCart()")
   const [languageCode, countryCode] = parseLocale(locale)
   const cartCreate = await getStorefrontClient().request(`#graphql 
     mutation createCart($input: CartInput) {
@@ -411,7 +410,6 @@ export const createCart = async (locale: string) => {
 }
 
 export const addToCart = async (cartId: string, variantId: string, quantity: number) => {
-  console.log("addToCart()")
   const addCart = await getStorefrontClient().request(`#graphql
     mutation addCart($cartId: ID!, $lines: [CartLineInput!]!) {
       cartLinesAdd(cartId: $cartId, lines: $lines) {
@@ -487,7 +485,6 @@ export const addToCart = async (cartId: string, variantId: string, quantity: num
 }
 
 export const mutateCart = async (cartId: string, cartLines: CartLineUpdateInput[]) => {
-  console.log("mutateCart()")
   const updateCart = await getStorefrontClient().request(`#graphql
     mutation updateCart($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
       cartLinesUpdate(cartId: $cartId, lines: $lines) {

@@ -4773,7 +4773,6 @@ __metadata:
     express-rate-limit: "npm:^7.2.0"
     express-slow-down: "npm:^2.0.2"
     graphql-request: "npm:^6.1.0"
-    midjourney: "npm:^4.3.17"
     nodemon: "npm:^3.0.1"
     openai: "npm:^4.28.4"
     pino: "npm:^9.4.0"
@@ -4800,7 +4799,7 @@ __metadata:
     dotenv: "npm:^16.4.5"
     handlebars: "npm:^4.7.8"
     html-loader: "npm:^5.0.0"
-    midjourney: "npm:^4.3.17"
+    midjourney: "npm:^4.3.18"
     nodemailer: "npm:^6.9.13"
     nodemon: "npm:^3.1.0"
     pino: "npm:^9.3.2"
@@ -10532,9 +10531,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"midjourney@npm:^4.3.17":
-  version: 4.3.17
-  resolution: "midjourney@npm:4.3.17"
+"midjourney@npm:^4.3.18":
+  version: 4.3.18
+  resolution: "midjourney@npm:4.3.18"
   dependencies:
     "@huggingface/inference": "npm:^2.5.0"
     async: "npm:^3.2.4"
@@ -10543,7 +10542,7 @@ __metadata:
     snowyflake: "npm:^2.0.0"
     tslib: "npm:^2.5.0"
     ws: "npm:^8.13.0"
-  checksum: 10c0/c3607809604708c2aeb73ca2f1cfc3c08ea5c0fdfec1c0b41ec8ffd5dd94066f9b359d88ffd3caca884da1578d819089958c281c230cf93a1cabc2b84281f882
+  checksum: 10c0/553d815a089c53d04ddd3b775b2d7c946eb92be2521da7637627c382efd10e9147f89bfc38c57e27976128796d7aac931dc66c0ede2596f8fa92ac07cab1df68
   languageName: node
   linkType: hard
 

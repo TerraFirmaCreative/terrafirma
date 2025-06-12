@@ -2,7 +2,6 @@ import express from "express"
 import http from 'http'
 import { router as adminRouter } from './api/admin'
 import { router as tasksRouter } from './api/tasks'
-import { router as userRouter } from './api/user'
 import { logger, mjClient } from "./config"
 import cookieParser from "cookie-parser"
 import { prisma } from "./config"
@@ -29,11 +28,6 @@ app.use('/tasks', tasksRouter)
  * Admin API methods (avoid exposing to frontend when possible).
  */
 app.use('/admin', adminRouter)
-
-/**
- * User data queries
- */
-app.use('/user', userRouter)
 
 /**
  * Hello midjourney
